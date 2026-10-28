@@ -77,11 +77,12 @@
 }
 
 .stats-bar__value {
-  font-family: var(--font-display, 'Syne', sans-serif);
+  font-family: var(--font-display, 'Clash Display', sans-serif);
   font-size: clamp(1.45rem, 3.6vw, 2.4rem);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
+  word-spacing: 0.06em;
   color: #FFFFFF;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;

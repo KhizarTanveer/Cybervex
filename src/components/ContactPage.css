@@ -60,7 +60,8 @@
   font-size: clamp(2rem, 4.2vw, 3.4rem);
   font-weight: 700;
   line-height: 1.15;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
+  word-spacing: 0.06em;
   color: #FFFFFF;
   margin-bottom: 1.5rem;
 }

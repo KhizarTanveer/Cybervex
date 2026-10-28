@@ -5,7 +5,7 @@
      - Obsidian Dark Surfaces (#0d0d0d, #141414)
      - Crisp White (#FFFFFF) & Refined Silver (#C7C9CC, #85888D)
      - Restrained Warm Amber (#E5A93C) Accent from Hero Artwork
-     - Syne & Inter Typography Hierarchy
+     - Clash Display & Outfit Typography Hierarchy
      - Subtle micro-interactions, responsive grids, zero layout overflow
    ========================================================================== */
 
@@ -161,7 +161,8 @@
   font-size: clamp(2.35rem, 6.2vw, 5.25rem);
   font-weight: 700;
   line-height: 1.1;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
+  word-spacing: 0.06em;
   color: #FFFFFF;
   margin-bottom: 1.75rem;
   overflow-wrap: break-word;
@@ -227,7 +228,8 @@
   font-weight: 600;
   line-height: 1.45;
   color: #FFFFFF;
-  letter-spacing: -0.015em;
+  letter-spacing: 0;
+  word-spacing: 0.06em;
   margin-bottom: 2rem;
 }
 
@@ -430,7 +432,8 @@
   font-size: clamp(1.75rem, 3vw, 2.35rem);
   font-weight: 700;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
+  word-spacing: 0.06em;
   color: #FFFFFF;
   margin-bottom: 1.75rem;
 }
@@ -630,7 +633,8 @@
   font-weight: 600;
   line-height: 1.5;
   color: #FFFFFF;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+  word-spacing: 0.06em;
 }
 
 .about-promise-body {
@@ -716,7 +720,8 @@
   font-size: clamp(2.4rem, 6.5vw, 4.8rem);
   font-weight: 800;
   line-height: 1.1;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
+  word-spacing: 0.06em;
   color: #FFFFFF;
   margin-bottom: 1.25rem;
 }
@@ -726,7 +731,8 @@
   font-size: clamp(1.2rem, 2.5vw, 1.85rem);
   font-weight: 500;
   line-height: 1.4;
-  letter-spacing: -0.015em;
+  letter-spacing: 0;
+  word-spacing: 0.06em;
   color: var(--silver-accent);
   max-width: 720px;
   margin: 0 auto;

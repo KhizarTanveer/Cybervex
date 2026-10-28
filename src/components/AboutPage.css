@@ -14,7 +14,8 @@
   color: var(--text-primary);
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
+  /* clip (not hidden) so it doesn't become a scroll container and break position: sticky */
+  overflow-x: clip;
   position: relative;
 }
 
@@ -38,13 +39,73 @@
 }
 
 /* ==========================================================================
+   BRAND WATERMARK — sticky behind the hero & "Who We Are", ends before Mission & Vision
+   ========================================================================== */
+.about-watermark-zone {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--bg-main);
+}
+
+/* Spans the whole zone; the sticky child rides along inside it and stops at its end.
+   Sits above the sections' grid, glow and divider lines (so none show through the icon)
+   but below their text. */
+.about-watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.about-watermark-zone .container {
+  position: relative;
+  z-index: 2;
+}
+
+.about-watermark__sticky {
+  position: sticky;
+  top: var(--nav-height);
+  height: calc(100vh - var(--nav-height));
+  height: calc(100svh - var(--nav-height));
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: clamp(1rem, 6vw, 7rem);
+  overflow: hidden;
+}
+
+/* The brand icon's exact shape, drawn as flat solid bars with clean gaps like the original.
+   The tone is opaque (not transparent white), so nothing behind bleeds through as shading. */
+.about-watermark__icon {
+  display: block;
+  height: min(78%, 640px);
+  aspect-ratio: 3081 / 3840;
+  background-color: #1C1C1C;
+  -webkit-mask: url('/images/cybervex-icon-4k.png') center / contain no-repeat;
+  mask: url('/images/cybervex-icon-4k.png') center / contain no-repeat;
+}
+
+@media (max-width: 768px) {
+  /* Centred and softer behind the narrow text column */
+  .about-watermark__sticky {
+    justify-content: center;
+    padding-right: 0;
+  }
+
+  .about-watermark__icon {
+    height: min(58%, 420px);
+    background-color: #181818;
+  }
+}
+
+/* ==========================================================================
    SECTION 1 — ABOUT HERO
    ========================================================================== */
 .about-hero-section {
   position: relative;
-  padding-top: var(--nav-height);
+  padding-top: calc(var(--nav-height) + 3.5rem);
   padding-bottom: 3.5rem;
-  background-color: var(--bg-main);
+  background-color: transparent;
   overflow: hidden;
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -65,7 +126,6 @@
 .about-hero__container {
   position: relative;
   z-index: 1;
-  margin-top: 2.25rem;
 }
 
 .about-hero__header {
@@ -114,6 +174,10 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
+  /* Gradient text is clipped to its box: extend the box so descenders (g, y, p) aren't cut,
+     and pull the margin back so line spacing stays the same */
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
 }
 
 .about-hero__lead {
@@ -126,56 +190,12 @@
 }
 
 /* Understated Abstract Visual Frame */
-/* Full-bleed banner: spans the viewport edge to edge */
-.about-hero__visual-wrapper {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-}
-
-.about-hero__visual-frame {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(199, 201, 204, 0.12);
-  /* Pure black so the letterboxed sides blend into the artwork's own black background */
-  background: #000000;
-}
-
-/* Wide horizontal rectangle */
-.about-hero__visual-img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 5 / 2;
-  max-height: min(64vh, 600px);
-  /* Show the whole artwork, never crop it */
-  object-fit: contain;
-  object-position: center;
-  display: block;
-  filter: contrast(1.04) brightness(0.96);
-  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.about-hero__visual-frame:hover .about-hero__visual-img {
-  transform: scale(1.02);
-}
-
-.about-hero__visual-gradient-mask {
-  position: absolute;
-  inset: 0;
-  background: 
-    linear-gradient(to top, rgba(5, 5, 5, 0.85) 0%, rgba(5, 5, 5, 0.2) 40%, transparent 100%),
-    linear-gradient(to bottom, rgba(5, 5, 5, 0.6) 0%, transparent 25%),
-    radial-gradient(circle at center, transparent 40%, rgba(5, 5, 5, 0.65) 100%);
-  pointer-events: none;
-}
-
 /* ==========================================================================
    SECTION 2 — ABOUT US (WHO WE ARE)
    ========================================================================== */
 .about-intro-section {
   position: relative;
-  background-color: var(--bg-main);
+  background-color: transparent;
 }
 
 .about-intro-grid {
@@ -680,28 +700,15 @@
   max-width: 900px;
 }
 
-.about-closing__meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1.75rem;
-}
 
-.about-closing__pip {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--amber-accent);
-  box-shadow: 0 0 8px var(--amber-accent);
-}
 
-.about-closing__tag {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--silver-accent);
+
+/* Brand logo (4K PNG) stands in for the heading text */
+.about-closing__logo {
+  display: block;
+  width: min(560px, 82vw);
+  height: auto;
+  margin: 0 auto;
 }
 
 .about-closing__brand {
@@ -758,16 +765,11 @@
 /* Tablets (max-width: 768px) */
 @media (max-width: 768px) {
   .about-hero-section {
+    padding-top: calc(var(--nav-height) + 2.25rem);
     padding-bottom: 2.5rem;
   }
 
-  .about-hero__container {
-    margin-top: 1.75rem;
-  }
 
-  .about-hero__visual-img {
-    aspect-ratio: 16 / 9;
-  }
 
   .about-intro-grid {
     grid-template-columns: 1fr;
@@ -831,10 +833,6 @@
     line-height: 1.6;
   }
 
-  /* Matches the artwork's own shape so it fills the phone width uncropped */
-  .about-hero__visual-img {
-    aspect-ratio: 3 / 2;
-  }
 
   .about-intro__paragraph {
     font-size: 0.96rem;
@@ -921,7 +919,6 @@
 
 /* Reduced Motion Preference Accessibility */
 @media (prefers-reduced-motion: reduce) {
-  .about-hero__visual-img,
   .about-mv-card,
   .about-value-card,
   .about-value-card__icon-box,

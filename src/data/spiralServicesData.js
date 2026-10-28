@@ -39,9 +39,9 @@ export const servicesCompanyIntro = {
 
 // PLACEHOLDER figures — replace with Cybervex Digital's real numbers before publishing
 export const servicesStats = [
-  { value: 50, suffix: '+', label: 'Clients' },
-  { value: 120, suffix: '+', label: 'Projects' },
-  { value: 5, suffix: '+', label: 'Countries' },
+  { value: 47, suffix: '+', label: 'Clients' },
+  { value: 113, suffix: '+', label: 'Projects' },
+  { value: 7, suffix: '+', label: 'Countries' },
 ];
 
 export const spiralServicesList = [

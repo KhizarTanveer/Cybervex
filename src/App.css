@@ -35,7 +35,11 @@
   box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
 }
 
+/* Wider than the page container so the logo sits nearer the left edge and the menu nearer the right */
 .navbar__container {
+  max-width: 1360px;
+  padding-left: clamp(1rem, 2.5vw, 2rem);
+  padding-right: clamp(1rem, 2.5vw, 2rem);
   height: 100%;
   display: flex;
   align-items: center;
@@ -457,8 +461,8 @@
   position: relative;
   width: 100%;
   max-width: 100%;
-  /* Shrink the navbar offset only as much as needed so the full 16:9 artwork fits on first load */
-  padding-top: clamp(0px, 100svh - 56.25vw, var(--nav-height));
+  /* Clear the fixed navbar; the artwork box below scales to fit the remaining height */
+  padding-top: var(--nav-height);
   padding-bottom: 0;
   margin: 0;
   overflow: hidden;
@@ -494,21 +498,50 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  /* Never taller than the screen below the navbar */
+  --hero-avail: calc(100vh - var(--nav-height));
+  --hero-avail: calc(100svh - var(--nav-height));
+  max-height: var(--hero-avail);
+  align-items: flex-start;
+  container-type: inline-size;
+}
+
+/* Zoomed in: always fills the full width, edge to edge */
+/* Full width when the screen is tall enough. On short desktop screens the art may be at most
+   15% taller than the space under the navbar (so the sphere is never cut), and that overflow is
+   trimmed 25% from the top / 75% from the faded bottom. Leftover side space is feathered to black. */
+.hero-art {
+  --hero-art-w: min(100cqw, var(--hero-avail) * 1.15 * 16 / 9);
+  --hero-side-fade: clamp(0px, 100cqw - var(--hero-art-w), 8%);
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--hero-art-w);
+  aspect-ratio: 16 / 9;
+  margin: min(0px, (var(--hero-avail) - var(--hero-art-w) * 9 / 16) * 0.25) auto 0;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--hero-side-fade), #000 calc(100% - var(--hero-side-fade)), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--hero-side-fade), #000 calc(100% - var(--hero-side-fade)), transparent 100%);
+  transition: transform var(--transition-slow);
 }
 
 .hero-fullscreen-img {
   width: 100%;
-  max-width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 9;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   display: block;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: auto;
-  transition: transform var(--transition-slow);
 }
 
-.hero-fullscreen-frame:hover .hero-fullscreen-img {
+/* Sits exactly where the artwork's original lettering was */
+.hero-art__wordmark {
+  position: absolute;
+  left: 24.2%;
+  top: 45.2%;
+  width: 51.5%;
+  height: auto;
+  filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.55));
+  pointer-events: none;
+}
+
+.hero-fullscreen-frame:hover .hero-art {
   transform: scale(1.012);
 }
 
@@ -1393,18 +1426,8 @@
   .hero-fullscreen-frame {
     width: 100%;
     max-width: 100%;
-    aspect-ratio: 16 / 9;
     min-height: auto;
     overflow: hidden;
-  }
-
-  .hero-fullscreen-img {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: contain;
-    display: block;
   }
 
   .hero-fullscreen-bottom-fade {

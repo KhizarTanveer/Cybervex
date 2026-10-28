@@ -123,87 +123,77 @@ export default function AboutPage() {
 
   return (
     <div className="about-page">
-      {/* =====================================================================
-          SECTION 1 — ABOUT HERO
-          ===================================================================== */}
-      <section id="about-hero" className="about-hero-section" aria-label="About Cybervex Digital Hero">
-        <div className="about-hero__ambient-glow" aria-hidden="true" />
-        <div className="subtle-grid-bg" aria-hidden="true" />
-
-        {/* Full-bleed rectangular banner spanning the whole viewport width */}
-        <div className="about-hero__visual-wrapper">
-          <div className="about-hero__visual-frame">
-            <img
-              src="/images/about-hero-gold-maze.jpg"
-              srcSet="/images/about-hero-gold-maze.jpg 2048w, /images/about-hero-gold-maze@2x.jpg 3840w"
-              sizes="(max-width: 1440px) 100vw, 3840px"
-              alt="Black marble maze split in two with molten gold flowing through its paths"
-              className="about-hero__visual-img"
-              width="2048"
-              height="1375"
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-            />
-            <div className="about-hero__visual-gradient-mask" aria-hidden="true" />
+      {/* Brand-icon watermark: sticks behind the intro sections and stops before Mission & Vision */}
+      <div className="about-watermark-zone">
+        <div className="about-watermark" aria-hidden="true">
+          <div className="about-watermark__sticky">
+            <span className="about-watermark__icon" />
           </div>
         </div>
 
-        <div className="container about-hero__container">
-          <div className="about-hero__header">
-            {/* Small Eyebrow with Warm Amber Indicator */}
-            <div className="about-hero__eyebrow-wrapper">
-              <span className="about-hero__eyebrow-dot" aria-hidden="true" />
-              <span className="about-hero__eyebrow">{aboutHeroContent.eyebrow}</span>
-            </div>
+        {/* =====================================================================
+            SECTION 1 — ABOUT HERO
+            ===================================================================== */}
+        <section id="about-hero" className="about-hero-section" aria-label="About Cybervex Digital Hero">
+          <div className="about-hero__ambient-glow" aria-hidden="true" />
+          <div className="subtle-grid-bg" aria-hidden="true" />
 
-            {/* Editorial Main Heading */}
-            <h1 className="about-hero__title">
-              {aboutHeroContent.headingLine1}
-              <br />
-              <span className="about-hero__title-accent">{aboutHeroContent.headingLine2}</span>
-            </h1>
-
-            {/* Supporting Text */}
-            <p className="about-hero__lead">{aboutHeroContent.leadText}</p>
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================================
-          SECTION 2 — ABOUT US (WHO WE ARE)
-          ===================================================================== */}
-      <section id="who-we-are" className="section about-intro-section reveal-blur-section" aria-label="Who We Are">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-label">{aboutWhoWeAre.eyebrow}</span>
-            <h2 className="section-title">{aboutWhoWeAre.heading}</h2>
-          </div>
-
-          <div className="about-intro-grid">
-            {/* Left Column: Editorial Accent & Philosophy */}
-            <aside className="about-intro__aside">
-              <div className="about-intro__aside-line" aria-hidden="true" />
-              <blockquote className="about-intro__pullquote">
-                “{aboutWhoWeAre.pullQuote}”
-              </blockquote>
-              <div className="about-intro__aside-meta">
-                <span className="about-intro__meta-badge">TAILORED SOLUTIONS</span>
-                <span className="about-intro__meta-sub">Every business is different</span>
+          <div className="container about-hero__container">
+            <div className="about-hero__header">
+              {/* Small Eyebrow with Warm Amber Indicator */}
+              <div className="about-hero__eyebrow-wrapper">
+                <span className="about-hero__eyebrow-dot" aria-hidden="true" />
+                <span className="about-hero__eyebrow">{aboutHeroContent.eyebrow}</span>
               </div>
-            </aside>
 
-            {/* Right Column: Complete Original Editorial Paragraphs */}
-            <div className="about-intro__body">
-              {aboutWhoWeAre.paragraphs.map((paragraph, idx) => (
-                <p key={idx} className="about-intro__paragraph">
-                  {paragraph}
-                </p>
-              ))}
+              {/* Editorial Main Heading */}
+              <h1 className="about-hero__title">
+                {aboutHeroContent.headingLine1}
+                <br />
+                <span className="about-hero__title-accent">{aboutHeroContent.headingLine2}</span>
+              </h1>
+
+              {/* Supporting Text */}
+              <p className="about-hero__lead">{aboutHeroContent.leadText}</p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* =====================================================================
+            SECTION 2 — ABOUT US (WHO WE ARE)
+            ===================================================================== */}
+        <section id="who-we-are" className="section about-intro-section reveal-blur-section" aria-label="Who We Are">
+          <div className="container">
+            <div className="section-header">
+              <span className="section-label">{aboutWhoWeAre.eyebrow}</span>
+              <h2 className="section-title">{aboutWhoWeAre.heading}</h2>
+            </div>
+
+            <div className="about-intro-grid">
+              {/* Left Column: Editorial Accent & Philosophy */}
+              <aside className="about-intro__aside">
+                <div className="about-intro__aside-line" aria-hidden="true" />
+                <blockquote className="about-intro__pullquote">
+                  “{aboutWhoWeAre.pullQuote}”
+                </blockquote>
+                <div className="about-intro__aside-meta">
+                  <span className="about-intro__meta-badge">TAILORED SOLUTIONS</span>
+                  <span className="about-intro__meta-sub">Every business is different</span>
+                </div>
+              </aside>
+
+              {/* Right Column: Complete Original Editorial Paragraphs */}
+              <div className="about-intro__body">
+                {aboutWhoWeAre.paragraphs.map((paragraph, idx) => (
+                  <p key={idx} className="about-intro__paragraph">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
       {/* =====================================================================
           SECTION 4 & 5 — OUR MISSION & OUR VISION
@@ -361,11 +351,17 @@ export default function AboutPage() {
       <section id="brand-statement" className="about-closing-section reveal-blur-section" aria-label="Cybervex Digital Brand Statement">
         <div className="about-closing__glow" aria-hidden="true" />
         <div className="container about-closing__container">
-          <div className="about-closing__meta">
-            <span className="about-closing__pip" aria-hidden="true" />
-            <span className="about-closing__tag">CYBERVEX DIGITAL</span>
-          </div>
-          <h2 className="about-closing__brand">{aboutFinalStatement.brand}</h2>
+          <h2 className="about-closing__brand">
+            <img
+              src="/images/cybervex-logo-full-4k.png"
+              alt={aboutFinalStatement.brand}
+              className="about-closing__logo"
+              width="3840"
+              height="754"
+              loading="lazy"
+              decoding="async"
+            />
+          </h2>
           <p className="about-closing__statement">{aboutFinalStatement.statement}</p>
           <div className="about-closing__hairline" aria-hidden="true" />
         </div>

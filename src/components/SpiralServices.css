@@ -1,0 +1,992 @@
+/* ==========================================================================
+   CYBERVEX DIGITAL — 3D ROTATING SPIRAL SERVICES SECTION
+   Core concept: 23 service categories inside cards arranged along a 3D spiral.
+   Palette: Pure Black (#050505), Champagne Amber (#C8A96A), White (#FFFFFF)
+   ========================================================================== */
+
+.spiral-services-section {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  background-color: #050505;
+  color: #FFFFFF;
+  padding: 6.5rem 0 5.5rem;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Background Ambient Lighting */
+.spiral-bg-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.spiral-bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+}
+
+.spiral-bg-glow--top {
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 380px;
+  background: radial-gradient(ellipse, rgba(200, 169, 106, 0.07) 0%, transparent 70%);
+}
+
+.spiral-bg-glow--center {
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 900px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(200, 169, 106, 0.05) 0%, rgba(199, 201, 204, 0.02) 45%, transparent 70%);
+}
+
+.spiral-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.6;
+}
+
+.spiral-container {
+  position: relative;
+  z-index: 1;
+  width: min(1320px, 92%);
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   SECTION HEADER
+   -------------------------------------------------------------------------- */
+.spiral-header {
+  text-align: center;
+  max-width: 880px;
+  margin: 0 auto 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.spiral-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.spiral-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #C8A96A;
+}
+
+.spiral-eyebrow__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #C8A96A;
+  box-shadow: 0 0 10px #C8A96A;
+}
+
+.spiral-badge-tag {
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.spiral-title {
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: clamp(2rem, 4.2vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+}
+
+.spiral-subtitle {
+  font-size: clamp(0.96rem, 1.2vw, 1.1rem);
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.7;
+  max-width: 780px;
+  white-space: pre-line;
+}
+
+/* --------------------------------------------------------------------------
+   INTERACTIVE CONTROLS BAR & QUICK FILTERS
+   -------------------------------------------------------------------------- */
+.spiral-controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* Quick Jump Filter Pills */
+.spiral-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.35rem;
+}
+
+.spiral-filter-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.65);
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.spiral-filter-pill:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #FFFFFF;
+  border-color: rgba(200, 169, 106, 0.3);
+}
+
+.spiral-filter-pill--active {
+  background: rgba(200, 169, 106, 0.12);
+  color: #C8A96A;
+  border-color: rgba(200, 169, 106, 0.45);
+  box-shadow: 0 0 16px rgba(200, 169, 106, 0.15);
+}
+
+/* Main Control Strip */
+.spiral-control-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  background: rgba(14, 14, 18, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0.75rem 1.25rem;
+  flex-wrap: wrap;
+}
+
+.spiral-control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Control Buttons */
+.spiral-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0.55rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spiral-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  border-color: rgba(200, 169, 106, 0.35);
+}
+
+.spiral-btn--mode-active {
+  background: rgba(200, 169, 106, 0.15);
+  color: #C8A96A;
+  border-color: rgba(200, 169, 106, 0.4);
+}
+
+.spiral-btn--nav {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.spiral-btn--nav:active {
+  transform: scale(0.92);
+  background: rgba(200, 169, 106, 0.15);
+  border-color: rgba(200, 169, 106, 0.4);
+}
+
+/* Center Counter Display */
+.spiral-counter-display {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  max-width: 380px;
+  overflow: hidden;
+}
+
+.spiral-counter__number {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #C8A96A;
+  background: rgba(200, 169, 106, 0.1);
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid rgba(200, 169, 106, 0.25);
+}
+
+.spiral-counter__slash {
+  color: rgba(200, 169, 106, 0.45);
+  font-size: 0.9rem;
+}
+
+.spiral-counter__total {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.85rem;
+}
+
+.spiral-counter__title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --------------------------------------------------------------------------
+   3D ROTATING SPIRAL VIEWPORT
+   -------------------------------------------------------------------------- */
+.spiral-viewport {
+  position: relative;
+  width: 100%;
+  height: 680px;
+  perspective: 1200px;
+  perspective-origin: 50% 48%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  outline: none;
+  overflow: visible;
+}
+
+.spiral-viewport:active {
+  cursor: grabbing;
+}
+
+.spiral-viewport--dragging {
+  cursor: grabbing !important;
+}
+
+.spiral-viewport--dragging * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* Background 3D Orbital Trajectory Guide Rings */
+.spiral-orbit-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(68deg) rotateZ(-12deg);
+  transform-style: preserve-3d;
+  width: 880px;
+  height: 880px;
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+.spiral-orbit-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed rgba(200, 169, 106, 0.3);
+}
+
+.spiral-orbit-ring--1 {
+  width: 900px;
+  height: 900px;
+}
+
+.spiral-orbit-ring--2 {
+  width: 650px;
+  height: 650px;
+  border-color: rgba(200, 169, 106, 0.45);
+  border-style: solid;
+  box-shadow: 0 0 40px rgba(200, 169, 106, 0.12);
+}
+
+.spiral-orbit-ring--3 {
+  width: 420px;
+  height: 420px;
+}
+
+/* Central Spotlight */
+.spiral-focal-spotlight {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200, 169, 106, 0.16) 0%, rgba(200, 169, 106, 0.04) 40%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* 3D Scene Root */
+.spiral-3d-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Drag & Interaction Hint Wrapper */
+.spiral-hint-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.5rem;
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.spiral-hint-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(14, 14, 18, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 0.45rem 1.15rem;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(10px);
+}
+
+.spiral-hint-dot {
+  color: #C8A96A;
+}
+
+/* --------------------------------------------------------------------------
+   SPIRAL SERVICE CARD (LAYER A)
+   -------------------------------------------------------------------------- */
+.spiral-card {
+  position: absolute;
+  width: 340px;
+  height: 430px;
+  background: linear-gradient(165deg, rgba(20, 20, 24, 0.94) 0%, rgba(8, 8, 10, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-origin: center center;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.7),
+              0 0 0 1px rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+.spiral-card:hover {
+  border-color: rgba(200, 169, 106, 0.4);
+}
+
+.spiral-card--active {
+  border-color: rgba(200, 169, 106, 0.6);
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.9),
+              0 0 0 1px rgba(200, 169, 106, 0.35),
+              0 0 45px rgba(200, 169, 106, 0.18);
+}
+
+.spiral-card--focal .spiral-card__glow-rim {
+  opacity: 1;
+}
+
+.spiral-card__glow-rim {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: radial-gradient(circle at top right, rgba(200, 169, 106, 0.15) 0%, transparent 60%);
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Card Header */
+.spiral-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.spiral-card__badge-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.spiral-card__number {
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #C8A96A;
+  letter-spacing: -0.01em;
+}
+
+.spiral-card__category {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.spiral-card__icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(200, 169, 106, 0.08);
+  border: 1px solid rgba(200, 169, 106, 0.25);
+  color: #C8A96A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.spiral-card:hover .spiral-card__icon-box {
+  background: rgba(200, 169, 106, 0.16);
+  border-color: rgba(200, 169, 106, 0.45);
+  color: #FFFFFF;
+}
+
+/* Card Body */
+.spiral-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.spiral-card__title {
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.3;
+}
+
+.spiral-card__desc {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Highlights */
+.spiral-card__highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.spiral-card__highlights-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #C8A96A;
+}
+
+.spiral-card__sparkle-icon {
+  color: #C8A96A;
+}
+
+.spiral-card__highlights-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.spiral-card__highlight-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.spiral-card__bullet {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #C8A96A;
+  flex-shrink: 0;
+}
+
+.spiral-card__highlight-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Card Footer */
+.spiral-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 0.5rem;
+}
+
+.spiral-card__points-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.spiral-card__action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: none;
+  color: #C8A96A;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.spiral-card__action-btn:hover {
+  background: rgba(200, 169, 106, 0.12);
+  color: #FFFFFF;
+}
+
+.spiral-card__action-arrow {
+  transition: transform 0.2s ease;
+}
+
+.spiral-card__action-btn:hover .spiral-card__action-arrow {
+  transform: translate(2px, -2px);
+}
+
+/* --------------------------------------------------------------------------
+   VIEW MODE B: CATALOG MATRIX GRID
+   -------------------------------------------------------------------------- */
+.spiral-grid-viewport {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.spiral-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.75rem;
+}
+
+.spiral-grid-viewport .spiral-card {
+  position: relative;
+  width: 100%;
+  height: 430px;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+/* --------------------------------------------------------------------------
+   VALUE PILLARS & COMMITMENT SECTION (From source text)
+   -------------------------------------------------------------------------- */
+.spiral-pillars-section {
+  margin-top: 6rem;
+  padding-top: 5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+}
+
+.spiral-pillars-header {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.spiral-pillars-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #C8A96A;
+}
+
+.spiral-pillars-title {
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.25;
+}
+
+.spiral-pillars-desc {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.65;
+}
+
+.spiral-pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.spiral-pillar-card {
+  background: rgba(14, 14, 18, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: all 0.25s ease;
+}
+
+.spiral-pillar-card:hover {
+  background: rgba(20, 20, 26, 0.8);
+  border-color: rgba(200, 169, 106, 0.35);
+  transform: translateY(-4px);
+}
+
+.spiral-pillar-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spiral-pillar-card__num {
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #C8A96A;
+}
+
+.spiral-pillar-card__icon {
+  color: rgba(200, 169, 106, 0.8);
+}
+
+.spiral-pillar-card__title {
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  line-height: 1.3;
+}
+
+.spiral-pillar-card__desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.55;
+}
+
+/* Our Commitment Banner */
+.spiral-commitment-banner {
+  background: linear-gradient(145deg, rgba(20, 20, 26, 0.85) 0%, rgba(10, 10, 14, 0.95) 100%);
+  border: 1px solid rgba(200, 169, 106, 0.28);
+  border-radius: 16px;
+  padding: 2.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.spiral-commitment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #C8A96A;
+  background: rgba(200, 169, 106, 0.1);
+  border: 1px solid rgba(200, 169, 106, 0.3);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.spiral-commitment-badge__icon {
+  color: #C8A96A;
+}
+
+.spiral-commitment-text {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.spiral-commitment-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.spiral-commitment-tagline {
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #C8A96A;
+  letter-spacing: 0.05em;
+}
+
+.spiral-commitment-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #C8A96A;
+  color: #050505;
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.75rem 1.4rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(200, 169, 106, 0.25);
+}
+
+.spiral-commitment-cta:hover {
+  background: #dfc285;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(200, 169, 106, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE BREAKPOINTS
+   -------------------------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .spiral-grid-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .spiral-pillars-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .spiral-viewport {
+    height: 600px;
+  }
+  .spiral-card {
+    width: 300px;
+    height: 410px;
+    padding: 1.5rem;
+  }
+  .spiral-pillars-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .spiral-commitment-banner {
+    padding: 2rem 1.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .spiral-services-section {
+    padding: 4.5rem 0 4rem;
+  }
+  .spiral-viewport {
+    height: 540px;
+  }
+  .spiral-card {
+    width: 280px;
+    height: 390px;
+    padding: 1.35rem;
+  }
+  .spiral-card__title {
+    font-size: 1.15rem;
+  }
+  .spiral-card__desc {
+    font-size: 0.82rem;
+  }
+  .spiral-control-panel {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .spiral-control-group--left {
+    justify-content: center;
+  }
+  .spiral-counter-display {
+    justify-content: center;
+    max-width: 100%;
+  }
+  .spiral-control-group--right {
+    justify-content: center;
+  }
+  .spiral-grid-cards {
+    grid-template-columns: 1fr;
+  }
+  .spiral-pillars-grid {
+    grid-template-columns: 1fr;
+  }
+  .spiral-commitment-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .spiral-commitment-cta {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .spiral-viewport {
+    height: 500px;
+  }
+  .spiral-card {
+    width: 260px;
+    height: 375px;
+    padding: 1.2rem;
+  }
+  .spiral-card__title {
+    font-size: 1.1rem;
+    line-height: 1.25;
+  }
+  .spiral-card__desc {
+    font-size: 0.78rem;
+    -webkit-line-clamp: 2;
+  }
+  .spiral-card__number {
+    font-size: 1.3rem;
+  }
+  .spiral-card__icon-box {
+    width: 38px;
+    height: 38px;
+  }
+  .spiral-filter-pill {
+    font-size: 0.74rem;
+    padding: 0.4rem 0.8rem;
+  }
+  .spiral-hint-pill {
+    font-size: 0.68rem;
+    padding: 0.35rem 0.75rem;
+    max-width: 92%;
+    text-align: center;
+    bottom: 8px;
+  }
+  .spiral-commitment-banner {
+    padding: 1.75rem 1.25rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .spiral-viewport {
+    height: 470px;
+  }
+  .spiral-card {
+    width: 245px;
+    height: 360px;
+    padding: 1rem;
+  }
+  .spiral-card__title {
+    font-size: 1.02rem;
+  }
+  .spiral-card__desc {
+    font-size: 0.75rem;
+  }
+  .spiral-counter__title {
+    font-size: 0.82rem;
+  }
+  .spiral-btn--mode {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   REDUCED MOTION ACCESSIBILITY
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .spiral-card,
+  .spiral-btn,
+  .spiral-filter-pill {
+    animation: none !important;
+    transition: none !important;
+  }
+}

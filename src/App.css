@@ -506,7 +506,6 @@
   container-type: inline-size;
 }
 
-/* Zoomed in: always fills the full width, edge to edge */
 /* Full width when the screen is tall enough. On short desktop screens the art may be at most
    15% taller than the space under the navbar (so the sphere is never cut), and that overflow is
    trimmed 25% from the top / 75% from the faded bottom. Leftover side space is feathered to black. */
@@ -515,12 +514,12 @@
   --hero-side-fade: clamp(0px, 100cqw - var(--hero-art-w), 8%);
   position: relative;
   flex: 0 0 auto;
+  overflow: hidden;
   width: var(--hero-art-w);
   aspect-ratio: 16 / 9;
   margin: min(0px, (var(--hero-avail) - var(--hero-art-w) * 9 / 16) * 0.25) auto 0;
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--hero-side-fade), #000 calc(100% - var(--hero-side-fade)), transparent 100%);
   mask-image: linear-gradient(to right, transparent 0, #000 var(--hero-side-fade), #000 calc(100% - var(--hero-side-fade)), transparent 100%);
-  transition: transform var(--transition-slow);
 }
 
 .hero-fullscreen-img {
@@ -528,22 +527,10 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  /* Slight zoom into the orb; the art box clips the overflow */
+  transform: scale(1.06);
 }
 
-/* Sits exactly where the artwork's original lettering was */
-.hero-art__wordmark {
-  position: absolute;
-  left: 24.2%;
-  top: 45.2%;
-  width: 51.5%;
-  height: auto;
-  filter: drop-shadow(0 2px 14px rgba(0, 0, 0, 0.55));
-  pointer-events: none;
-}
-
-.hero-fullscreen-frame:hover .hero-art {
-  transform: scale(1.012);
-}
 
 .hero-fullscreen-bottom-fade {
   position: absolute;

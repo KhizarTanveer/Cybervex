@@ -10,27 +10,18 @@ export default function Hero() {
       <div className="hero-fullscreen-frame">
         {/* Artwork box: full width 16:9; the frame crops it evenly if it's taller than the screen */}
         <div className="hero-art">
+          {/* Original artwork with the brand "Digital" lettering; @2x is a clean 2x resample for large/HiDPI screens */}
           <img
-            src="/images/cybervex-hero-art.jpg"
-            srcSet="/images/cybervex-hero-art.jpg 2048w, /images/cybervex-hero-art@2x.jpg 3840w"
-            sizes="(max-width: 768px) 100vw, 3840px"
-            alt=""
+            src="/images/cybervex-hero.jpg"
+            srcSet="/images/cybervex-hero.jpg 1672w, /images/cybervex-hero@2x.jpg 3344w"
+            sizes="100vw"
+            alt="Cybervex Digital"
             className="hero-fullscreen-img"
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            width="3840"
-            height="2160"
-          />
-          {/* Brand wordmark layered on top so it stays razor-sharp at any resolution */}
-          <img
-            src="/images/cybervex-wordmark-4k.png"
-            alt="Cybervex Digital"
-            className="hero-art__wordmark"
-            width="3003"
-            height="410"
-            loading="eager"
-            decoding="async"
+            width="1672"
+            height="941"
           />
         </div>
         {/* Smooth bottom fade into obsidian #050505 */}

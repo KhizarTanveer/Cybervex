@@ -27,65 +27,8 @@ export const aboutWhoWeAre = {
   ],
 };
 
-export const aboutServicesList = [
-  {
-    number: '01',
-    title: 'Digital Marketing',
-    iconName: 'TrendingUp',
-    description: 'Targeted positioning, performance marketing, and multichannel digital campaigns.',
-  },
-  {
-    number: '02',
-    title: 'SEO',
-    iconName: 'Search',
-    description: 'Search engine optimization, structural discoverability, and high-intent organic visibility.',
-  },
-  {
-    number: '03',
-    title: 'Social Media Management',
-    iconName: 'Share2',
-    description: 'Strategic audience curation, brand storytelling, and proactive social engagement.',
-  },
-  {
-    number: '04',
-    title: 'Website Development',
-    iconName: 'Code2',
-    description: 'High-performance modern web platforms, responsive design, and bespoke architecture.',
-  },
-  {
-    number: '05',
-    title: 'Graphic Design',
-    iconName: 'Palette',
-    description: 'Visual identity systems, editorial typography, digital creative assets, and collateral.',
-  },
-  {
-    number: '06',
-    title: 'IT Solutions',
-    iconName: 'Cpu',
-    description: 'Robust technical infrastructure, system integrations, and modern engineering support.',
-  },
-  {
-    number: '07',
-    title: 'Business Process Outsourcing (BPO)',
-    iconName: 'Layers',
-    description: 'Streamlined operational outsourcing, dedicated workflows, and scalable back-office management.',
-  },
-  {
-    number: '08',
-    title: 'Event Management',
-    iconName: 'CalendarCheck',
-    description: 'Comprehensive planning, technical production, and coordination for corporate experiences.',
-  },
-  {
-    number: '09',
-    title: 'Business Support Services',
-    iconName: 'Briefcase',
-    description: 'Tailored administrative, strategic, and day-to-day organizational enablement.',
-  },
-];
-
 export const aboutMissionContent = {
-  eyebrow: '03 / PURPOSE & HORIZON',
+  eyebrow: '02 / PURPOSE & HORIZON',
   heading: 'Our Mission',
   paragraphs: [
     'Our mission is to help businesses grow by providing reliable services, creative ideas, and practical solutions. We want to make professional digital and business support accessible to companies at different stages of their journey.',
@@ -141,7 +84,7 @@ export const aboutValuesList = [
 ];
 
 export const aboutPromiseContent = {
-  eyebrow: '05 / OUR COMMITMENT',
+  eyebrow: '04 / OUR COMMITMENT',
   heading: 'A Team You Can Rely On',
   highlightPhrase: 'We are here to build long-term relationships, support businesses through their challenges, and help turn their ideas into opportunities.',
   paragraphs: [

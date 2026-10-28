@@ -7,6 +7,7 @@ import ContactPage from './components/ContactPage';
 import ProjectsPage from './components/ProjectsPage';
 import AboutPage from './components/AboutPage';
 import Footer from './components/Footer';
+import ChatBot from './components/ChatBot';
 import { useScrollReveal } from './hooks/useScrollReveal';
 import './App.css';
 
@@ -148,6 +149,9 @@ export default function App() {
 
       {/* 8. Brand Footer */}
       <Footer currentRoute={currentRoute} onNavigate={handleNavigate} />
+
+      {/* Site-wide assistant: AI chat + direct WhatsApp */}
+      <ChatBot onNavigate={handleNavigate} />
     </div>
   );
 }

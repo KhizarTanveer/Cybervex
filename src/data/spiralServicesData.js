@@ -37,6 +37,13 @@ export const servicesCompanyIntro = {
   closingStatement: 'Digital Growth. Business Support. Creative Experiences.',
 };
 
+// PLACEHOLDER figures — replace with Cybervex Digital's real numbers before publishing
+export const servicesStats = [
+  { value: 50, suffix: '+', label: 'Clients' },
+  { value: 120, suffix: '+', label: 'Projects' },
+  { value: 5, suffix: '+', label: 'Countries' },
+];
+
 export const spiralServicesList = [
   {
     id: 'digital-marketing',

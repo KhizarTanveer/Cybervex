@@ -18,19 +18,35 @@
   position: relative;
 }
 
+/* Tighter vertical rhythm between About sections */
+.about-page .section {
+  padding: 4.5rem 0;
+}
+
+.about-page .section-header {
+  margin-bottom: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .about-page .section {
+    padding: 3.25rem 0;
+  }
+
+  .about-page .section-header {
+    margin-bottom: 1.75rem;
+  }
+}
+
 /* ==========================================================================
    SECTION 1 — ABOUT HERO
    ========================================================================== */
 .about-hero-section {
   position: relative;
-  min-height: calc(100vh - var(--nav-height));
-  padding-top: calc(var(--nav-height) + 3.5rem);
-  padding-bottom: 5rem;
+  padding-top: var(--nav-height);
+  padding-bottom: 3.5rem;
   background-color: var(--bg-main);
   overflow: hidden;
   border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
 }
 
 .about-hero__ambient-glow {
@@ -49,9 +65,7 @@
 .about-hero__container {
   position: relative;
   z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3.5rem;
+  margin-top: 2.25rem;
 }
 
 .about-hero__header {
@@ -112,26 +126,30 @@
 }
 
 /* Understated Abstract Visual Frame */
+/* Full-bleed banner: spans the viewport edge to edge */
 .about-hero__visual-wrapper {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  margin-top: 1rem;
 }
 
 .about-hero__visual-frame {
   position: relative;
   width: 100%;
-  max-height: 520px;
-  border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(199, 201, 204, 0.12);
-  background: #080808;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(199, 201, 204, 0.12);
+  /* Pure black so the letterboxed sides blend into the artwork's own black background */
+  background: #000000;
 }
 
+/* Wide horizontal rectangle */
 .about-hero__visual-img {
   width: 100%;
-  height: 480px;
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: 5 / 2;
+  max-height: min(64vh, 600px);
+  /* Show the whole artwork, never crop it */
+  object-fit: contain;
   object-position: center;
   display: block;
   filter: contrast(1.04) brightness(0.96);
@@ -150,39 +168,6 @@
     linear-gradient(to bottom, rgba(5, 5, 5, 0.6) 0%, transparent 25%),
     radial-gradient(circle at center, transparent 40%, rgba(5, 5, 5, 0.65) 100%);
   pointer-events: none;
-}
-
-.about-hero__visual-meta {
-  position: absolute;
-  bottom: 1.5rem;
-  left: 1.75rem;
-  right: 1.75rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  z-index: 2;
-  font-family: var(--font-sans);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--silver-accent);
-}
-
-.about-hero__visual-tag {
-  color: var(--amber-light);
-  background: rgba(10, 10, 10, 0.65);
-  backdrop-filter: blur(12px);
-  padding: 0.4rem 0.85rem;
-  border-radius: 4px;
-  border: 1px solid rgba(229, 169, 60, 0.25);
-}
-
-.about-hero__visual-coord {
-  color: var(--silver-muted);
-  letter-spacing: 0.2em;
 }
 
 /* ==========================================================================
@@ -268,19 +253,8 @@
 }
 
 /* ==========================================================================
-   SECTION 3 — OUR SERVICES OVERVIEW
+   SWIPEABLE CARD TRACK (used by Our Values)
    ========================================================================== */
-.about-services-section {
-  position: relative;
-  background-color: #070707;
-}
-
-.about-services-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
 /* Horizontal Swipeable Container & Cards */
 .about-swipe-container {
   display: flex;
@@ -319,42 +293,15 @@
 .about-swipe-controls {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1.25rem;
   margin-top: 1.5rem;
   width: 100%;
 }
 
-.about-swipe-arrow {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #0d0d0d;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--silver-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  flex-shrink: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.about-swipe-arrow:hover {
-  background: #141414;
-  border-color: var(--amber-border);
-  color: var(--amber-light);
-  transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(229, 169, 60, 0.15);
-}
-
-.about-swipe-arrow:active {
-  transform: scale(0.95);
-}
-
+/* Compact, centred progress bar */
 .about-swipe-track {
-  flex-grow: 1;
+  flex: 0 1 220px;
   height: 5px;
   background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
@@ -364,114 +311,16 @@
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* Scaled from the left edge each frame by useSwipeScroll (transform keeps it on the GPU) */
 .about-swipe-fill {
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
+  inset: 0;
   background: linear-gradient(90deg, var(--amber-accent) 0%, #FFFFFF 50%, var(--amber-light) 100%);
   border-radius: 999px;
   box-shadow: 0 0 14px rgba(229, 169, 60, 0.7);
-  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: width;
-}
-
-.about-service-card {
-  position: relative;
-  background: #0d0d0d;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 6px;
-  padding: 2.25rem 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 175px;
-  transition: 
-    transform var(--transition-smooth),
-    border-color var(--transition-smooth),
-    background var(--transition-smooth),
-    box-shadow var(--transition-smooth);
-  cursor: default;
-}
-
-.about-service-card:hover {
-  transform: translateY(-5px);
-  background: #121212;
-  border-color: var(--amber-border);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55), 0 0 20px rgba(229, 169, 60, 0.08);
-}
-
-.about-service-card__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.about-service-card__number {
-  font-family: var(--font-sans);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: var(--silver-muted);
-  transition: color var(--transition-fast);
-}
-
-.about-service-card:hover .about-service-card__number {
-  color: var(--amber-accent);
-}
-
-.about-service-card__icon-wrap {
-  width: 38px;
-  height: 38px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--silver-accent);
-  transition: 
-    background var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.about-service-card:hover .about-service-card__icon-wrap {
-  background: rgba(229, 169, 60, 0.1);
-  border-color: var(--amber-border);
-  color: var(--amber-light);
-  transform: scale(1.06);
-}
-
-.about-service-card__title {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 600;
-  line-height: 1.35;
-  color: #FFFFFF;
-  letter-spacing: -0.01em;
-  margin-bottom: 0.5rem;
-  transition: color var(--transition-fast);
-}
-
-.about-service-card:hover .about-service-card__title {
-  color: #FFFFFF;
-}
-
-.about-service-card__indicator {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0%;
-  height: 2px;
-  background: linear-gradient(to right, var(--amber-accent), var(--silver-accent));
-  transition: width var(--transition-smooth);
-}
-
-.about-service-card:hover .about-service-card__indicator {
-  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
 }
 
 /* ==========================================================================
@@ -693,13 +542,30 @@
   width: 100%;
 }
 
+/* Mission, Vision & Value cards: content sits above the animated lines & particles */
+.about-mv-card__header,
+.about-mv-card__title,
+.about-mv-card__content,
+.about-value-card__header,
+.about-value-card__title,
+.about-value-card__text {
+  position: relative;
+  z-index: 1;
+}
+
+/* Lines flow in a band along the bottom so tall cards don't stretch the waves */
+.about-mv-card .liquid-fx__lines,
+.about-value-card .liquid-fx__lines {
+  top: auto;
+  height: 130px;
+}
+
 /* ==========================================================================
    SECTION 7 — OUR PROMISE
    ========================================================================== */
 .about-promise-section {
   position: relative;
   background-color: var(--bg-main);
-  padding: 9rem 0;
 }
 
 .about-promise-box {
@@ -790,7 +656,7 @@
 .about-closing-section {
   position: relative;
   background-color: #030303;
-  padding: 8rem 0 7rem;
+  padding: 5rem 0 4.5rem;
   text-align: center;
   overflow: hidden;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -876,10 +742,6 @@
     gap: 3rem;
   }
 
-  .about-services-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .about-values-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -896,19 +758,15 @@
 /* Tablets (max-width: 768px) */
 @media (max-width: 768px) {
   .about-hero-section {
-    padding-top: calc(var(--nav-height) + 2rem);
-    padding-bottom: 4rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .about-hero__container {
+    margin-top: 1.75rem;
   }
 
   .about-hero__visual-img {
-    height: 320px;
-  }
-
-  .about-hero__visual-meta {
-    font-size: 0.65rem;
-    left: 1rem;
-    right: 1rem;
-    bottom: 1rem;
+    aspect-ratio: 16 / 9;
   }
 
   .about-intro-grid {
@@ -931,11 +789,6 @@
     gap: 1.25rem;
   }
 
-  .about-services-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
   .about-swipe-card {
     flex: 0 0 clamp(260px, 72vw, 320px);
   }
@@ -949,18 +802,8 @@
     gap: 0.85rem;
   }
 
-  .about-swipe-arrow {
-    width: 36px;
-    height: 36px;
-  }
-
-  .about-service-card {
-    padding: 1.75rem 1.5rem;
-    min-height: auto;
-  }
-
-  .about-promise-section {
-    padding: 5rem 0;
+  .about-swipe-track {
+    flex-basis: 160px;
   }
 
   .about-promise-box {
@@ -972,7 +815,7 @@
   }
 
   .about-closing-section {
-    padding: 5.5rem 0 4.5rem;
+    padding: 3.5rem 0 3rem;
   }
 }
 
@@ -988,14 +831,9 @@
     line-height: 1.6;
   }
 
+  /* Matches the artwork's own shape so it fills the phone width uncropped */
   .about-hero__visual-img {
-    height: 230px;
-  }
-
-  .about-hero__visual-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.4rem;
+    aspect-ratio: 3 / 2;
   }
 
   .about-intro__paragraph {
@@ -1043,10 +881,6 @@
     flex: 0 0 clamp(250px, 82vw, 300px);
   }
 
-  .about-swipe-arrow {
-    width: 34px;
-    height: 34px;
-  }
 }
 
 /* Very Small Mobile Screens (320px - 360px) */
@@ -1058,10 +892,6 @@
   .about-hero__eyebrow {
     font-size: 0.7rem;
     letter-spacing: 0.16em;
-  }
-
-  .about-service-card__title {
-    font-size: 1.1rem;
   }
 
   .about-mv-card__title {
@@ -1092,12 +922,9 @@
 /* Reduced Motion Preference Accessibility */
 @media (prefers-reduced-motion: reduce) {
   .about-hero__visual-img,
-  .about-service-card,
   .about-mv-card,
   .about-value-card,
-  .about-service-card__icon-wrap,
   .about-value-card__icon-box,
-  .about-service-card__indicator,
   .about-value-card__line {
     transition: none !important;
     transform: none !important;

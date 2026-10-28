@@ -154,6 +154,16 @@ export const closingContent = {
   contactEmail: 'info@cybervexdigital.com',
 };
 
+// Business WhatsApp (Pakistan 0300-9326529 → international format for wa.me)
+export const whatsAppContact = {
+  display: '+92 300 9326529',
+  number: '923009326529',
+  defaultMessage: "Hi Cybervex Digital! I'd like to know more about your services.",
+};
+
+export const whatsAppLink = (message = whatsAppContact.defaultMessage) =>
+  `https://wa.me/${whatsAppContact.number}?text=${encodeURIComponent(message)}`;
+
 export const footerData = {
   copyright: '© 2026 Cybervex Digital. All rights reserved.',
   tagline: 'We turn ideas into digital experiences.',

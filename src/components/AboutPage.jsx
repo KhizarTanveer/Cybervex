@@ -1,14 +1,6 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import {
   TrendingUp,
-  Search,
-  Share2,
-  Code2,
-  Palette,
-  Cpu,
-  Layers,
-  CalendarCheck,
-  Briefcase,
   ShieldCheck,
   Award,
   Users2,
@@ -20,26 +12,18 @@ import {
 import {
   aboutHeroContent,
   aboutWhoWeAre,
-  aboutServicesList,
   aboutMissionContent,
   aboutVisionContent,
   aboutValuesList,
   aboutPromiseContent,
   aboutFinalStatement,
 } from '../data/aboutData';
+import LiquidFx from './LiquidFx';
 import './AboutPage.css';
 
 // Icon map helper for dynamic icon rendering
 const iconMap = {
   TrendingUp,
-  Search,
-  Share2,
-  Code2,
-  Palette,
-  Cpu,
-  Layers,
-  CalendarCheck,
-  Briefcase,
   ShieldCheck,
   Award,
   Users2,
@@ -48,110 +32,92 @@ const iconMap = {
 };
 
 /**
- * Reusable hook for swipeable card tracks with fill scroll bar
+ * Swipeable card track with a fill scroll bar.
+ * The fill is written straight to the DOM once per frame (no React re-render per scroll event),
+ * so it tracks the cards exactly and stays smooth.
  */
 function useSwipeScroll(scrollRef) {
-  const [scrollRatio, setScrollRatio] = useState(0);
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const startScrollLeft = useRef(0);
-
-  const calculateProgress = useCallback(() => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    const maxScroll = scrollWidth - clientWidth;
-    if (maxScroll <= 2) {
-      setScrollRatio(0);
-    } else {
-      const ratio = Math.max(0, Math.min(1, scrollLeft / maxScroll));
-      setScrollRatio(ratio);
-    }
-  }, [scrollRef]);
+  const trackRef = useRef(null);
+  const fillRef = useRef(null);
 
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el) return;
+    if (!el) return undefined;
 
-    calculateProgress();
-    el.addEventListener('scroll', calculateProgress, { passive: true });
-    window.addEventListener('resize', calculateProgress);
+    let frame = null;
+    let isDragging = false;
+    let startX = 0;
+    let startScrollLeft = 0;
+
+    const paintFill = () => {
+      frame = null;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      const ratio = maxScroll <= 2 ? 0 : Math.max(0, Math.min(1, el.scrollLeft / maxScroll));
+      if (fillRef.current) fillRef.current.style.transform = `scaleX(${ratio})`;
+      if (trackRef.current) trackRef.current.setAttribute('aria-valuenow', String(Math.round(ratio * 100)));
+    };
+
+    const requestPaint = () => {
+      if (!frame) frame = requestAnimationFrame(paintFill);
+    };
 
     const onMouseDown = (e) => {
-      isDragging.current = true;
-      startX.current = e.pageX - el.offsetLeft;
-      startScrollLeft.current = el.scrollLeft;
+      isDragging = true;
+      startX = e.pageX;
+      startScrollLeft = el.scrollLeft;
+      // Snapping fights manual dragging, so pause it until release
+      el.style.scrollSnapType = 'none';
       el.style.scrollBehavior = 'auto';
       el.style.cursor = 'grabbing';
     };
 
     const onMouseMove = (e) => {
-      if (!isDragging.current) return;
+      if (!isDragging) return;
       e.preventDefault();
-      const x = e.pageX - el.offsetLeft;
-      const distance = (x - startX.current) * 1.35;
-      el.scrollLeft = startScrollLeft.current - distance;
-      calculateProgress();
+      el.scrollLeft = startScrollLeft - (e.pageX - startX) * 1.35;
     };
 
     const onMouseUp = () => {
-      if (!isDragging.current) return;
-      isDragging.current = false;
-      el.style.scrollBehavior = 'smooth';
-      el.style.cursor = 'grab';
+      if (!isDragging) return;
+      isDragging = false;
+      el.style.scrollSnapType = '';
+      el.style.scrollBehavior = '';
+      el.style.cursor = '';
     };
 
+    paintFill();
+    el.addEventListener('scroll', requestPaint, { passive: true });
+    window.addEventListener('resize', requestPaint);
     el.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
 
     return () => {
-      el.removeEventListener('scroll', calculateProgress);
-      window.removeEventListener('resize', calculateProgress);
+      if (frame) cancelAnimationFrame(frame);
+      el.removeEventListener('scroll', requestPaint);
+      window.removeEventListener('resize', requestPaint);
       el.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
-  }, [calculateProgress, scrollRef]);
-
-  const scrollByCard = useCallback((direction) => {
-    if (!scrollRef.current) return;
-    const firstCard = scrollRef.current.firstElementChild;
-    const cardWidth = firstCard ? firstCard.clientWidth + 24 : 340;
-    const delta = direction === 'left' ? -cardWidth : cardWidth;
-    scrollRef.current.scrollBy({ left: delta, behavior: 'smooth' });
   }, [scrollRef]);
 
   const handleTrackClick = useCallback((e) => {
-    if (!scrollRef.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-    const { scrollWidth, clientWidth } = scrollRef.current;
-    const maxScroll = scrollWidth - clientWidth;
-    scrollRef.current.scrollTo({ left: ratio * maxScroll, behavior: 'smooth' });
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    el.scrollTo({ left: ratio * (el.scrollWidth - el.clientWidth), behavior: 'smooth' });
   }, [scrollRef]);
 
-  // Base fill corresponds to initial item presence, smoothly scaling to 100%
-  const fillPercentage = scrollRatio * 100;
-
-  return {
-    fillPercentage,
-    scrollByCard,
-    handleTrackClick,
-  };
+  return { trackRef, fillRef, handleTrackClick };
 }
 
 export default function AboutPage() {
-  const servicesScrollRef = useRef(null);
   const valuesScrollRef = useRef(null);
-
   const {
-    fillPercentage: servicesFill,
-    handleTrackClick: handleServicesTrackClick,
-  } = useSwipeScroll(servicesScrollRef);
-
-  const {
-    fillPercentage: valuesFill,
+    trackRef: valuesTrackRef,
+    fillRef: valuesFillRef,
     handleTrackClick: handleValuesTrackClick,
   } = useSwipeScroll(valuesScrollRef);
 
@@ -163,6 +129,25 @@ export default function AboutPage() {
       <section id="about-hero" className="about-hero-section" aria-label="About Cybervex Digital Hero">
         <div className="about-hero__ambient-glow" aria-hidden="true" />
         <div className="subtle-grid-bg" aria-hidden="true" />
+
+        {/* Full-bleed rectangular banner spanning the whole viewport width */}
+        <div className="about-hero__visual-wrapper">
+          <div className="about-hero__visual-frame">
+            <img
+              src="/images/about-hero-gold-maze.jpg"
+              srcSet="/images/about-hero-gold-maze.jpg 2048w, /images/about-hero-gold-maze@2x.jpg 3840w"
+              sizes="(max-width: 1440px) 100vw, 3840px"
+              alt="Black marble maze split in two with molten gold flowing through its paths"
+              className="about-hero__visual-img"
+              width="2048"
+              height="1375"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+            />
+            <div className="about-hero__visual-gradient-mask" aria-hidden="true" />
+          </div>
+        </div>
 
         <div className="container about-hero__container">
           <div className="about-hero__header">
@@ -181,27 +166,6 @@ export default function AboutPage() {
 
             {/* Supporting Text */}
             <p className="about-hero__lead">{aboutHeroContent.leadText}</p>
-          </div>
-
-          {/* Understated Abstract Visual Inspired by Liquid-Glass Hero Artwork */}
-          <div className="about-hero__visual-wrapper">
-            <div className="about-hero__visual-frame">
-              <img
-                src="/images/about-hero-art.jpg"
-                alt="Cybervex Digital Liquid Glass Ribbon Artwork"
-                className="about-hero__visual-img"
-                width="1920"
-                height="1080"
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-              />
-              <div className="about-hero__visual-gradient-mask" aria-hidden="true" />
-              <div className="about-hero__visual-meta">
-                <span className="about-hero__visual-tag">CREATIVITY × TECHNOLOGY × BUSINESS SUPPORT</span>
-                <span className="about-hero__visual-coord">CYBERVEX • DIGITAL HORIZONS</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -242,63 +206,6 @@ export default function AboutPage() {
       </section>
 
       {/* =====================================================================
-          SECTION 3 — OUR SERVICES OVERVIEW (SWIPEABLE CARDS WITH FILL SCROLL BAR)
-          ===================================================================== */}
-      <section id="services-overview" className="section about-services-section reveal-blur-section" aria-label="Our Services Overview">
-        <div className="container">
-          <div className="section-header">
-            <span className="section-label">02 / FULL CAPABILITIES</span>
-            <h2 className="section-title">Our Services</h2>
-            <p className="section-subtitle">
-              Bringing practical digital, creative, and operational solutions together under one roof.
-            </p>
-          </div>
-
-          {/* Swipeable Premium Service Cards (9 Services) */}
-          <div
-            ref={servicesScrollRef}
-            className="about-swipe-container reveal-stagger"
-          >
-            {aboutServicesList.map((service) => {
-              const IconComponent = iconMap[service.iconName] || Briefcase;
-              return (
-                <div key={service.number} className="about-service-card about-swipe-card">
-                  <div className="about-service-card__top">
-                    <span className="about-service-card__number">{service.number}</span>
-                    <div className="about-service-card__icon-wrap">
-                      <IconComponent size={20} className="about-service-card__icon" strokeWidth={1.5} />
-                    </div>
-                  </div>
-                  <h3 className="about-service-card__title">{service.title}</h3>
-                  <div className="about-service-card__indicator" aria-hidden="true" />
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Fill Scroll Bar Underneath */}
-          <div className="about-swipe-controls">
-           
-            <div
-              className="about-swipe-track"
-              onClick={handleServicesTrackClick}
-              role="scrollbar"
-              aria-valuenow={Math.round(servicesFill)}
-              aria-valuemin="0"
-              aria-valuemax="100"
-              aria-label="Services scroll progress"
-            >
-              <div
-                className="about-swipe-fill"
-                style={{ width: `${servicesFill}%` }}
-              />
-            </div>
-            
-          </div>
-        </div>
-      </section>
-
-      {/* =====================================================================
           SECTION 4 & 5 — OUR MISSION & OUR VISION
           ===================================================================== */}
       <section id="mission-vision" className="section about-mv-section reveal-blur-section" aria-label="Mission and Vision">
@@ -312,6 +219,7 @@ export default function AboutPage() {
             {/* Section 4: Our Mission */}
             <div className="about-mv-card about-mv-card--mission">
               <div className="about-mv-card__glow" aria-hidden="true" />
+              <LiquidFx />
               <div className="about-mv-card__header">
                 <div className="about-mv-card__badge">
                   <Target size={16} className="about-mv-card__badge-icon" strokeWidth={1.5} />
@@ -332,6 +240,7 @@ export default function AboutPage() {
             {/* Section 5: Our Vision */}
             <div className="about-mv-card about-mv-card--vision">
               <div className="about-mv-card__glow" aria-hidden="true" />
+              <LiquidFx />
               <div className="about-mv-card__header">
                 <div className="about-mv-card__badge">
                   <Compass size={16} className="about-mv-card__badge-icon" strokeWidth={1.5} />
@@ -358,7 +267,7 @@ export default function AboutPage() {
       <section id="our-values" className="section about-values-section reveal-blur-section" aria-label="The Principles Behind Our Work">
         <div className="container">
           <div className="section-header">
-            <span className="section-label">04 / CORE PRINCIPLES</span>
+            <span className="section-label">03 / CORE PRINCIPLES</span>
             <h2 className="section-title">The Principles Behind Our Work</h2>
             <p className="section-subtitle">
               The foundational standards and commitments that direct our relationships and execution.
@@ -374,6 +283,7 @@ export default function AboutPage() {
               const IconComponent = iconMap[val.iconName] || ShieldCheck;
               return (
                 <div key={val.number} className="about-value-card about-swipe-card about-swipe-card--value">
+                  <LiquidFx />
                   <div className="about-value-card__header">
                     <span className="about-value-card__num">{val.number}</span>
                     <div className="about-value-card__icon-box">
@@ -392,18 +302,16 @@ export default function AboutPage() {
           <div className="about-swipe-controls">
             
             <div
+              ref={valuesTrackRef}
               className="about-swipe-track"
               onClick={handleValuesTrackClick}
               role="scrollbar"
-              aria-valuenow={Math.round(valuesFill)}
+              aria-valuenow={0}
               aria-valuemin="0"
               aria-valuemax="100"
               aria-label="Principles scroll progress"
             >
-              <div
-                className="about-swipe-fill"
-                style={{ width: `${valuesFill}%` }}
-              />
+              <div ref={valuesFillRef} className="about-swipe-fill" />
             </div>
             
           </div>

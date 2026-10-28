@@ -457,7 +457,8 @@
   position: relative;
   width: 100%;
   max-width: 100%;
-  padding-top: var(--nav-height);
+  /* Shrink the navbar offset only as much as needed so the full 16:9 artwork fits on first load */
+  padding-top: clamp(0px, 100svh - 56.25vw, var(--nav-height));
   padding-bottom: 0;
   margin: 0;
   overflow: hidden;
@@ -752,6 +753,17 @@
 .projects-section {
   --projects-accent: #C8A96A;
   font-family: 'DM Sans', var(--font-sans);
+}
+
+/* Tighter gap after the Services section on the home page */
+.section.projects-section {
+  padding-top: 4rem;
+}
+
+@media (max-width: 480px) {
+  .section.projects-section {
+    padding-top: 2.5rem;
+  }
 }
 
 .projects-shell {
@@ -1368,7 +1380,6 @@
 
   /* Fullscreen Hero on Phone / Tablet — Zero Horizontal Swipe */
   .hero-section--fullscreen {
-    padding-top: var(--nav-height);
     min-height: auto;
     display: flex;
     align-items: center;

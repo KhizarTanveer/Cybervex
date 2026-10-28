@@ -10,7 +10,7 @@
   max-width: 100%;
   background-color: #050505;
   color: #FFFFFF;
-  padding: 6.5rem 0 5.5rem;
+  padding: 6.5rem 0 3rem;
   overflow: hidden;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -72,7 +72,7 @@
 .spiral-header {
   text-align: center;
   max-width: 880px;
-  margin: 0 auto 3rem;
+  margin: 0 auto 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -133,159 +133,6 @@
   color: rgba(255, 255, 255, 0.72);
   line-height: 1.7;
   max-width: 780px;
-  white-space: pre-line;
-}
-
-/* --------------------------------------------------------------------------
-   INTERACTIVE CONTROLS BAR & QUICK FILTERS
-   -------------------------------------------------------------------------- */
-.spiral-controls-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-}
-
-/* Quick Jump Filter Pills */
-.spiral-filter-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  padding: 0.35rem;
-}
-
-.spiral-filter-pill {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.65);
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 0.8rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  white-space: nowrap;
-}
-
-.spiral-filter-pill:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #FFFFFF;
-  border-color: rgba(200, 169, 106, 0.3);
-}
-
-.spiral-filter-pill--active {
-  background: rgba(200, 169, 106, 0.12);
-  color: #C8A96A;
-  border-color: rgba(200, 169, 106, 0.45);
-  box-shadow: 0 0 16px rgba(200, 169, 106, 0.15);
-}
-
-/* Main Control Strip */
-.spiral-control-panel {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
-  background: rgba(14, 14, 18, 0.7);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 0.75rem 1.25rem;
-  flex-wrap: wrap;
-}
-
-.spiral-control-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Control Buttons */
-.spiral-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  color: rgba(255, 255, 255, 0.75);
-  padding: 0.55rem 0.9rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 0.82rem;
-  font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.spiral-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #FFFFFF;
-  border-color: rgba(200, 169, 106, 0.35);
-}
-
-.spiral-btn--mode-active {
-  background: rgba(200, 169, 106, 0.15);
-  color: #C8A96A;
-  border-color: rgba(200, 169, 106, 0.4);
-}
-
-.spiral-btn--nav {
-  width: 42px;
-  height: 42px;
-  padding: 0;
-  justify-content: center;
-  border-radius: 50%;
-}
-
-.spiral-btn--nav:active {
-  transform: scale(0.92);
-  background: rgba(200, 169, 106, 0.15);
-  border-color: rgba(200, 169, 106, 0.4);
-}
-
-/* Center Counter Display */
-.spiral-counter-display {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  max-width: 380px;
-  overflow: hidden;
-}
-
-.spiral-counter__number {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.15rem;
-  font-family: var(--font-display, 'Syne', sans-serif);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #C8A96A;
-  background: rgba(200, 169, 106, 0.1);
-  padding: 0.25rem 0.65rem;
-  border-radius: 6px;
-  border: 1px solid rgba(200, 169, 106, 0.25);
-}
-
-.spiral-counter__slash {
-  color: rgba(200, 169, 106, 0.45);
-  font-size: 0.9rem;
-}
-
-.spiral-counter__total {
-  color: rgba(255, 255, 255, 0.45);
-  font-size: 0.85rem;
-}
-
-.spiral-counter__title {
-  font-size: 0.92rem;
-  font-weight: 600;
-  color: #FFFFFF;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* --------------------------------------------------------------------------
@@ -294,7 +141,7 @@
 .spiral-viewport {
   position: relative;
   width: 100%;
-  height: 680px;
+  height: 540px;
   perspective: 1200px;
   perspective-origin: 50% 48%;
   display: flex;
@@ -385,6 +232,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Let clicks reach side cards sitting behind this flat layer in 3D space */
+  pointer-events: none;
 }
 
 /* Drag & Interaction Hint Wrapper */
@@ -640,33 +489,11 @@
 }
 
 /* --------------------------------------------------------------------------
-   VIEW MODE B: CATALOG MATRIX GRID
-   -------------------------------------------------------------------------- */
-.spiral-grid-viewport {
-  width: 100%;
-  margin-top: 1rem;
-}
-
-.spiral-grid-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.75rem;
-}
-
-.spiral-grid-viewport .spiral-card {
-  position: relative;
-  width: 100%;
-  height: 430px;
-  transform: none !important;
-  opacity: 1 !important;
-}
-
-/* --------------------------------------------------------------------------
    VALUE PILLARS & COMMITMENT SECTION (From source text)
    -------------------------------------------------------------------------- */
 .spiral-pillars-section {
-  margin-top: 6rem;
-  padding-top: 5rem;
+  margin-top: 2rem;
+  padding-top: 3.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
@@ -760,6 +587,8 @@
 
 /* Our Commitment Banner */
 .spiral-commitment-banner {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(145deg, rgba(20, 20, 26, 0.85) 0%, rgba(10, 10, 14, 0.95) 100%);
   border: 1px solid rgba(200, 169, 106, 0.28);
   border-radius: 16px;
@@ -768,6 +597,18 @@
   flex-direction: column;
   gap: 1.5rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* Keep banner content above the animated lines & particles */
+.spiral-commitment-banner > :not(.liquid-fx) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Lines flow in a band along the footer so the tall banner doesn't stretch the waves */
+.spiral-commitment-banner .liquid-fx__lines {
+  top: auto;
+  height: 150px;
 }
 
 .spiral-commitment-badge {
@@ -842,9 +683,6 @@
    RESPONSIVE BREAKPOINTS
    -------------------------------------------------------------------------- */
 @media (max-width: 1200px) {
-  .spiral-grid-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .spiral-pillars-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -852,7 +690,7 @@
 
 @media (max-width: 900px) {
   .spiral-viewport {
-    height: 600px;
+    height: 500px;
   }
   .spiral-card {
     width: 300px;
@@ -869,10 +707,10 @@
 
 @media (max-width: 768px) {
   .spiral-services-section {
-    padding: 4.5rem 0 4rem;
+    padding: 4.5rem 0 2.5rem;
   }
   .spiral-viewport {
-    height: 540px;
+    height: 470px;
   }
   .spiral-card {
     width: 280px;
@@ -884,24 +722,6 @@
   }
   .spiral-card__desc {
     font-size: 0.82rem;
-  }
-  .spiral-control-panel {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-  .spiral-control-group--left {
-    justify-content: center;
-  }
-  .spiral-counter-display {
-    justify-content: center;
-    max-width: 100%;
-  }
-  .spiral-control-group--right {
-    justify-content: center;
-  }
-  .spiral-grid-cards {
-    grid-template-columns: 1fr;
   }
   .spiral-pillars-grid {
     grid-template-columns: 1fr;
@@ -917,7 +737,7 @@
 
 @media (max-width: 480px) {
   .spiral-viewport {
-    height: 500px;
+    height: 430px;
   }
   .spiral-card {
     width: 260px;
@@ -939,10 +759,6 @@
     width: 38px;
     height: 38px;
   }
-  .spiral-filter-pill {
-    font-size: 0.74rem;
-    padding: 0.4rem 0.8rem;
-  }
   .spiral-hint-pill {
     font-size: 0.68rem;
     padding: 0.35rem 0.75rem;
@@ -957,7 +773,7 @@
 
 @media (max-width: 360px) {
   .spiral-viewport {
-    height: 470px;
+    height: 410px;
   }
   .spiral-card {
     width: 245px;
@@ -970,22 +786,13 @@
   .spiral-card__desc {
     font-size: 0.75rem;
   }
-  .spiral-counter__title {
-    font-size: 0.82rem;
-  }
-  .spiral-btn--mode {
-    padding: 0.45rem 0.65rem;
-    font-size: 0.75rem;
-  }
 }
 
 /* --------------------------------------------------------------------------
    REDUCED MOTION ACCESSIBILITY
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .spiral-card,
-  .spiral-btn,
-  .spiral-filter-pill {
+  .spiral-card {
     animation: none !important;
     transition: none !important;
   }

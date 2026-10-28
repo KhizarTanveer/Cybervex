@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   spiralServicesList,
   servicesCompanyIntro,
+  servicesStats,
 } from '../data/spiralServicesData';
 import SpiralServiceCard from './SpiralServiceCard';
-import SpiralControls from './SpiralControls';
+import StatsBar from './StatsBar';
+import LiquidFx from './LiquidFx';
 import ServiceDetailsModal from './ServiceDetailsModal';
 import {
   ShieldCheck,
@@ -21,8 +23,6 @@ export default function SpiralServices() {
   const [rotationIndex, setRotationIndex] = useState(0);
   const [, setTargetIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [viewMode, setViewMode] = useState('spiral'); // 'spiral' | 'grid'
-  const [activeFilter, setActiveFilter] = useState('all');
   const [selectedService, setSelectedService] = useState(null);
   const [windowWidth, setWindowWidth] = useState(() =>
     typeof window !== 'undefined' ? window.innerWidth : 1200
@@ -144,15 +144,6 @@ export default function SpiralServices() {
     navigateToIndex(currentRounded + 1);
   }, [navigateToIndex]);
 
-  // Filter category selection
-  const handleSelectFilter = useCallback(
-    (filterId, startIdx) => {
-      setActiveFilter(filterId);
-      navigateToIndex(startIdx);
-    },
-    [navigateToIndex]
-  );
-
   // Keyboard navigation on stage
   const handleKeyDown = useCallback(
     (e) => {
@@ -177,7 +168,6 @@ export default function SpiralServices() {
      POINTER DRAG / SWIPE HANDLERS (Mobile Touch & Desktop Mouse)
      -------------------------------------------------------------------------- */
   const handlePointerDown = (e) => {
-    if (viewMode !== 'spiral') return;
     // Only respond to primary button (left click) or touch
     if (e.button !== undefined && e.button !== 0) return;
 
@@ -341,8 +331,6 @@ export default function SpiralServices() {
     return ((Math.round(rotationIndex) % totalCount) + totalCount) % totalCount;
   }, [rotationIndex, totalCount]);
 
-  const currentService = spiralServicesList[focalIndex] || spiralServicesList[0];
-
   // Parametric 3D position computation for spiral card i
   const computeCardTransform = useCallback(
     (cardIndex) => {
@@ -436,42 +424,6 @@ export default function SpiralServices() {
     [rotationIndex, totalCount, windowWidth, isDragging]
   );
 
-  // Filtered list for Grid Catalog mode
-  const filteredGridServices = useMemo(() => {
-    if (activeFilter === 'all') return spiralServicesList;
-    if (activeFilter === 'marketing') {
-      return spiralServicesList.filter((s) =>
-        ['01', '02', '03', '04', '16', '22'].includes(s.number)
-      );
-    }
-    if (activeFilter === 'creative') {
-      return spiralServicesList.filter((s) =>
-        ['05', '06', '20', '21'].includes(s.number)
-      );
-    }
-    if (activeFilter === 'tech') {
-      return spiralServicesList.filter((s) =>
-        ['07', '08', '09', '15'].includes(s.number)
-      );
-    }
-    if (activeFilter === 'bpo') {
-      return spiralServicesList.filter((s) =>
-        ['10', '11', '12', '14', '19'].includes(s.number)
-      );
-    }
-    if (activeFilter === 'events') {
-      return spiralServicesList.filter((s) =>
-        ['13', '17'].includes(s.number)
-      );
-    }
-    if (activeFilter === 'strategy') {
-      return spiralServicesList.filter((s) =>
-        ['18', '23'].includes(s.number)
-      );
-    }
-    return spiralServicesList;
-  }, [activeFilter]);
-
   // Modal navigation (Layer B)
   const handleModalNext = useCallback(() => {
     if (!selectedService) return;
@@ -526,113 +478,72 @@ export default function SpiralServices() {
           <div className="spiral-header__meta">
             <span className="spiral-eyebrow">
               <span className="spiral-eyebrow__dot" />
-              03 / CAPABILITIES PROFILE
+              01 / CAPABILITIES PROFILE
             </span>
             <span className="spiral-badge-tag">{servicesCompanyIntro.tagline}</span>
           </div>
 
           <h2 className="spiral-title">
-            All 23 Digital, Creative & Operational Disciplines 
+            All Digital, Creative & Operational Disciplines 
           </h2>
 
           <p className="spiral-subtitle">
-            {servicesCompanyIntro.about}
+            {servicesCompanyIntro.about.split('\n\n')[0]}
           </p>
+
+          <StatsBar stats={servicesStats} />
         </div>
 
-        {/* Interactive Controls Bar */}
-        <SpiralControls
-          onPrev={handlePrev}
-          onNext={handleNext}
-          currentIndex={focalIndex}
-          totalServices={totalCount}
-          currentServiceTitle={currentService.title}
-          viewMode={viewMode}
-          onToggleViewMode={setViewMode}
-          activeFilter={activeFilter}
-          onSelectFilter={handleSelectFilter}
-        />
+        {/* 3D ROTATING SPIRAL VIEWPORT */}
+        <div
+          className={`spiral-viewport ${isDragging ? 'spiral-viewport--dragging' : ''}`}
+          ref={stageRef}
+          tabIndex={0}
+          role="region"
+          aria-label="Interactive 3D Spiral Orbit of Services"
+          aria-roledescription="carousel"
+          onKeyDown={handleKeyDown}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerCancel}
+        >
+          {/* Background 3D Orbital Trajectory Guide Rings */}
+          <div className="spiral-orbit-stage" aria-hidden="true">
+            <div className="spiral-orbit-ring spiral-orbit-ring--1" />
+            <div className="spiral-orbit-ring spiral-orbit-ring--2" />
+            <div className="spiral-orbit-ring spiral-orbit-ring--3" />
+            <div className="spiral-orbit-axis" />
+          </div>
 
-        {/* VIEW MODE A: 3D ROTATING SPIRAL VIEWPORT */}
-        {viewMode === 'spiral' && (
-          <>
-            <div
-              className={`spiral-viewport ${isDragging ? 'spiral-viewport--dragging' : ''}`}
-              ref={stageRef}
-              tabIndex={0}
-              role="region"
-              aria-label="Interactive 3D Spiral Orbit of Services"
-              aria-roledescription="carousel"
-              onKeyDown={handleKeyDown}
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerCancel={handlePointerCancel}
-            >
-              {/* Background 3D Orbital Trajectory Guide Rings */}
-              <div className="spiral-orbit-stage" aria-hidden="true">
-                <div className="spiral-orbit-ring spiral-orbit-ring--1" />
-                <div className="spiral-orbit-ring spiral-orbit-ring--2" />
-                <div className="spiral-orbit-ring spiral-orbit-ring--3" />
-                <div className="spiral-orbit-axis" />
-              </div>
+          {/* Central Focal Spotlight */}
+          <div className="spiral-focal-spotlight" aria-hidden="true" />
 
-              {/* Central Focal Spotlight */}
-              <div className="spiral-focal-spotlight" aria-hidden="true" />
+          {/* 3D Transform Space containing cards */}
+          <div className="spiral-3d-scene">
+            {spiralServicesList.map((service, idx) => {
+              const cardStyle = computeCardTransform(idx);
+              if (cardStyle.display === 'none') return null;
 
-              {/* 3D Transform Space containing cards */}
-              <div className="spiral-3d-scene">
-                {spiralServicesList.map((service, idx) => {
-                  const cardStyle = computeCardTransform(idx);
-                  if (cardStyle.display === 'none') return null;
+              const isFocal = idx === focalIndex;
+              let k = ((idx - rotationIndex) % totalCount + totalCount) % totalCount;
+              if (k > totalCount / 2) k -= totalCount;
+              const isActive = Math.abs(k) < 0.45;
 
-                  const isFocal = idx === focalIndex;
-                  let k = ((idx - rotationIndex) % totalCount + totalCount) % totalCount;
-                  if (k > totalCount / 2) k -= totalCount;
-                  const isActive = Math.abs(k) < 0.45;
-
-                  return (
-                    <SpiralServiceCard
-                      key={service.id}
-                      service={service}
-                      style={cardStyle}
-                      isActive={isActive}
-                      isFocal={isFocal}
-                      onCardClick={() => handleCardClick(service, isActive, idx)}
-                      onDetailsClick={() => handleDetailsClick(service)}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Interactive Drag & Exploration Hint */}
-            
-          </>
-        )}
-
-        {/* VIEW MODE B: CATALOG MATRIX GRID VIEW */}
-        {viewMode === 'grid' && (
-          <div
-            className="spiral-grid-viewport"
-            role="region"
-            aria-label="Full Services Catalog Matrix"
-          >
-            <div className="spiral-grid-cards">
-              {filteredGridServices.map((service) => (
+              return (
                 <SpiralServiceCard
                   key={service.id}
                   service={service}
-                  style={{}}
-                  isActive={true}
-                  isFocal={false}
-                  onCardClick={() => setSelectedService(service)}
-                  onDetailsClick={() => setSelectedService(service)}
+                  style={cardStyle}
+                  isActive={isActive}
+                  isFocal={isFocal}
+                  onCardClick={() => handleCardClick(service, isActive, idx)}
+                  onDetailsClick={() => handleDetailsClick(service)}
                 />
-              ))}
-            </div>
+              );
+            })}
           </div>
-        )}
+        </div>
 
         {/* VALUE PILLARS & COMMITMENT SHOWCASE (From source text) */}
         <div className="spiral-pillars-section">
@@ -661,6 +572,7 @@ export default function SpiralServices() {
 
           {/* Our Commitment Box */}
           <div className="spiral-commitment-banner">
+            <LiquidFx />
             <div className="spiral-commitment-badge">
               <ShieldCheck size={18} className="spiral-commitment-badge__icon" />
               <span>OUR COMMITMENT</span>

@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   LogOut, RefreshCw, Search, FileText, Trash2, Mail, Phone, MapPin, Loader2, Lock, Briefcase, MessageSquare, Reply,
-  Users, Plus, Pencil, Eye, EyeOff,
+  Users, Plus, Pencil, Eye, EyeOff, FolderKanban, ImagePlus,
 } from 'lucide-react';
 import {
   getAdmin, signIn, signOut, fetchApplications, resumeUrl, updateApplicationStatus, deleteApplication,
   fetchMessages, updateMessageStatus, deleteMessage, fetchAdminJobs, createJob, updateJob, deleteJob,
+  fetchAdminProjects, createProject, updateProject, deleteProject, MAX_IMAGE_BYTES,
 } from '../lib/applications';
 import { jobTypes } from '../data/careersData';
 import './AdminPage.css';
@@ -589,9 +590,258 @@ function JobsPanel({ reloadKey, onSignedOut, onCount }) {
   );
 }
 
+const EMPTY_PROJECT = {
+  title: '',
+  category: '',
+  year: String(new Date().getFullYear()),
+  badge: 'Concept Prototype',
+  description: '',
+  tags: '',
+  active: true,
+};
+const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+// Form values for a saved project (the website's cards call the badge `conceptBadge`)
+const projectValues = (p) => ({
+  title: p.title,
+  category: p.category || '',
+  year: p.year || '',
+  badge: p.conceptBadge || '',
+  description: p.description,
+  tags: (p.tags || []).join(', '),
+});
+
+// Create / edit form shown over the Projects list
+function ProjectEditor({ project, onSaved, onClose }) {
+  const [values, setValues] = useState(() =>
+    project ? { ...projectValues(project), active: project.active } : EMPTY_PROJECT
+  );
+  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState(project?.image || '');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  // Free the local preview of a picked image
+  useEffect(() => () => preview.startsWith('blob:') && URL.revokeObjectURL(preview), [preview]);
+
+  const set = (key) => (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    setValues((v) => ({ ...v, [key]: value }));
+  };
+
+  const pickImage = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!IMAGE_TYPES.includes(file.type)) return setError('The image must be a JPG, PNG or WebP file.');
+    if (file.size > MAX_IMAGE_BYTES) return setError('The image is larger than 5 MB.');
+    setError('');
+    setImageFile(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!project && !imageFile) return setError('Please add a project image.');
+    setSaving(true);
+    setError('');
+    try {
+      const saved = project
+        ? await updateProject(project.id, values, imageFile)
+        : await createProject(values, imageFile);
+      onSaved(saved, Boolean(project));
+    } catch (err) {
+      setError(err.status === 0 ? 'Cannot reach the server.' : err.message);
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="admin-modal-overlay" onClick={onClose} role="presentation">
+      <form
+        className="admin-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="project-editor-title"
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={handleSubmit}
+      >
+        <h2 id="project-editor-title" className="admin-modal__title">{project ? 'Edit project' : 'Post a new project'}</h2>
+
+        <div className="admin-modal__grid">
+          <label className="admin-field admin-field--full">
+            <span>Project title</span>
+            <input value={values.title} onChange={set('title')} maxLength={80} placeholder="e.g. Nova Banking App" required autoFocus />
+          </label>
+          <label className="admin-field admin-field--full">
+            <span>Image <em>JPG, PNG or WebP, up to 5 MB · landscape works best</em></span>
+            <div className="admin-image-pick">
+              {preview ? (
+                <img src={preview} alt="" className="admin-image-pick__preview" />
+              ) : (
+                <span className="admin-image-pick__empty"><ImagePlus size={22} aria-hidden="true" /></span>
+              )}
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={pickImage} />
+            </div>
+          </label>
+          <label className="admin-field">
+            <span>Category</span>
+            <input value={values.category} onChange={set('category')} maxLength={80} placeholder="e.g. Web Development" />
+          </label>
+          <label className="admin-field">
+            <span>Year</span>
+            <input value={values.year} onChange={set('year')} maxLength={4} inputMode="numeric" placeholder="2026" />
+          </label>
+          <label className="admin-field admin-field--full">
+            <span>Badge on the image <em>e.g. Concept Prototype, Client Project</em></span>
+            <input value={values.badge} onChange={set('badge')} maxLength={30} />
+          </label>
+          <label className="admin-field admin-field--full">
+            <span>Description <em>{values.description.length}/400</em></span>
+            <textarea value={values.description} onChange={set('description')} maxLength={400} rows={3} placeholder="A short line about the project" required />
+          </label>
+          <label className="admin-field admin-field--full">
+            <span>Tags <em>comma separated, up to 6</em></span>
+            <input value={values.tags} onChange={set('tags')} placeholder="e.g. React, Branding, UI/UX" />
+          </label>
+          <label className="admin-check admin-field--full">
+            <input type="checkbox" checked={values.active} onChange={set('active')} />
+            <span>Show this project on the website</span>
+          </label>
+        </div>
+
+        {error && <p className="admin-error" role="alert">{error}</p>}
+
+        <div className="admin-modal__actions">
+          <button type="button" className="admin-btn" onClick={onClose}>Cancel</button>
+          <button type="submit" className="admin-btn admin-btn--primary" disabled={saving}>
+            {saving && <Loader2 size={16} className="admin-spin" aria-hidden="true" />}
+            {project ? 'Save changes' : 'Post project'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
+  const { items: projects, setItems: setProjects, loading, error, setError } =
+    useAdminList(fetchAdminProjects, reloadKey, onSignedOut, onCount);
+  const [editing, setEditing] = useState(null); // null = closed, {} = new project, project = edit
+  const closeEditor = useCallback(() => setEditing(null), []);
+
+  const handleSaved = (saved, isEdit) => {
+    setProjects((list) => (isEdit ? list.map((p) => (p.id === saved.id ? saved : p)) : [...list, saved]));
+    setEditing(null);
+  };
+
+  const toggleVisible = async (project) => {
+    const next = { ...project, active: !project.active };
+    setProjects((list) => list.map((p) => (p.id === project.id ? next : p)));
+    try {
+      await updateProject(project.id, { ...projectValues(project), active: next.active });
+    } catch {
+      setError('Could not change this project.');
+      setProjects((list) => list.map((p) => (p.id === project.id ? project : p)));
+    }
+  };
+
+  const remove = async (project) => {
+    if (!window.confirm(`Delete "${project.title}"? It will be removed from the website.`)) return;
+    try {
+      await deleteProject(project);
+      setProjects((list) => list.filter((p) => p.id !== project.id));
+    } catch {
+      setError('Could not delete this project.');
+    }
+  };
+
+  return (
+    <>
+      <div className="admin-jobs__bar">
+        <p className="admin-jobs__note">
+          {projects.filter((p) => p.active).length} shown on the website · {projects.filter((p) => !p.active).length} hidden
+        </p>
+        <button type="button" className="admin-btn admin-btn--primary" onClick={() => setEditing({})}>
+          <Plus size={16} aria-hidden="true" />
+          Post a project
+        </button>
+      </div>
+
+      {error && <p className="admin-error" role="alert">{error}</p>}
+
+      {loading && !projects.length ? (
+        <p className="admin-empty"><Loader2 size={18} className="admin-spin" aria-hidden="true" /> Loading projects…</p>
+      ) : !projects.length ? (
+        <p className="admin-empty">No projects yet. Use “Post a project” to add one.</p>
+      ) : (
+        <ul className="admin-list">
+          {projects.map((project) => (
+            <li key={project.id} className={`admin-app admin-job admin-project ${project.active ? '' : 'admin-job--hidden'}`}>
+              <img src={project.image} alt="" className="admin-project__thumb" loading="lazy" />
+              <div className="admin-app__main">
+                <div className="admin-app__top">
+                  <h2 className="admin-app__name">{project.title}</h2>
+                  <span className={`admin-job__badge ${project.active ? 'admin-job__badge--live' : ''}`}>
+                    {project.active ? 'On website' : 'Hidden'}
+                  </span>
+                </div>
+                <p className="admin-job__meta">
+                  {[project.category, project.year, project.conceptBadge].filter(Boolean).join(' · ')}
+                </p>
+                <p className="admin-job__summary">{project.description}</p>
+                {project.tags.length > 0 && (
+                  <ul className="admin-job__skills">
+                    {project.tags.map((tag) => <li key={tag}>{tag}</li>)}
+                  </ul>
+                )}
+              </div>
+              <div className="admin-app__side">
+                <button type="button" className="admin-btn" onClick={() => setEditing(project)}>
+                  <Pencil size={16} aria-hidden="true" />
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="admin-btn"
+                  onClick={() => toggleVisible(project)}
+                  aria-label={project.active ? `Hide ${project.title} from the website` : `Show ${project.title} on the website`}
+                >
+                  {project.active ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
+                  {project.active ? 'Hide' : 'Show'}
+                </button>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn--danger"
+                  onClick={() => remove(project)}
+                  aria-label={`Delete ${project.title}`}
+                >
+                  <Trash2 size={16} aria-hidden="true" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {editing && (
+        <ProjectEditor project={editing.id ? editing : null} onSaved={handleSaved} onClose={closeEditor} />
+      )}
+    </>
+  );
+}
+
 const SECTIONS = [
   { id: 'applications', title: 'Job applications', icon: Users },
   { id: 'jobs', title: 'Jobs', icon: Briefcase },
+  { id: 'projects', title: 'Projects', icon: FolderKanban },
   { id: 'messages', title: 'Contact messages', icon: MessageSquare },
 ];
 
@@ -602,6 +852,7 @@ function Dashboard({ admin, onSignedOut }) {
   const setApplicationsCount = useCallback((n) => setCounts((c) => ({ ...c, applications: n })), []);
   const setMessagesCount = useCallback((n) => setCounts((c) => ({ ...c, messages: n })), []);
   const setJobsCount = useCallback((n) => setCounts((c) => ({ ...c, jobs: n })), []);
+  const setProjectsCount = useCallback((n) => setCounts((c) => ({ ...c, projects: n })), []);
 
   return (
     <div className="admin-dash">
@@ -644,6 +895,9 @@ function Dashboard({ admin, onSignedOut }) {
       </div>
       <div hidden={section !== 'jobs'}>
         <JobsPanel reloadKey={reloadKey} onSignedOut={onSignedOut} onCount={setJobsCount} />
+      </div>
+      <div hidden={section !== 'projects'}>
+        <ProjectsPanel reloadKey={reloadKey} onSignedOut={onSignedOut} onCount={setProjectsCount} />
       </div>
       <div hidden={section !== 'messages'}>
         <MessagesPanel reloadKey={reloadKey} onSignedOut={onSignedOut} onCount={setMessagesCount} />

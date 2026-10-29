@@ -55,7 +55,8 @@ export default function StatsBar({ stats }) {
       <ul className="stats-bar__list">
         {stats.map(({ value, suffix, label }) => (
           <li key={label} className="stats-bar__item" aria-label={`${value}${suffix} ${label}`}>
-            <span className="stats-bar__value" aria-hidden="true">
+            {/* Not translated: the translator would replace this text and freeze the count-up */}
+            <span className="stats-bar__value notranslate" translate="no" aria-hidden="true">
               {Math.round(value * progress)}
               <span className="stats-bar__suffix">{suffix}</span>
             </span>

@@ -2,7 +2,9 @@
 //   • GET  /api/jobs                    public: open positions for the Careers page
 //   • POST /api/applications           public: form fields + PDF resume
 //   • POST /api/contact                 public: Contact page form
+//   • GET  /api/projects                public: projects for the home page and Projects page
 //   • /api/admin/*                      admin panel (login cookie required)
+// Projects are stored in `projects` (uploaded images in GridFS `project_images`).
 // Jobs are stored in `jobs`, applications in `job_applications`, resumes in GridFS
 // (`resumes.files` / `resumes.chunks`) and contact messages in `contact_messages` —
 // all visible in MongoDB Compass.
@@ -15,6 +17,7 @@ import express from 'express';
 import multer from 'multer';
 import { GridFSBucket, MongoClient, ObjectId } from 'mongodb';
 import { openPositions as defaultJobs, jobTypes as JOB_TYPES } from '../src/data/careersData.js';
+import { selectedWorkData as defaultProjects } from '../src/data/agencyData.js';
 
 const {
   MONGODB_URI = 'mongodb://localhost:27017',
@@ -34,6 +37,7 @@ const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toSt
 const SESSION_HOURS = 12;
 const COOKIE = 'cvx_admin';
 const MAX_RESUME_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const STATUSES = ['new', 'reviewed', 'shortlisted', 'rejected'];
 const MESSAGE_STATUSES = ['new', 'read', 'replied'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -46,10 +50,13 @@ const applications = db.collection('job_applications');
 const resumes = new GridFSBucket(db, { bucketName: 'resumes' });
 const messages = db.collection('contact_messages');
 const jobs = db.collection('jobs');
+const projects = db.collection('projects');
+const projectImages = new GridFSBucket(db, { bucketName: 'project_images' });
 await applications.createIndex({ createdAt: -1 });
 await applications.createIndex({ jobId: 1 });
 await messages.createIndex({ createdAt: -1 });
 await jobs.createIndex({ slug: 1 }, { unique: true });
+await projects.createIndex({ createdAt: 1 });
 
 // First run: copy the jobs that used to be hard-coded so the Careers page isn't empty
 if ((await jobs.countDocuments()) === 0) {
@@ -67,6 +74,23 @@ if ((await jobs.countDocuments()) === 0) {
     createdAt: new Date(now + i),
   })));
   console.log(`[server] added ${defaultJobs.length} starter jobs`);
+}
+// First run: copy the projects that used to be hard-coded (their images stay in /public/images)
+if ((await projects.countDocuments()) === 0) {
+  const now = Date.now();
+  await projects.insertMany(defaultProjects.map((project, i) => ({
+    title: project.title,
+    category: project.category,
+    year: project.year,
+    badge: project.conceptBadge,
+    description: project.description,
+    tags: project.tags,
+    imageUrl: project.image,
+    imageFileId: null,
+    active: true,
+    createdAt: new Date(now + i),
+  })));
+  console.log(`[server] added ${defaultProjects.length} starter projects`);
 }
 console.log(`[server] connected to MongoDB → ${MONGODB_DB}`);
 
@@ -187,6 +211,58 @@ const readJobForm = (body = {}) => {
   return error ? { error } : { job };
 };
 
+// Projects: field names match what ProjectCard on the website expects
+const projectToClient = (doc, { admin = false } = {}) => ({
+  id: doc._id.toString(),
+  title: doc.title,
+  category: doc.category,
+  year: doc.year,
+  conceptBadge: doc.badge,
+  description: doc.description,
+  tags: doc.tags || [],
+  image: doc.imageFileId ? `/api/project-images/${doc.imageFileId}` : doc.imageUrl,
+  ...(admin && { active: doc.active, created_at: doc.createdAt }),
+});
+
+// Validates the admin project form (multipart, so `tags` arrives as text); returns { project } or { error }
+const readProjectForm = (body = {}) => {
+  const text = (key) => String(body[key] ?? '').trim();
+  const project = {
+    title: text('title'),
+    category: text('category'),
+    year: text('year'),
+    badge: text('badge'),
+    description: text('description'),
+    tags: text('tags').split(',').map((tag) => tag.trim()).filter(Boolean),
+    active: text('active') !== 'false',
+  };
+  const error =
+    project.title.length < 2 || project.title.length > 80 ? 'Project title must be 2–80 characters.'
+    : project.category.length > 80 ? 'Category must be 80 characters or less.'
+    : project.year && !/^\d{4}$/.test(project.year) ? 'Year must be 4 digits, e.g. 2026.'
+    : project.badge.length > 30 ? 'Badge must be 30 characters or less.'
+    : project.description.length < 20 || project.description.length > 400 ? 'Description must be 20–400 characters.'
+    : project.tags.length > 6 || project.tags.some((tag) => tag.length > 30) ? 'Use up to 6 tags, 30 characters each.'
+    : null;
+  return error ? { error } : { project };
+};
+
+// Recognise real JPG / PNG / WebP files from their first bytes
+const imageType = (buffer) => {
+  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return 'image/jpeg';
+  if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return 'image/png';
+  if (buffer.subarray(0, 4).toString() === 'RIFF' && buffer.subarray(8, 12).toString() === 'WEBP') return 'image/webp';
+  return null;
+};
+
+const saveProjectImage = (file, contentType) =>
+  new Promise((resolve, reject) => {
+    const name = path.basename(file.originalname || 'project-image').slice(0, 200);
+    const stream = projectImages.openUploadStream(name, { metadata: { contentType } });
+    stream.on('error', reject).on('finish', () => resolve(stream.id));
+    stream.end(file.buffer);
+  });
+
 const toObjectId = (id) => (ObjectId.isValid(id) ? new ObjectId(id) : null);
 
 /* -------------------------------- App ---------------------------------- */
@@ -198,6 +274,33 @@ app.use(express.json({ limit: '20kb' }));
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: MAX_RESUME_BYTES, files: 1, fields: 10, fieldSize: 1024 },
+});
+
+const uploadImage = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_IMAGE_BYTES, files: 1, fields: 10, fieldSize: 2048 },
+});
+
+// Public: projects shown on the home page and the Projects page
+app.get('/api/projects', async (req, res) => {
+  const docs = await projects.find({ active: true }).sort({ createdAt: 1 }).toArray();
+  res.set('Cache-Control', 'no-store');
+  res.json(docs.map((doc) => projectToClient(doc)));
+});
+
+// Public: uploaded project images (a new upload gets a new id, so they can be cached for long)
+app.get('/api/project-images/:id', async (req, res) => {
+  const id = toObjectId(req.params.id);
+  const file = id && (await projectImages.find({ _id: id }).next());
+  if (!file) return res.status(404).json({ error: 'Not found.' });
+  res.set({
+    'Content-Type': file.metadata?.contentType || 'application/octet-stream',
+    'Cache-Control': 'public, max-age=31536000, immutable',
+    'X-Content-Type-Options': 'nosniff',
+  });
+  projectImages.openDownloadStream(id)
+    .on('error', () => res.destroy())
+    .pipe(res);
 });
 
 // Public: open positions shown on the Careers page
@@ -400,6 +503,46 @@ app.put('/api/admin/jobs/:slug', requireAdmin, async (req, res) => {
 app.delete('/api/admin/jobs/:slug', requireAdmin, async (req, res) => {
   const result = await jobs.deleteOne({ slug: req.params.slug });
   if (!result.deletedCount) return res.status(404).json({ error: 'Not found.' });
+  res.json({ ok: true });
+});
+
+// Projects (admin): list all including hidden ones, create, edit, delete
+app.get('/api/admin/projects', requireAdmin, async (req, res) => {
+  const docs = await projects.find().sort({ createdAt: 1 }).toArray();
+  res.json(docs.map((doc) => projectToClient(doc, { admin: true })));
+});
+
+app.post('/api/admin/projects', requireAdmin, uploadImage.single('image'), async (req, res) => {
+  const { project, error } = readProjectForm(req.body);
+  const contentType = req.file && imageType(req.file.buffer);
+  const problem = error || (!req.file ? 'Please add a project image.' : !contentType ? 'The image must be a JPG, PNG or WebP file.' : null);
+  if (problem) return res.status(400).json({ error: problem });
+  const doc = { ...project, imageUrl: null, imageFileId: await saveProjectImage(req.file, contentType), createdAt: new Date() };
+  await projects.insertOne(doc);
+  res.status(201).json(projectToClient(doc, { admin: true }));
+});
+
+// The image is optional when editing; a new one replaces the old upload
+app.put('/api/admin/projects/:id', requireAdmin, uploadImage.single('image'), async (req, res) => {
+  const id = toObjectId(req.params.id);
+  const existing = id && (await projects.findOne({ _id: id }));
+  if (!existing) return res.status(404).json({ error: 'Not found.' });
+  const { project, error } = readProjectForm(req.body);
+  const contentType = req.file && imageType(req.file.buffer);
+  const problem = error || (req.file && !contentType ? 'The image must be a JPG, PNG or WebP file.' : null);
+  if (problem) return res.status(400).json({ error: problem });
+  const update = { ...project, updatedAt: new Date() };
+  if (req.file) Object.assign(update, { imageUrl: null, imageFileId: await saveProjectImage(req.file, contentType) });
+  const doc = await projects.findOneAndUpdate({ _id: id }, { $set: update }, { returnDocument: 'after' });
+  if (req.file && existing.imageFileId) await projectImages.delete(existing.imageFileId).catch(() => {});
+  res.json(projectToClient(doc, { admin: true }));
+});
+
+app.delete('/api/admin/projects/:id', requireAdmin, async (req, res) => {
+  const id = toObjectId(req.params.id);
+  const doc = id && (await projects.findOneAndDelete({ _id: id }));
+  if (!doc) return res.status(404).json({ error: 'Not found.' });
+  if (doc.imageFileId) await projectImages.delete(doc.imageFileId).catch(() => {});
   res.json({ ok: true });
 });
 

@@ -1,8 +1,10 @@
 import React from 'react';
-import { selectedWorkData } from '../data/agencyData';
+import useProjects from '../lib/useProjects';
 import ProjectCard from './ProjectCard';
 
 export default function ProjectsPage() {
+  const projects = useProjects();
+
   return (
     <section
       id="projects"
@@ -22,7 +24,7 @@ export default function ProjectsPage() {
         </header>
 
         <div className="projects-grid projects-page__grid">
-          {selectedWorkData.map((project, idx) => (
+          {projects.map((project, idx) => (
             <ProjectCard key={project.id} project={project} index={idx} />
           ))}
         </div>

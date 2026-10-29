@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 import { navLinks, pageRoutes } from '../data/agencyData';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navbar({ currentRoute = '/', onNavigate }) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -164,11 +165,11 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
             aria-label="Cybervex Digital Homepage"
           >
             <img
-              src="/images/cybervex-logo-full-640.png"
+              src="/images/cybervex-logo-640.png"
               alt="Cybervex Digital Logo"
               className="navbar__logo-img"
-              width="3840"
-              height="754"
+              width="911"
+              height="186"
             />
           </a>
 
@@ -193,18 +194,22 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
             </ul>
           </nav>
 
-          {/* Mobile Clean Floating Hamburger Button (No Box) */}
-          <button
-            ref={toggleButtonRef}
-            type="button"
-            className="navbar__mobile-toggle"
-            onClick={handleOpenMenu}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-navigation-menu"
-            aria-label="Open navigation menu"
-          >
-            <Menu size={24} color="#FFFFFF" strokeWidth={1.5} />
-          </button>
+          <div className="navbar__actions">
+            <LanguageSwitcher />
+
+            {/* Mobile Clean Floating Hamburger Button (No Box) */}
+            <button
+              ref={toggleButtonRef}
+              type="button"
+              className="navbar__mobile-toggle"
+              onClick={handleOpenMenu}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-menu"
+              aria-label="Open navigation menu"
+            >
+              <Menu size={24} color="#FFFFFF" strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -226,11 +231,11 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
             aria-label="Cybervex Digital Homepage"
           >
             <img
-              src="/images/cybervex-logo-full-640.png"
+              src="/images/cybervex-logo-640.png"
               alt="Cybervex Digital Logo"
               className="navbar__logo-img"
-              width="3840"
-              height="754"
+              width="911"
+              height="186"
             />
           </a>
 

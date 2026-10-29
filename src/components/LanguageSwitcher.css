@@ -1,0 +1,159 @@
+/* ==========================================================================
+   LANGUAGE SWITCHER — flag button in the navbar with a dropdown of languages
+   ========================================================================== */
+.lang-switch {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.lang-switch__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0.35rem 0.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(199, 201, 204, 0.18);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.lang-switch__button:hover,
+.lang-switch__button[aria-expanded='true'] {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(199, 201, 204, 0.38);
+}
+
+.lang-switch__button:focus-visible,
+.lang-switch__option:focus-visible {
+  outline: 2px solid var(--silver-accent);
+  outline-offset: 2px;
+}
+
+.lang-switch__flag {
+  display: block;
+  flex-shrink: 0;
+  width: 22px;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
+.lang-switch__chevron {
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast);
+}
+
+.lang-switch__button[aria-expanded='true'] .lang-switch__chevron {
+  transform: rotate(180deg);
+}
+
+.lang-switch__menu {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  z-index: 1100;
+  width: 240px;
+  max-height: min(70vh, 520px);
+  padding: 0.4rem;
+  overflow-y: auto;
+  list-style: none;
+  background: rgba(10, 10, 12, 0.97);
+  border: 1px solid rgba(199, 201, 204, 0.18);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+.lang-switch__option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  font-family: var(--font-sans);
+  text-align: left;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.lang-switch__option:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.lang-switch__option--active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.lang-switch__names {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.lang-switch__native {
+  font-size: 0.92rem;
+}
+
+.lang-switch__english {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.lang-switch__check {
+  flex-shrink: 0;
+  color: var(--silver-accent);
+}
+
+/* Phones: flag only, next to the menu button */
+@media (max-width: 768px) {
+  .lang-switch__code {
+    display: none;
+  }
+
+  .lang-switch__button {
+    gap: 0.3rem;
+    padding: 0.35rem 0.5rem;
+  }
+}
+
+/* Hide Google's own toolbar, tooltips and highlights — the switcher above replaces them */
+.cvx-translate-host {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+body > .skiptranslate,
+iframe.skiptranslate,
+.goog-te-banner-frame,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+.goog-text-highlight {
+  background: none !important;
+  box-shadow: none !important;
+}

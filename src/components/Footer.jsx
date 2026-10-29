@@ -131,11 +131,11 @@ export default function Footer({ currentRoute = '/', onNavigate }) {
                 aria-label="Cybervex Digital Homepage"
               >
                 <img
-                  src="/images/cybervex-logo-full-640.png"
+                  src="/images/cybervex-logo-640.png"
                   alt="Cybervex Digital Logo"
                   className="footer__logo-img"
-                  width="3840"
-                  height="754"
+                  width="911"
+                  height="186"
                 />
               </a>
               <p className="footer__tagline">{footerData.tagline}</p>

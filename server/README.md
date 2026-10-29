@@ -10,6 +10,10 @@ What you'll see in **MongoDB Compass** (database `cybervex` by default):
 | `job_applications` | one document per application, with its status         |
 | `resumes.files`    | resume file info (name, size, upload date)            |
 | `resumes.chunks`   | the PDF data itself (MongoDB GridFS)                  |
+| `jobs`             | open positions shown on the Careers page              |
+| `contact_messages` | messages sent from the Contact page                   |
+| `projects`         | projects shown on the home page and Projects page     |
+| `project_images.*` | images uploaded for projects (MongoDB GridFS)         |
 
 ## Setup
 

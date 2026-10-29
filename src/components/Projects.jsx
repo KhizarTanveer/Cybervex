@@ -1,9 +1,10 @@
 import React from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import { selectedWorkData } from '../data/agencyData';
+import useProjects from '../lib/useProjects';
 import ProjectCard from './ProjectCard';
 
 export default function Projects({ onNavigate }) {
+  const projects = useProjects();
   const handleViewMore = (e) => {
     e.preventDefault();
     if (onNavigate) onNavigate('/projects');
@@ -35,7 +36,7 @@ export default function Projects({ onNavigate }) {
             aria-label="Projects list"
           >
             <div className="projects-grid">
-              {selectedWorkData.map((project, idx) => (
+              {projects.map((project, idx) => (
                 <ProjectCard key={project.id} project={project} index={idx} />
               ))}
             </div>

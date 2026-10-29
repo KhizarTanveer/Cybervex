@@ -472,6 +472,55 @@
   border-radius: 999px;
 }
 
+/* Projects section */
+.admin-project__thumb {
+  flex-shrink: 0;
+  width: 132px;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #101010;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+.admin-image-pick {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-image-pick__preview,
+.admin-image-pick__empty {
+  flex-shrink: 0;
+  width: 120px;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+}
+
+.admin-image-pick__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-field .admin-image-pick input {
+  min-width: 0;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  background: none;
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .admin-project__thumb {
+    width: 100%;
+  }
+}
+
 /* Job editor popup */
 .admin-modal-overlay {
   position: fixed;

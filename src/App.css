@@ -67,6 +67,15 @@
 
 .navbar__nav {
   display: block;
+  margin-left: auto;
+}
+
+/* Language switcher (+ menu button on phones) on the far right */
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 2.25rem;
 }
 
 .navbar__list {
@@ -80,6 +89,10 @@
 @media (max-width: 1100px) {
   .navbar__list {
     gap: 1.5rem;
+  }
+
+  .navbar__actions {
+    margin-left: 1.5rem;
   }
 }
 
@@ -1389,6 +1402,10 @@
 
   .navbar__nav {
     display: none;
+  }
+
+  .navbar__actions {
+    gap: 0.4rem;
   }
 
   .navbar__logo-img {

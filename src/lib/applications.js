@@ -1,6 +1,7 @@
-// Talks to the API in server/index.js (MongoDB): jobs, job applications and contact messages
+// Talks to the API in server/index.js (MongoDB): jobs, job applications, contact messages and projects
 
 export const MAX_RESUME_BYTES = 5 * 1024 * 1024; // 5 MB
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // project images
 
 export class ApiError extends Error {
   constructor(message, status) {
@@ -96,3 +97,28 @@ export const createJob = (job) => request('/api/admin/jobs', json('POST', job));
 export const updateJob = (id, job) => request(`/api/admin/jobs/${encodeURIComponent(id)}`, json('PUT', job));
 
 export const deleteJob = (job) => request(`/api/admin/jobs/${encodeURIComponent(job.id)}`, { method: 'DELETE' });
+
+/* ------------------------------ Projects ------------------------------ */
+
+// Public: projects for the home page and the Projects page
+export const fetchProjects = () => request('/api/projects');
+
+export const fetchAdminProjects = () => request('/api/admin/projects');
+
+// Sent as a form so the image file can go with it; `imageFile` is optional when editing
+const projectForm = (project, imageFile) => {
+  const form = new FormData();
+  ['title', 'category', 'year', 'badge', 'description', 'tags'].forEach((key) => form.append(key, project[key] ?? ''));
+  form.append('active', String(project.active));
+  if (imageFile) form.append('image', imageFile, imageFile.name);
+  return form;
+};
+
+export const createProject = (project, imageFile) =>
+  request('/api/admin/projects', { method: 'POST', body: projectForm(project, imageFile) });
+
+export const updateProject = (id, project, imageFile) =>
+  request(`/api/admin/projects/${encodeURIComponent(id)}`, { method: 'PUT', body: projectForm(project, imageFile) });
+
+export const deleteProject = (project) =>
+  request(`/api/admin/projects/${encodeURIComponent(project.id)}`, { method: 'DELETE' });

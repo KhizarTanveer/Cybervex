@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { X, User, Mail, Phone, MapPin, FileText, Upload, CheckCircle2, Loader2 } from 'lucide-react';
 import { submitApplication, MAX_RESUME_BYTES } from '../lib/applications';
+import SpamTrap from './SpamTrap';
 import { careersContent } from '../data/careersData';
 import './JobApplicationModal.css';
 
@@ -38,6 +39,7 @@ export default function JobApplicationModal({ job, onClose }) {
   const dialogRef = useRef(null);
   const firstFieldRef = useRef(null);
   const fileInputRef = useRef(null);
+  const trapRef = useRef(null);
 
   // Lock page scroll, close on Escape, focus the first field
   useEffect(() => {
@@ -88,7 +90,7 @@ export default function JobApplicationModal({ job, onClose }) {
     }
     setStatus('sending');
     try {
-      await submitApplication(job, values, resume);
+      await submitApplication(job, values, resume, trapRef.current?.value);
       setStatus('sent');
     } catch (err) {
       // 400 = the server rejected a field (its message says which); otherwise a server/network problem
@@ -125,6 +127,7 @@ export default function JobApplicationModal({ job, onClose }) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} noValidate>
+            <SpamTrap inputRef={trapRef} />
             <h2 id="job-apply-title" className="job-apply__title">Apply for {job.title}</h2>
             <p className="job-apply__note">Fill in your details and upload your resume. All fields are required.</p>
 

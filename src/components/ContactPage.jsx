@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { closingContent } from '../data/agencyData';
 import { submitContactMessage } from '../lib/applications';
+import SpamTrap from './SpamTrap';
 import {
   Copy,
   Check,
@@ -59,6 +60,7 @@ export default function ContactPage() {
   const [copied, setCopied] = useState(false);
   const [values, setValues] = useState(emptyForm);
   const [errors, setErrors] = useState({});
+  const trapRef = useRef(null);
   const [sentMail, setSentMail] = useState(null);
   const [sending, setSending] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -90,7 +92,7 @@ export default function ContactPage() {
     }
     setSending(true);
     try {
-      await submitContactMessage(values);
+      await submitContactMessage(values, trapRef.current?.value);
       setSaved(true);
     } catch (err) {
       if (err.status === 400 || err.status === 429) {
@@ -197,6 +199,7 @@ export default function ContactPage() {
               </div>
             ) : (
               <form className="contact-form" onSubmit={handleSubmit} noValidate>
+                <SpamTrap inputRef={trapRef} />
                 <div className="contact-form-card__header">
                   <h2 className="contact-form-card__title">Send us a message</h2>
                   <p className="contact-form-card__note">

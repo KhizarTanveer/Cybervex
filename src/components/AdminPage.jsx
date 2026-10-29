@@ -225,13 +225,12 @@ function ApplicationsPanel({ reloadKey, onSignedOut, onCount }) {
               <div className="admin-app__side">
                 <a
                   href={resumeUrl(a.id)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  download={a.resume_name}
                   className="admin-btn admin-btn--primary"
                   title={a.resume_name}
                 >
                   <FileText size={16} aria-hidden="true" />
-                  View resume
+                  Download resume
                 </a>
                 <select
                   className={`admin-select admin-status admin-status--${a.status}`}

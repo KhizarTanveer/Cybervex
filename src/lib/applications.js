@@ -28,8 +28,8 @@ const json = (method, body) => ({
   body: JSON.stringify(body),
 });
 
-// Public: send the form fields and the resume PDF
-export function submitApplication(job, values, resumeFile) {
+// Public: send the form fields and the resume PDF (`trap` is the hidden spam-trap field)
+export function submitApplication(job, values, resumeFile, trap = '') {
   const form = new FormData();
   form.append('jobId', job.id);
   form.append('name', values.name.trim());
@@ -37,6 +37,7 @@ export function submitApplication(job, values, resumeFile) {
   form.append('phone', values.phone.trim());
   form.append('city', values.city.trim());
   form.append('resume', resumeFile, resumeFile.name);
+  form.append('cvx_hp', trap);
   return request('/api/applications', { method: 'POST', body: form });
 }
 
@@ -68,13 +69,14 @@ export const deleteApplication = (application) =>
 
 /* -------------------------- Contact messages -------------------------- */
 
-// Public: Contact page form
-export const submitContactMessage = (values) =>
+// Public: Contact page form (`trap` is the hidden spam-trap field)
+export const submitContactMessage = (values, trap = '') =>
   request('/api/contact', json('POST', {
     name: values.name.trim(),
     email: values.email.trim(),
     phone: values.phone.trim(),
     message: values.message.trim(),
+    cvx_hp: trap,
   }));
 
 export const fetchMessages = () => request('/api/admin/messages');

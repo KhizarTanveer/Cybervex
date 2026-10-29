@@ -101,50 +101,34 @@ export const selectedWorkData = [
   {
     id: 'concept-apex',
     title: 'Apex Global Financial Infrastructure',
-    category: 'Web Development / UI Architecture',
-    year: '2026',
-    isConcept: true,
-    conceptBadge: 'Concept Prototype',
+    featured: true,
     image: '/images/project-apex.jpg',
     description:
       'An exploratory institutional fintech dashboard architecture exploring ultra-low latency data presentation and high-density typography.',
-    tags: ['Fintech Concept', 'React Architecture', 'Data Density'],
   },
   {
     id: 'concept-aura',
     title: 'Aura Spatial Computing Interface',
-    category: 'UI/UX Exploration / Ambient Systems',
-    year: '2026',
-    isConcept: true,
-    conceptBadge: 'Concept Prototype',
+    featured: true,
     image: '/images/project-aura.jpg',
     description:
       'An avant-garde interaction model studying spatial typography, monochrome layering, and micro-gestural interface controls.',
-    tags: ['Spatial Systems', 'Interface Exploration', 'Ambient UI'],
   },
   {
     id: 'concept-veloce',
     title: 'Veloce Hypercar Digital Configurator',
-    category: 'Branding & Web Experience',
-    year: '2026',
-    isConcept: true,
-    conceptBadge: 'Concept Prototype',
+    featured: true,
     image: '/images/project-veloce.jpg',
     description:
       'A minimalist automotive showcase and interactive 3D configurator concept celebrating aerodynamic form and tactile material finishes.',
-    tags: ['Automotive Concept', 'Interactive 3D', 'Editorial Craft'],
   },
   {
     id: 'concept-kinetics',
     title: 'Kinetics Creative Studio Operating Engine',
-    category: 'AI Creative Solutions / System',
-    year: '2026',
-    isConcept: true,
-    conceptBadge: 'Concept Prototype',
+    featured: true,
     image: '/images/project-kinetics.jpg',
     description:
       'A speculative generative motion studio workflow linking algorithmic art generation with distributed rendering pipelines.',
-    tags: ['Generative Media', 'Applied AI', 'Studio Engine'],
   },
 ];
 

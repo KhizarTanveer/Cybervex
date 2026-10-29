@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react';
 import { selectedWorkData } from '../data/agencyData';
 import { fetchProjects } from './applications';
 
-// Projects come from the admin panel; the built-in list shows while loading and if the server is offline
+// Projects come from the admin panel (null while loading); the built-in list is used if the server is offline
 export default function useProjects() {
-  const [projects, setProjects] = useState(selectedWorkData);
+  const [projects, setProjects] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
     fetchProjects()
       .then((list) => !cancelled && setProjects(list))
-      .catch(() => {});
+      .catch(() => !cancelled && setProjects(selectedWorkData));
     return () => {
       cancelled = true;
     };

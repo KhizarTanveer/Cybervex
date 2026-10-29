@@ -101,14 +101,11 @@ if ((await projects.countDocuments()) === 0) {
   const now = Date.now();
   await projects.insertMany(defaultProjects.map((project, i) => ({
     title: project.title,
-    category: project.category,
-    year: project.year,
-    badge: project.conceptBadge,
     description: project.description,
-    tags: project.tags,
     imageUrl: project.image,
     imageFileId: null,
     active: true,
+    featured: true,
     createdAt: new Date(now + i),
   })));
   console.log(`[server] added ${defaultProjects.length} starter projects`);
@@ -280,38 +277,28 @@ const readJobForm = (body = {}) => {
   return error ? { error } : { job };
 };
 
-// Projects: field names match what ProjectCard on the website expects
+// Projects: title, description and image (what ProjectCard shows); `featured` ones also appear on the home page
 const projectToClient = (doc, { admin = false } = {}) => ({
   id: doc._id.toString(),
   title: doc.title,
-  category: doc.category,
-  year: doc.year,
-  conceptBadge: doc.badge,
   description: doc.description,
-  tags: doc.tags || [],
+  featured: Boolean(doc.featured),
   image: doc.imageFileId ? `/api/project-images/${doc.imageFileId}` : doc.imageUrl,
   ...(admin && { active: doc.active, created_at: doc.createdAt }),
 });
 
-// Validates the admin project form (multipart, so `tags` arrives as text); returns { project } or { error }
+// Validates the admin project form (sent as multipart for the image); returns { project } or { error }
 const readProjectForm = (body = {}) => {
   const text = (key) => String(body[key] ?? '').trim();
   const project = {
     title: text('title'),
-    category: text('category'),
-    year: text('year'),
-    badge: text('badge'),
     description: text('description'),
-    tags: text('tags').split(',').map((tag) => tag.trim()).filter(Boolean),
     active: text('active') !== 'false',
+    featured: text('featured') === 'true',
   };
   const error =
     project.title.length < 2 || project.title.length > 80 ? 'Project title must be 2–80 characters.'
-    : project.category.length > 80 ? 'Category must be 80 characters or less.'
-    : project.year && !/^\d{4}$/.test(project.year) ? 'Year must be 4 digits, e.g. 2026.'
-    : project.badge.length > 30 ? 'Badge must be 30 characters or less.'
     : project.description.length < 20 || project.description.length > 400 ? 'Description must be 20–400 characters.'
-    : project.tags.length > 6 || project.tags.some((tag) => tag.length > 30) ? 'Use up to 6 tags, 30 characters each.'
     : null;
   return error ? { error } : { project };
 };

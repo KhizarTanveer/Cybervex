@@ -589,31 +589,16 @@ function JobsPanel({ reloadKey, onSignedOut, onCount }) {
   );
 }
 
-const EMPTY_PROJECT = {
-  title: '',
-  category: '',
-  year: String(new Date().getFullYear()),
-  badge: 'Concept Prototype',
-  description: '',
-  tags: '',
-  active: true,
-};
+const EMPTY_PROJECT = { title: '', description: '', active: true, featured: false };
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-// Form values for a saved project (the website's cards call the badge `conceptBadge`)
-const projectValues = (p) => ({
-  title: p.title,
-  category: p.category || '',
-  year: p.year || '',
-  badge: p.conceptBadge || '',
-  description: p.description,
-  tags: (p.tags || []).join(', '),
-});
+// Form values for a saved project
+const projectValues = (p) => ({ title: p.title, description: p.description, active: p.active, featured: p.featured });
 
 // Create / edit form shown over the Projects list
 function ProjectEditor({ project, onSaved, onClose }) {
   const [values, setValues] = useState(() =>
-    project ? { ...projectValues(project), active: project.active } : EMPTY_PROJECT
+    project ? projectValues(project) : EMPTY_PROJECT
   );
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(project?.image || '');
@@ -690,29 +675,17 @@ function ProjectEditor({ project, onSaved, onClose }) {
               <input type="file" accept="image/jpeg,image/png,image/webp" onChange={pickImage} />
             </div>
           </label>
-          <label className="admin-field">
-            <span>Category</span>
-            <input value={values.category} onChange={set('category')} maxLength={80} placeholder="e.g. Web Development" />
-          </label>
-          <label className="admin-field">
-            <span>Year</span>
-            <input value={values.year} onChange={set('year')} maxLength={4} inputMode="numeric" placeholder="2026" />
-          </label>
-          <label className="admin-field admin-field--full">
-            <span>Badge on the image <em>e.g. Concept Prototype, Client Project</em></span>
-            <input value={values.badge} onChange={set('badge')} maxLength={30} />
-          </label>
           <label className="admin-field admin-field--full">
             <span>Description <em>{values.description.length}/400</em></span>
             <textarea value={values.description} onChange={set('description')} maxLength={400} rows={3} placeholder="A short line about the project" required />
           </label>
-          <label className="admin-field admin-field--full">
-            <span>Tags <em>comma separated, up to 6</em></span>
-            <input value={values.tags} onChange={set('tags')} placeholder="e.g. React, Branding, UI/UX" />
-          </label>
           <label className="admin-check admin-field--full">
             <input type="checkbox" checked={values.active} onChange={set('active')} />
             <span>Show this project on the website</span>
+          </label>
+          <label className="admin-check admin-field--full">
+            <input type="checkbox" checked={values.featured} onChange={set('featured')} />
+            <span>Feature on the home page <em className="admin-check__hint">(also needs to be shown on the website)</em></span>
           </label>
         </div>
 
@@ -745,7 +718,7 @@ function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
     const next = { ...project, active: !project.active };
     setProjects((list) => list.map((p) => (p.id === project.id ? next : p)));
     try {
-      await updateProject(project.id, { ...projectValues(project), active: next.active });
+      await updateProject(project.id, projectValues(next));
     } catch {
       setError('Could not change this project.');
       setProjects((list) => list.map((p) => (p.id === project.id ? project : p)));
@@ -766,7 +739,8 @@ function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
     <>
       <div className="admin-jobs__bar">
         <p className="admin-jobs__note">
-          {projects.filter((p) => p.active).length} shown on the website · {projects.filter((p) => !p.active).length} hidden
+          {projects.filter((p) => p.active).length} shown on the website · {projects.filter((p) => !p.active).length} hidden ·{' '}
+          {projects.filter((p) => p.active && p.featured).length} on the home page
         </p>
         <button type="button" className="admin-btn admin-btn--primary" onClick={() => setEditing({})}>
           <Plus size={16} aria-hidden="true" />
@@ -791,16 +765,9 @@ function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
                   <span className={`admin-job__badge ${project.active ? 'admin-job__badge--live' : ''}`}>
                     {project.active ? 'On website' : 'Hidden'}
                   </span>
+                  {project.featured && <span className="admin-job__badge admin-job__badge--featured">Featured on home</span>}
                 </div>
-                <p className="admin-job__meta">
-                  {[project.category, project.year, project.conceptBadge].filter(Boolean).join(' · ')}
-                </p>
                 <p className="admin-job__summary">{project.description}</p>
-                {project.tags.length > 0 && (
-                  <ul className="admin-job__skills">
-                    {project.tags.map((tag) => <li key={tag}>{tag}</li>)}
-                  </ul>
-                )}
               </div>
               <div className="admin-app__side">
                 <button type="button" className="admin-btn" onClick={() => setEditing(project)}>

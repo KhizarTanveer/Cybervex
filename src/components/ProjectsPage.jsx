@@ -17,15 +17,11 @@ export default function ProjectsPage() {
           <p className="projects-page__intro">
             Demonstrating our design philosophy, technical standards, and interface craftsmanship.
           </p>
-          <p className="projects-shell__note">
-            <span className="projects-shell__dot" aria-hidden="true" />
-            All projects featured below are concept prototypes designed to illustrate creative capability.
-          </p>
         </header>
 
         <div className="projects-grid projects-page__grid">
-          {projects.map((project, idx) => (
-            <ProjectCard key={project.id} project={project} index={idx} />
+          {(projects || []).map((project) => (
+            <ProjectCard key={project.id} project={project} />
           ))}
         </div>
       </div>

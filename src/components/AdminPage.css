@@ -443,6 +443,16 @@
   border-color: rgba(143, 217, 168, 0.45);
 }
 
+.admin-job__badge--featured {
+  color: var(--admin-accent);
+  border-color: rgba(200, 169, 106, 0.5);
+}
+
+.admin-check__hint {
+  font-style: normal;
+  color: var(--text-tertiary);
+}
+
 .admin-job__meta {
   margin-top: 0.5rem;
   font-size: 0.85rem;

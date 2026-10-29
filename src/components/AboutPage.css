@@ -20,24 +20,6 @@
 }
 
 /* Tighter vertical rhythm between About sections */
-.about-page .section {
-  padding: 4.5rem 0;
-}
-
-.about-page .section-header {
-  margin-bottom: 2.5rem;
-}
-
-@media (max-width: 768px) {
-  .about-page .section {
-    padding: 3.25rem 0;
-  }
-
-  .about-page .section-header {
-    margin-bottom: 1.75rem;
-  }
-}
-
 /* ==========================================================================
    BRAND WATERMARK — sticky behind the hero & "Who We Are", ends before Mission & Vision
    ========================================================================== */
@@ -103,8 +85,8 @@
    ========================================================================== */
 .about-hero-section {
   position: relative;
-  padding-top: calc(var(--nav-height) + 3.5rem);
-  padding-bottom: 3.5rem;
+  padding-top: calc(var(--nav-height) + var(--space-page-top));
+  padding-bottom: var(--space-section);
   background-color: transparent;
   overflow: hidden;
   border-bottom: 1px solid var(--border-subtle);
@@ -207,8 +189,6 @@
 }
 
 .about-intro__aside {
-  position: sticky;
-  top: calc(var(--nav-height) + 2rem);
   padding-left: 1.75rem;
   position: relative;
 }
@@ -365,7 +345,7 @@
   background: #0c0c0c;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  padding: 3.5rem 3rem;
+  padding: 3rem 2.5rem;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -598,7 +578,7 @@
   background: #0b0b0b;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 10px;
-  padding: 4.5rem 4rem;
+  padding: 3.5rem 3rem;
   overflow: hidden;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
 }
@@ -680,7 +660,7 @@
 .about-closing-section {
   position: relative;
   background-color: #030303;
-  padding: 5rem 0 4.5rem;
+  padding: var(--space-section) 0;
   text-align: center;
   overflow: hidden;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -770,11 +750,6 @@
 
 /* Tablets (max-width: 768px) */
 @media (max-width: 768px) {
-  .about-hero-section {
-    padding-top: calc(var(--nav-height) + 2.25rem);
-    padding-bottom: 2.5rem;
-  }
-
 
 
   .about-intro-grid {
@@ -783,7 +758,6 @@
   }
 
   .about-intro__aside {
-    position: static;
     padding-left: 1.25rem;
   }
 
@@ -822,9 +796,6 @@
     padding: 1.25rem 1.25rem;
   }
 
-  .about-closing-section {
-    padding: 3.5rem 0 3rem;
-  }
 }
 
 /* Small Mobile Screens (max-width: 480px) */

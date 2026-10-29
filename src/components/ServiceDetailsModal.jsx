@@ -69,7 +69,6 @@ export default function ServiceDetailsModal({
               <span className="service-modal-badge__divider">/</span>
               <span className="service-modal-badge__total">{totalServices}</span>
             </span>
-            <span className="service-modal-category">{service.shortCategory}</span>
           </div>
 
           <div className="service-modal-header__actions">
@@ -115,7 +114,6 @@ export default function ServiceDetailsModal({
               <IconComponent size={28} className="service-modal-icon" />
             </div>
             <div className="service-modal-title-group">
-              <span className="service-modal-label">Comprehensive Service Profile</span>
               <h2 id="modal-service-title" className="service-modal-title">
                 {service.title}
               </h2>

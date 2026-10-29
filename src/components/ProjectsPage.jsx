@@ -11,7 +11,6 @@ export default function ProjectsPage() {
     >
       <div className="container">
         <header className="projects-page__header">
-          <span className="section-label">Portfolio</span>
           <h1 className="projects-page__title">Projects</h1>
           <p className="projects-page__intro">
             Demonstrating our design philosophy, technical standards, and interface craftsmanship.

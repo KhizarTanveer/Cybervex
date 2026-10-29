@@ -10,7 +10,7 @@
   max-width: 100%;
   background-color: #050505;
   color: #FFFFFF;
-  padding: 6.5rem 0 3rem;
+  padding: var(--space-section) 0;
   overflow: hidden;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -209,17 +209,16 @@
   height: 420px;
 }
 
-/* Central Spotlight */
+/* Central Spotlight — a pre-rendered image of the 450px gold radial glow with blur(50px),
+   so the GPU doesn't re-blur it on every frame while the cards move */
 .spiral-focal-spotlight {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 450px;
-  height: 450px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(200, 169, 106, 0.16) 0%, rgba(200, 169, 106, 0.04) 40%, transparent 70%);
-  filter: blur(50px);
+  width: 750px;
+  height: 750px;
+  background: url('/images/spiral-spotlight.png') center / 100% 100% no-repeat;
   pointer-events: none;
   z-index: 5;
 }
@@ -494,12 +493,12 @@
    VALUE PILLARS & COMMITMENT SECTION (From source text)
    -------------------------------------------------------------------------- */
 .spiral-pillars-section {
-  margin-top: 2rem;
-  padding-top: 3.5rem;
+  margin-top: 1rem;
+  padding-top: var(--space-block);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 3.5rem;
+  gap: var(--space-header);
 }
 
 .spiral-pillars-header {
@@ -708,9 +707,6 @@
 }
 
 @media (max-width: 768px) {
-  .spiral-services-section {
-    padding: 4.5rem 0 2.5rem;
-  }
   .spiral-viewport {
     height: 470px;
   }

@@ -57,6 +57,12 @@
   --container-padding: 2rem;
   --nav-height: 80px;
 
+  /* Vertical rhythm — every page uses these instead of one-off values */
+  --space-section: 5rem;    /* top/bottom padding of each section */
+  --space-page-top: 4rem;   /* navbar → first heading on inner pages */
+  --space-header: 3rem;     /* section heading → its content */
+  --space-block: 4rem;      /* between large blocks inside one section */
+
   /* Transitions */
   --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -179,13 +185,13 @@ button {
 
 /* Section Shared Layout */
 .section {
-  padding: 8rem 0;
+  padding: var(--space-section) 0;
   position: relative;
   border-bottom: 1px solid var(--border-subtle);
 }
 
 .section-header {
-  margin-bottom: 4rem;
+  margin-bottom: var(--space-header);
 }
 
 .section-label {
@@ -248,13 +254,17 @@ button {
   :root {
     --container-padding: 1.25rem;
     --nav-height: 72px;
+    --space-section: 4rem;
+    --space-page-top: 3rem;
+    --space-header: 2.25rem;
+    --space-block: 3rem;
   }
-  
-  .section {
-    padding: 5rem 0;
-  }
-  
-  .section-header {
-    margin-bottom: 2.75rem;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --space-section: 3rem;
+    --space-page-top: 2.5rem;
+    --space-header: 2rem;
   }
 }

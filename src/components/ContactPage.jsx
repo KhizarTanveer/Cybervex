@@ -100,7 +100,6 @@ export default function ContactPage() {
         <div className="contact-layout">
           {/* Left: Intro & Direct Details */}
           <div className="contact-intro">
-            <span className="section-label">{closingContent.label}</span>
             <h1 className="contact-heading">{closingContent.heading}</h1>
             <p className="contact-subheading">{closingContent.subheading}</p>
 

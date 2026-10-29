@@ -140,12 +140,6 @@ export default function AboutPage() {
 
           <div className="container about-hero__container">
             <div className="about-hero__header">
-              {/* Small Eyebrow with Warm Amber Indicator */}
-              <div className="about-hero__eyebrow-wrapper">
-                <span className="about-hero__eyebrow-dot" aria-hidden="true" />
-                <span className="about-hero__eyebrow">{aboutHeroContent.eyebrow}</span>
-              </div>
-
               {/* Editorial Main Heading */}
               <h1 className="about-hero__title">
                 {aboutHeroContent.headingLine1}
@@ -165,7 +159,6 @@ export default function AboutPage() {
         <section id="who-we-are" className="section about-intro-section reveal-blur-section" aria-label="Who We Are">
           <div className="container">
             <div className="section-header">
-              <span className="section-label">{aboutWhoWeAre.eyebrow}</span>
               <h2 className="section-title">{aboutWhoWeAre.heading}</h2>
             </div>
 
@@ -201,7 +194,6 @@ export default function AboutPage() {
       <section id="mission-vision" className="section about-mv-section reveal-blur-section" aria-label="Mission and Vision">
         <div className="container">
           <div className="section-header">
-            <span className="section-label">{aboutMissionContent.eyebrow}</span>
             <h2 className="section-title">Mission & Vision</h2>
           </div>
 
@@ -257,7 +249,6 @@ export default function AboutPage() {
       <section id="our-values" className="section about-values-section reveal-blur-section" aria-label="The Principles Behind Our Work">
         <div className="container">
           <div className="section-header">
-            <span className="section-label">03 / CORE PRINCIPLES</span>
             <h2 className="section-title">The Principles Behind Our Work</h2>
             <p className="section-subtitle">
               The foundational standards and commitments that direct our relationships and execution.
@@ -315,7 +306,6 @@ export default function AboutPage() {
         <div className="container">
           <div className="about-promise-box">
             <div className="about-promise-box__ambient" aria-hidden="true" />
-            <span className="section-label">{aboutPromiseContent.eyebrow}</span>
             <h2 className="section-title about-promise-title">{aboutPromiseContent.heading}</h2>
 
             {/* Typographically highlighted phrase */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import {
   spiralServicesList,
   servicesCompanyIntro,
@@ -19,8 +19,11 @@ import './ServiceDetailsModal.css';
 export default function SpiralServices() {
   const totalCount = spiralServicesList.length; // 23 categories
 
-  // State management
-  const [rotationIndex, setRotationIndex] = useState(0);
+  // State management. The spiral's continuous rotation lives in rotationIndexRef and is written
+  // straight to the card elements each frame (see applyRotation), so React only re-renders when
+  // the focal/active card or drag state actually changes — not 60 times a second.
+  const [focalIndex, setFocalIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [, setTargetIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
@@ -34,6 +37,7 @@ export default function SpiralServices() {
   const dragRafRef = useRef(null);
   const rotationIndexRef = useRef(0);
   const targetIndexRef = useRef(0);
+  const cardElsRef = useRef([]);
 
   // Drag interaction refs
   const isPointerDownRef = useRef(false);
@@ -46,11 +50,6 @@ export default function SpiralServices() {
   const lastPointerXRef = useRef(0);
   const lastPointerTimeRef = useRef(0);
   const velocityRef = useRef(0);
-
-  // Keep refs synchronized
-  useEffect(() => {
-    rotationIndexRef.current = rotationIndex;
-  }, [rotationIndex]);
 
   // Window resize listener
   useEffect(() => {
@@ -74,6 +73,135 @@ export default function SpiralServices() {
     return diff;
   };
 
+  // Parametric 3D position computation for spiral card i at rotation `rot`
+  const computeCardTransform = useCallback(
+    (cardIndex, rot) => {
+      let k = ((cardIndex - rot) % totalCount + totalCount) % totalCount;
+      if (k > totalCount / 2) k -= totalCount;
+
+      // Cull far away cards that are on the hidden/back side of the spiral
+      const isSmallMobile = windowWidth < 414;
+      const isMobile = windowWidth >= 414 && windowWidth < 768;
+      const isTablet = windowWidth >= 768 && windowWidth < 1024;
+
+      const maxVisibleSpan = isSmallMobile
+        ? 2.3
+        : isMobile
+        ? 2.8
+        : isTablet
+        ? 3.6
+        : 4.6;
+
+      if (Math.abs(k) > maxVisibleSpan) {
+        return { display: 'none' };
+      }
+
+      // Responsive trajectory geometry
+      const Rx = isSmallMobile
+        ? 140
+        : isMobile
+        ? 175
+        : isTablet
+        ? 290
+        : 420;
+      const Rz = isSmallMobile
+        ? 80
+        : isMobile
+        ? 100
+        : isTablet
+        ? 170
+        : 240;
+      const yPitch = isSmallMobile
+        ? 12
+        : isMobile
+        ? 16
+        : isTablet
+        ? 20
+        : 24;
+      const angleStep = isSmallMobile
+        ? 0.54
+        : isMobile
+        ? 0.50
+        : isTablet
+        ? 0.44
+        : 0.42;
+
+      const theta = k * angleStep;
+
+      // Spiral equations:
+      // X: elliptical spiral expanding gently as cards wind outward
+      const x = Rx * Math.sin(theta) * (1 + 0.035 * k);
+      // Y: vertical helical rise/fall
+      const y = -k * yPitch + Math.sin(theta) * 14;
+      // Z: depth into 3D space, active card is in foreground (+120px)
+      const z = Rz * (Math.cos(theta) - 1) - Math.abs(k) * (isMobile || isSmallMobile ? 32 : 45);
+
+      // Orientation angles
+      const rotY = -k * (isMobile || isSmallMobile ? 18 : 22);
+      const rotZ = -k * 1.6;
+      const rotX = 3 + Math.abs(k) * 1.2;
+
+      // Scale & Opacity
+      const scale = Math.max(0.66, 1.05 - Math.abs(k) * (isMobile || isSmallMobile ? 0.12 : 0.09));
+      let opacity = 1.0;
+      if (Math.abs(k) > 1.0) {
+        opacity = Math.max(
+          0,
+          1.0 - (Math.abs(k) - 1.0) * (isMobile || isSmallMobile ? 0.4 : 0.28)
+        );
+      }
+
+      const zIndex = 100 - Math.round(Math.abs(k) * 10);
+
+      return {
+        transform: `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotY}deg) rotateX(${rotX}deg) rotateZ(${rotZ}deg) scale(${scale})`,
+        opacity,
+        zIndex,
+        pointerEvents: opacity < 0.25 ? 'none' : 'auto',
+        // Every movement (drag and spring snap) is already written frame by frame, so a CSS
+        // transition on top would only be restarted each frame and cost extra work
+        transition: 'none',
+      };
+    },
+    [totalCount, windowWidth]
+  );
+
+  // Write the spiral position for rotation `rot` directly onto the card elements
+  const applyRotation = useCallback(
+    (rot) => {
+      rotationIndexRef.current = rot;
+      const els = cardElsRef.current;
+      for (let i = 0; i < totalCount; i++) {
+        const el = els[i];
+        if (!el) continue;
+        const s = computeCardTransform(i, rot);
+        if (s.display === 'none') {
+          el.style.display = 'none';
+          continue;
+        }
+        const st = el.style;
+        st.display = '';
+        st.transition = s.transition;
+        st.transform = s.transform;
+        st.opacity = s.opacity;
+        st.zIndex = s.zIndex;
+        st.pointerEvents = s.pointerEvents;
+      }
+
+      // Re-render only when the focal / active card changes (same value = no render)
+      const rounded = Math.round(rot);
+      const focal = ((rounded % totalCount) + totalCount) % totalCount;
+      setFocalIndex(focal);
+      setActiveIndex(Math.abs(rot - rounded) < 0.45 ? focal : -1);
+    },
+    [totalCount, computeCardTransform]
+  );
+
+  // Position cards before first paint, and again when layout inputs (width, drag) change
+  useLayoutEffect(() => {
+    applyRotation(rotationIndexRef.current);
+  }, [applyRotation]);
+
   /**
    * Starts a smooth, damped snap animation to target index.
    * Runs requestAnimationFrame ONLY while moving, then stops completely when idle.
@@ -95,8 +223,7 @@ export default function SpiralServices() {
       setTargetIndex(normalizedTarget);
 
       if (prefersReduced) {
-        rotationIndexRef.current = normalizedTarget;
-        setRotationIndex(normalizedTarget);
+        applyRotation(normalizedTarget);
         return;
       }
 
@@ -106,23 +233,21 @@ export default function SpiralServices() {
         const delta = getShortestDelta(current, targetVal, totalCount);
 
         if (Math.abs(delta) < 0.003) {
-          rotationIndexRef.current = targetVal;
-          setRotationIndex(targetVal);
+          applyRotation(targetVal);
           animFrameRef.current = null; // Clean stop when idle!
           return;
         }
 
         // Smooth spring damping interpolation
         const nextRot = current + delta * 0.16;
-        rotationIndexRef.current = nextRot;
-        setRotationIndex(nextRot);
+        applyRotation(nextRot);
 
         animFrameRef.current = requestAnimationFrame(animate);
       };
 
       animFrameRef.current = requestAnimationFrame(animate);
     },
-    [totalCount]
+    [totalCount, applyRotation]
   );
 
   // Command rotation to a specific card index
@@ -269,7 +394,7 @@ export default function SpiralServices() {
       // Throttle React state update to display refresh rate
       if (!dragRafRef.current) {
         dragRafRef.current = requestAnimationFrame(() => {
-          setRotationIndex(rotationIndexRef.current);
+          applyRotation(rotationIndexRef.current);
           dragRafRef.current = null;
         });
       }
@@ -326,104 +451,6 @@ export default function SpiralServices() {
     startSnapAnimation(target);
   };
 
-  // Active service calculation
-  const focalIndex = useMemo(() => {
-    return ((Math.round(rotationIndex) % totalCount) + totalCount) % totalCount;
-  }, [rotationIndex, totalCount]);
-
-  // Parametric 3D position computation for spiral card i
-  const computeCardTransform = useCallback(
-    (cardIndex) => {
-      let k = ((cardIndex - rotationIndex) % totalCount + totalCount) % totalCount;
-      if (k > totalCount / 2) k -= totalCount;
-
-      // Cull far away cards that are on the hidden/back side of the spiral
-      const isSmallMobile = windowWidth < 414;
-      const isMobile = windowWidth >= 414 && windowWidth < 768;
-      const isTablet = windowWidth >= 768 && windowWidth < 1024;
-
-      const maxVisibleSpan = isSmallMobile
-        ? 2.3
-        : isMobile
-        ? 2.8
-        : isTablet
-        ? 3.6
-        : 4.6;
-
-      if (Math.abs(k) > maxVisibleSpan) {
-        return { display: 'none' };
-      }
-
-      // Responsive trajectory geometry
-      const Rx = isSmallMobile
-        ? 140
-        : isMobile
-        ? 175
-        : isTablet
-        ? 290
-        : 420;
-      const Rz = isSmallMobile
-        ? 80
-        : isMobile
-        ? 100
-        : isTablet
-        ? 170
-        : 240;
-      const yPitch = isSmallMobile
-        ? 12
-        : isMobile
-        ? 16
-        : isTablet
-        ? 20
-        : 24;
-      const angleStep = isSmallMobile
-        ? 0.54
-        : isMobile
-        ? 0.50
-        : isTablet
-        ? 0.44
-        : 0.42;
-
-      const theta = k * angleStep;
-
-      // Spiral equations:
-      // X: elliptical spiral expanding gently as cards wind outward
-      const x = Rx * Math.sin(theta) * (1 + 0.035 * k);
-      // Y: vertical helical rise/fall
-      const y = -k * yPitch + Math.sin(theta) * 14;
-      // Z: depth into 3D space, active card is in foreground (+120px)
-      const z = Rz * (Math.cos(theta) - 1) - Math.abs(k) * (isMobile || isSmallMobile ? 32 : 45);
-
-      // Orientation angles
-      const rotY = -k * (isMobile || isSmallMobile ? 18 : 22);
-      const rotZ = -k * 1.6;
-      const rotX = 3 + Math.abs(k) * 1.2;
-
-      // Scale & Opacity
-      const scale = Math.max(0.66, 1.05 - Math.abs(k) * (isMobile || isSmallMobile ? 0.12 : 0.09));
-      let opacity = 1.0;
-      if (Math.abs(k) > 1.0) {
-        opacity = Math.max(
-          0,
-          1.0 - (Math.abs(k) - 1.0) * (isMobile || isSmallMobile ? 0.4 : 0.28)
-        );
-      }
-
-      const zIndex = 100 - Math.round(Math.abs(k) * 10);
-
-      return {
-        transform: `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotY}deg) rotateX(${rotX}deg) rotateZ(${rotZ}deg) scale(${scale})`,
-        opacity,
-        zIndex,
-        pointerEvents: opacity < 0.25 ? 'none' : 'auto',
-        transition: isDragging
-          ? 'none'
-          : 'transform 0.12s linear, opacity 0.12s linear',
-      };
-    },
-    [rotationIndex, totalCount, windowWidth, isDragging]
-  );
-
   // Modal navigation (Layer B)
   const handleModalNext = useCallback(() => {
     if (!selectedService) return;
@@ -475,14 +502,6 @@ export default function SpiralServices() {
       <div className="spiral-container">
         {/* Section Header */}
         <div className="spiral-header">
-          <div className="spiral-header__meta">
-            <span className="spiral-eyebrow">
-              <span className="spiral-eyebrow__dot" />
-              01 / CAPABILITIES PROFILE
-            </span>
-            <span className="spiral-badge-tag">{servicesCompanyIntro.tagline}</span>
-          </div>
-
           <h2 className="spiral-title">
             All Digital, Creative & Operational Disciplines 
           </h2>
@@ -522,19 +541,16 @@ export default function SpiralServices() {
           {/* 3D Transform Space containing cards */}
           <div className="spiral-3d-scene">
             {spiralServicesList.map((service, idx) => {
-              const cardStyle = computeCardTransform(idx);
-              if (cardStyle.display === 'none') return null;
-
               const isFocal = idx === focalIndex;
-              let k = ((idx - rotationIndex) % totalCount + totalCount) % totalCount;
-              if (k > totalCount / 2) k -= totalCount;
-              const isActive = Math.abs(k) < 0.45;
+              const isActive = idx === activeIndex;
 
               return (
                 <SpiralServiceCard
                   key={service.id}
                   service={service}
-                  style={cardStyle}
+                  cardRef={(el) => {
+                    cardElsRef.current[idx] = el;
+                  }}
                   isActive={isActive}
                   isFocal={isFocal}
                   onCardClick={() => handleCardClick(service, isActive, idx)}
@@ -548,7 +564,6 @@ export default function SpiralServices() {
         {/* VALUE PILLARS & COMMITMENT SHOWCASE (From source text) */}
         <div className="spiral-pillars-section">
           <div className="spiral-pillars-header">
-            <span className="spiral-pillars-eyebrow">WHY CHOOSE CYBERVEX DIGITAL?</span>
             <h3 className="spiral-pillars-title">
               Multiple Business Solutions Under One Roof
             </h3>

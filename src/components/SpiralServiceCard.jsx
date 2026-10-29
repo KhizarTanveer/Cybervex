@@ -4,7 +4,7 @@ import { ArrowUpRight, Sparkles } from 'lucide-react';
 
 export default function SpiralServiceCard({
   service,
-  style,
+  cardRef,
   isActive,
   isFocal,
   onCardClick,
@@ -40,7 +40,7 @@ export default function SpiralServiceCard({
       className={`spiral-card ${isActive ? 'spiral-card--active' : ''} ${
         isFocal ? 'spiral-card--focal' : ''
       }`}
-      style={style}
+      ref={cardRef}
       onClick={handleClick}
       role="button"
       tabIndex={isActive ? 0 : -1}
@@ -60,7 +60,6 @@ export default function SpiralServiceCard({
       <div className="spiral-card__header">
         <div className="spiral-card__badge-group">
           <span className="spiral-card__number">{service.number}</span>
-          <span className="spiral-card__category">{service.shortCategory}</span>
         </div>
 
         <div className="spiral-card__icon-box" aria-hidden="true">

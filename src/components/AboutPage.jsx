@@ -343,7 +343,7 @@ export default function AboutPage() {
         <div className="container about-closing__container">
           <h2 className="about-closing__brand">
             <img
-              src="/images/cybervex-logo-full-4k.png"
+              src="/images/cybervex-logo-full-1280.png"
               alt={aboutFinalStatement.brand}
               className="about-closing__logo"
               width="3840"

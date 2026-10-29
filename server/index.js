@@ -1,0 +1,425 @@
+// Cybervex Digital — API server for job applications and contact messages (MongoDB).
+//   • GET  /api/jobs                    public: open positions for the Careers page
+//   • POST /api/applications           public: form fields + PDF resume
+//   • POST /api/contact                 public: Contact page form
+//   • /api/admin/*                      admin panel (login cookie required)
+// Jobs are stored in `jobs`, applications in `job_applications`, resumes in GridFS
+// (`resumes.files` / `resumes.chunks`) and contact messages in `contact_messages` —
+// all visible in MongoDB Compass.
+// In production it also serves the built website from /dist.
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import express from 'express';
+import multer from 'multer';
+import { GridFSBucket, MongoClient, ObjectId } from 'mongodb';
+import { openPositions as defaultJobs, jobTypes as JOB_TYPES } from '../src/data/careersData.js';
+
+const {
+  MONGODB_URI = 'mongodb://localhost:27017',
+  MONGODB_DB = 'cybervex',
+  ADMIN_EMAIL,
+  ADMIN_PASSWORD,
+  PORT = 4000,
+  NODE_ENV,
+} = process.env;
+
+if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  console.warn('[server] ADMIN_EMAIL / ADMIN_PASSWORD are not set in server/.env — admin login is disabled.');
+}
+
+// Signs admin login cookies. A fixed SESSION_SECRET keeps admins logged in across restarts.
+const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+const SESSION_HOURS = 12;
+const COOKIE = 'cvx_admin';
+const MAX_RESUME_BYTES = 5 * 1024 * 1024;
+const STATUSES = ['new', 'reviewed', 'shortlisted', 'rejected'];
+const MESSAGE_STATUSES = ['new', 'read', 'replied'];
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/* ------------------------------- Database ------------------------------- */
+const client = new MongoClient(MONGODB_URI);
+await client.connect();
+const db = client.db(MONGODB_DB);
+const applications = db.collection('job_applications');
+const resumes = new GridFSBucket(db, { bucketName: 'resumes' });
+const messages = db.collection('contact_messages');
+const jobs = db.collection('jobs');
+await applications.createIndex({ createdAt: -1 });
+await applications.createIndex({ jobId: 1 });
+await messages.createIndex({ createdAt: -1 });
+await jobs.createIndex({ slug: 1 }, { unique: true });
+
+// First run: copy the jobs that used to be hard-coded so the Careers page isn't empty
+if ((await jobs.countDocuments()) === 0) {
+  const now = Date.now();
+  await jobs.insertMany(defaultJobs.map((job, i) => ({
+    slug: job.id,
+    title: job.title,
+    department: job.department,
+    type: job.type,
+    location: job.location,
+    experience: job.experience,
+    summary: job.summary,
+    skills: job.skills,
+    active: true,
+    createdAt: new Date(now + i),
+  })));
+  console.log(`[server] added ${defaultJobs.length} starter jobs`);
+}
+console.log(`[server] connected to MongoDB → ${MONGODB_DB}`);
+
+/* ------------------------------ Helpers -------------------------------- */
+const sha256 = (value) => crypto.createHash('sha256').update(String(value)).digest();
+const safeEqual = (a, b) => crypto.timingSafeEqual(sha256(a), sha256(b));
+const sign = (data) => crypto.createHmac('sha256', SESSION_SECRET).update(data).digest('base64url');
+
+const createToken = (email) => {
+  const payload = Buffer.from(JSON.stringify({ email, exp: Date.now() + SESSION_HOURS * 3600e3 })).toString('base64url');
+  return `${payload}.${sign(payload)}`;
+};
+
+const readToken = (token) => {
+  const [payload, signature] = String(token || '').split('.');
+  if (!payload || !signature || !safeEqual(signature, sign(payload))) return null;
+  try {
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    return data.exp > Date.now() ? data : null;
+  } catch {
+    return null;
+  }
+};
+
+const getCookie = (req, name) => {
+  const match = (req.headers.cookie || '').split(/;\s*/).find((c) => c.startsWith(`${name}=`));
+  return match ? decodeURIComponent(match.slice(name.length + 1)) : null;
+};
+
+const cookieOptions = (req) => ({
+  httpOnly: true,
+  sameSite: 'strict',
+  secure: NODE_ENV === 'production' || req.secure,
+  path: '/api/admin',
+  maxAge: SESSION_HOURS * 3600e3,
+});
+
+// Simple in-memory limiter: at most `max` requests per IP per window
+const rateLimit = (max, windowMs) => {
+  const hits = new Map();
+  return (req, res, next) => {
+    const now = Date.now();
+    const entry = hits.get(req.ip);
+    if (!entry || entry.reset < now) {
+      hits.set(req.ip, { count: 1, reset: now + windowMs });
+      return next();
+    }
+    if (++entry.count > max) {
+      return res.status(429).json({ error: 'Too many attempts. Please try again later.' });
+    }
+    return next();
+  };
+};
+
+const toClient = (doc) => ({
+  id: doc._id.toString(),
+  created_at: doc.createdAt,
+  job_id: doc.jobId,
+  job_title: doc.jobTitle,
+  full_name: doc.fullName,
+  email: doc.email,
+  phone: doc.phone,
+  city: doc.city,
+  resume_name: doc.resumeName,
+  status: doc.status,
+});
+
+const messageToClient = (doc) => ({
+  id: doc._id.toString(),
+  created_at: doc.createdAt,
+  name: doc.name,
+  email: doc.email,
+  phone: doc.phone,
+  message: doc.message,
+  status: doc.status,
+});
+
+// Jobs: `id` is the readable slug used in URLs and stored on applications
+const jobToClient = (doc, { admin = false } = {}) => ({
+  id: doc.slug,
+  title: doc.title,
+  department: doc.department,
+  type: doc.type,
+  location: doc.location,
+  experience: doc.experience,
+  summary: doc.summary,
+  skills: doc.skills || [],
+  ...(admin && { active: doc.active, created_at: doc.createdAt }),
+});
+
+const slugify = (text) =>
+  text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'job';
+
+// Validates the admin job form; returns { job } or { error }
+const readJobForm = (body = {}) => {
+  const text = (key) => String(body[key] ?? '').trim();
+  const job = {
+    title: text('title'),
+    department: text('department'),
+    type: text('type'),
+    location: text('location'),
+    experience: text('experience'),
+    summary: text('summary'),
+    skills: (Array.isArray(body.skills) ? body.skills : String(body.skills || '').split(','))
+      .map((skill) => String(skill).trim())
+      .filter(Boolean),
+    active: body.active !== false,
+  };
+  const error =
+    job.title.length < 2 || job.title.length > 80 ? 'Job title must be 2–80 characters.'
+    : job.department.length < 2 || job.department.length > 60 ? 'Department must be 2–60 characters.'
+    : !JOB_TYPES.includes(job.type) ? 'Please choose a job type.'
+    : job.location.length < 2 || job.location.length > 60 ? 'Location must be 2–60 characters.'
+    : job.experience.length < 1 || job.experience.length > 40 ? 'Experience must be 1–40 characters.'
+    : job.summary.length < 20 || job.summary.length > 600 ? 'Description must be 20–600 characters.'
+    : job.skills.length > 8 || job.skills.some((skill) => skill.length > 40) ? 'Use up to 8 skills, 40 characters each.'
+    : null;
+  return error ? { error } : { job };
+};
+
+const toObjectId = (id) => (ObjectId.isValid(id) ? new ObjectId(id) : null);
+
+/* -------------------------------- App ---------------------------------- */
+const app = express();
+app.set('trust proxy', 1);
+app.disable('x-powered-by');
+app.use(express.json({ limit: '20kb' }));
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_RESUME_BYTES, files: 1, fields: 10, fieldSize: 1024 },
+});
+
+// Public: open positions shown on the Careers page
+app.get('/api/jobs', async (req, res) => {
+  const docs = await jobs.find({ active: true }).sort({ createdAt: 1 }).toArray();
+  res.set('Cache-Control', 'no-store');
+  res.json(docs.map((doc) => jobToClient(doc)));
+});
+
+// Public: submit an application
+app.post('/api/applications', rateLimit(10, 60 * 60e3), upload.single('resume'), async (req, res) => {
+  const body = req.body || {};
+  const fields = {
+    jobId: String(body.jobId || ''),
+    fullName: String(body.name || '').trim(),
+    email: String(body.email || '').trim(),
+    phone: String(body.phone || '').trim(),
+    city: String(body.city || '').trim(),
+  };
+  const jobDoc = fields.jobId && (await jobs.findOne({ slug: fields.jobId, active: true }));
+  const job = jobDoc && { id: jobDoc.slug, title: jobDoc.title };
+  const digits = fields.phone.replace(/\D/g, '');
+  const file = req.file;
+
+  const problem =
+    !job ? 'This position is no longer open.'
+    : fields.fullName.length < 2 || fields.fullName.length > 120 ? 'Please enter your full name.'
+    : !EMAIL_RE.test(fields.email) || fields.email.length > 200 ? 'Please enter a valid email address.'
+    : digits.length < 7 || digits.length > 15 || /[^\d\s+\-()]/.test(fields.phone) ? 'Please enter a valid contact number.'
+    : fields.city.length < 2 || fields.city.length > 80 ? 'Please enter your city.'
+    : !file ? 'Please upload your resume (PDF).'
+    : file.buffer.subarray(0, 5).toString() !== '%PDF-' ? 'Only PDF files are accepted.'
+    : null;
+  if (problem) return res.status(400).json({ error: problem });
+
+  const resumeName = path.basename(file.originalname || 'resume.pdf').slice(0, 200);
+  const resumeId = await new Promise((resolve, reject) => {
+    const stream = resumes.openUploadStream(resumeName, { metadata: { contentType: 'application/pdf', jobId: job.id } });
+    stream.on('error', reject).on('finish', () => resolve(stream.id));
+    stream.end(file.buffer);
+  });
+
+  await applications.insertOne({
+    jobId: job.id,
+    jobTitle: job.title,
+    fullName: fields.fullName,
+    email: fields.email,
+    phone: fields.phone,
+    city: fields.city,
+    resumeFileId: resumeId,
+    resumeName,
+    resumeSize: file.size,
+    status: 'new',
+    createdAt: new Date(),
+  });
+
+  return res.status(201).json({ ok: true });
+});
+
+// Public: Contact page message
+app.post('/api/contact', rateLimit(10, 60 * 60e3), async (req, res) => {
+  const body = req.body || {};
+  const fields = {
+    name: String(body.name || '').trim(),
+    email: String(body.email || '').trim(),
+    phone: String(body.phone || '').trim(),
+    message: String(body.message || '').trim(),
+  };
+  const problem =
+    fields.name.length < 2 || fields.name.length > 120 ? 'Please enter your name.'
+    : !EMAIL_RE.test(fields.email) || fields.email.length > 200 ? 'Please enter a valid email address.'
+    : fields.phone && !/^\+?[\d\s()-]{7,20}$/.test(fields.phone) ? 'Please enter a valid phone number.'
+    : fields.message.length < 10 ? 'Please tell us a little more (at least 10 characters).'
+    : fields.message.length > 1000 ? 'Your message is too long (1000 characters max).'
+    : null;
+  if (problem) return res.status(400).json({ error: problem });
+
+  await messages.insertOne({ ...fields, status: 'new', createdAt: new Date() });
+  return res.status(201).json({ ok: true });
+});
+
+/* ------------------------------ Admin API ------------------------------ */
+app.post('/api/admin/login', rateLimit(10, 15 * 60e3), (req, res) => {
+  const { email = '', password = '' } = req.body || {};
+  const valid =
+    ADMIN_EMAIL && ADMIN_PASSWORD &&
+    safeEqual(String(email).trim().toLowerCase(), ADMIN_EMAIL.trim().toLowerCase()) &&
+    safeEqual(String(password), ADMIN_PASSWORD);
+  if (!valid) return res.status(401).json({ error: 'Incorrect email or password.' });
+  res.cookie(COOKIE, createToken(ADMIN_EMAIL), cookieOptions(req));
+  return res.json({ email: ADMIN_EMAIL });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+  res.clearCookie(COOKIE, { ...cookieOptions(req), maxAge: undefined });
+  res.json({ ok: true });
+});
+
+// Everything below needs a valid admin cookie
+const requireAdmin = (req, res, next) => {
+  const session = readToken(getCookie(req, COOKIE));
+  if (!session) return res.status(401).json({ error: 'Please sign in.' });
+  req.admin = session;
+  return next();
+};
+
+app.get('/api/admin/me', requireAdmin, (req, res) => res.json({ email: req.admin.email }));
+
+app.get('/api/admin/applications', requireAdmin, async (req, res) => {
+  const docs = await applications.find().sort({ createdAt: -1 }).limit(2000).toArray();
+  res.json(docs.map(toClient));
+});
+
+app.get('/api/admin/applications/:id/resume', requireAdmin, async (req, res) => {
+  const id = toObjectId(req.params.id);
+  const doc = id && (await applications.findOne({ _id: id }));
+  if (!doc) return res.status(404).json({ error: 'Not found.' });
+  const safeName = doc.resumeName.replace(/[^\w.\- ]/g, '_');
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `inline; filename="${safeName}"`,
+    'Cache-Control': 'private, no-store',
+    'X-Content-Type-Options': 'nosniff',
+  });
+  resumes.openDownloadStream(doc.resumeFileId)
+    .on('error', () => res.destroy())
+    .pipe(res);
+});
+
+app.patch('/api/admin/applications/:id', requireAdmin, async (req, res) => {
+  const id = toObjectId(req.params.id);
+  const { status } = req.body || {};
+  if (!id || !STATUSES.includes(status)) return res.status(400).json({ error: 'Invalid request.' });
+  const result = await applications.updateOne({ _id: id }, { $set: { status, updatedAt: new Date() } });
+  if (!result.matchedCount) return res.status(404).json({ error: 'Not found.' });
+  res.json({ ok: true });
+});
+
+app.delete('/api/admin/applications/:id', requireAdmin, async (req, res) => {
+  const id = toObjectId(req.params.id);
+  const doc = id && (await applications.findOneAndDelete({ _id: id }));
+  if (!doc) return res.status(404).json({ error: 'Not found.' });
+  await resumes.delete(doc.resumeFileId).catch(() => {});
+  res.json({ ok: true });
+});
+
+app.get('/api/admin/messages', requireAdmin, async (req, res) => {
+  const docs = await messages.find().sort({ createdAt: -1 }).limit(2000).toArray();
+  res.json(docs.map(messageToClient));
+});
+
+app.patch('/api/admin/messages/:id', requireAdmin, async (req, res) => {
+  const id = toObjectId(req.params.id);
+  const { status } = req.body || {};
+  if (!id || !MESSAGE_STATUSES.includes(status)) return res.status(400).json({ error: 'Invalid request.' });
+  const result = await messages.updateOne({ _id: id }, { $set: { status, updatedAt: new Date() } });
+  if (!result.matchedCount) return res.status(404).json({ error: 'Not found.' });
+  res.json({ ok: true });
+});
+
+app.delete('/api/admin/messages/:id', requireAdmin, async (req, res) => {
+  const id = toObjectId(req.params.id);
+  const result = id ? await messages.deleteOne({ _id: id }) : { deletedCount: 0 };
+  if (!result.deletedCount) return res.status(404).json({ error: 'Not found.' });
+  res.json({ ok: true });
+});
+
+// Jobs (admin): list all including hidden ones, create, edit, delete
+app.get('/api/admin/jobs', requireAdmin, async (req, res) => {
+  const docs = await jobs.find().sort({ createdAt: 1 }).toArray();
+  res.json(docs.map((doc) => jobToClient(doc, { admin: true })));
+});
+
+app.post('/api/admin/jobs', requireAdmin, async (req, res) => {
+  const { job, error } = readJobForm(req.body);
+  if (error) return res.status(400).json({ error });
+  // Readable, unique id such as "graphic-designer" or "graphic-designer-2"
+  const base = slugify(job.title);
+  let slug = base;
+  for (let n = 2; await jobs.findOne({ slug }); n++) slug = `${base}-${n}`;
+  const doc = { ...job, slug, createdAt: new Date() };
+  await jobs.insertOne(doc);
+  res.status(201).json(jobToClient(doc, { admin: true }));
+});
+
+app.put('/api/admin/jobs/:slug', requireAdmin, async (req, res) => {
+  const { job, error } = readJobForm(req.body);
+  if (error) return res.status(400).json({ error });
+  const doc = await jobs.findOneAndUpdate(
+    { slug: req.params.slug },
+    { $set: { ...job, updatedAt: new Date() } },
+    { returnDocument: 'after' }
+  );
+  if (!doc) return res.status(404).json({ error: 'Not found.' });
+  // Keep the job title on its existing applications in sync
+  await applications.updateMany({ jobId: doc.slug }, { $set: { jobTitle: doc.title } });
+  res.json(jobToClient(doc, { admin: true }));
+});
+
+app.delete('/api/admin/jobs/:slug', requireAdmin, async (req, res) => {
+  const result = await jobs.deleteOne({ slug: req.params.slug });
+  if (!result.deletedCount) return res.status(404).json({ error: 'Not found.' });
+  res.json({ ok: true });
+});
+
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found.' }));
+
+// Upload / unexpected errors
+app.use((err, req, res, _next) => {
+  if (err instanceof multer.MulterError) {
+    const message = err.code === 'LIMIT_FILE_SIZE' ? 'The file is larger than 5 MB.' : 'Invalid upload.';
+    return res.status(400).json({ error: message });
+  }
+  console.error('[server]', err);
+  return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+});
+
+/* ------------------ Built website (npm run build → dist) ------------------ */
+const distDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../dist');
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir, { index: false }));
+  app.get('/{*page}', (req, res) => res.sendFile(path.join(distDir, 'index.html')));
+}
+
+app.listen(PORT, () => console.log(`[server] listening on http://localhost:${PORT}`));

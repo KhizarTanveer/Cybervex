@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { X, ArrowRight, ArrowLeft, Check, ShieldAlert, Sparkles, Building2, ExternalLink } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
+import { getServiceIcon } from '../data/serviceIcons';
 
 export default function ServiceDetailsModal({
   service,
@@ -46,7 +46,7 @@ export default function ServiceDetailsModal({
   if (!isOpen || !service) return null;
 
   // Dynamically resolve icon from lucide-react
-  const IconComponent = LucideIcons[service.iconName] || LucideIcons.Sparkles;
+  const IconComponent = getServiceIcon(service.iconName);
 
   return (
     <div

@@ -80,6 +80,16 @@
   animation-play-state: paused;
 }
 
+/* Lighter mode for low-power devices (set in LiquidFx.jsx): lines hold their shape and skip the
+   travelling pulse — both repaint the SVG every frame; the particles (GPU-composited) keep floating */
+.liquid-fx--lite .liquid-fx__line-group {
+  animation: none;
+}
+
+.liquid-fx--lite .liquid-fx__line-flow {
+  display: none;
+}
+
 /* Irregular wandering paths (drift, stretch & tilt) so the lines feel organic */
 @keyframes liquid-fx-drift-a {
   0% { transform: translate(0, 0) scaleY(1) rotate(0deg); }

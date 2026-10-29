@@ -63,8 +63,8 @@
   height: min(78%, 640px);
   aspect-ratio: 3081 / 3840;
   background-color: #1C1C1C;
-  -webkit-mask: url('/images/cybervex-icon-4k.png') center / contain no-repeat;
-  mask: url('/images/cybervex-icon-4k.png') center / contain no-repeat;
+  -webkit-mask: url('/images/cybervex-icon-1280.png') center / contain no-repeat;
+  mask: url('/images/cybervex-icon-1280.png') center / contain no-repeat;
 }
 
 @media (max-width: 768px) {

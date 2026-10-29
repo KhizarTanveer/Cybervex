@@ -1,0 +1,313 @@
+/* ==========================================================================
+   JOB APPLICATION FORM (popup from the Careers page)
+   ========================================================================== */
+.job-apply-overlay {
+  --apply-accent: #C8A96A;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow-y: auto;
+  background: rgba(5, 5, 5, 0.86);
+  animation: job-apply-fade 0.25s ease-out;
+}
+
+.job-apply {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  margin: auto;
+  padding: 2.25rem;
+  background: linear-gradient(160deg, #0e0e11 0%, #070708 100%);
+  border: 1px solid rgba(200, 169, 106, 0.28);
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+  animation: job-apply-rise 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.job-apply__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.job-apply__close:hover {
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.job-apply__title {
+  padding-right: 3rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 1.75rem);
+  line-height: 1.2;
+  color: #FFFFFF;
+}
+
+.job-apply__note {
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.job-apply__note strong {
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.job-apply__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem 1rem;
+  margin: 1.75rem 0;
+}
+
+.job-apply__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.job-apply__field--full {
+  grid-column: 1 / -1;
+}
+
+.job-apply__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.job-apply__control {
+  position: relative;
+}
+
+.job-apply__icon {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+  transition: color var(--transition-fast);
+}
+
+.job-apply__control:focus-within .job-apply__icon {
+  color: var(--apply-accent);
+}
+
+.job-apply__input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0.8rem 1rem 0.8rem 2.8rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  outline: none;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.job-apply__input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.job-apply__input:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.job-apply__input:focus {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.job-apply__field--error .job-apply__input {
+  border-color: rgba(239, 98, 98, 0.7);
+}
+
+.job-apply__error {
+  font-size: 0.78rem;
+  color: #EF7272;
+}
+
+/* Resume upload */
+.job-apply__file-input {
+  display: none;
+}
+
+.job-apply__upload {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  padding: 1.1rem 1.15rem;
+  text-align: left;
+  color: var(--apply-accent);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px dashed rgba(200, 169, 106, 0.45);
+  border-radius: 12px;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.job-apply__upload:hover {
+  border-color: rgba(200, 169, 106, 0.8);
+  background: rgba(200, 169, 106, 0.05);
+}
+
+.job-apply__upload--ready {
+  border-style: solid;
+}
+
+.job-apply__upload--error .job-apply__upload {
+  border-color: rgba(239, 98, 98, 0.7);
+}
+
+.job-apply__upload svg {
+  flex-shrink: 0;
+}
+
+.job-apply__upload-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.job-apply__file-name {
+  overflow: hidden;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.job-apply__file-meta {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.job-apply__alert {
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #F2B8B8;
+  background: rgba(239, 98, 98, 0.08);
+  border: 1px solid rgba(239, 98, 98, 0.35);
+  border-radius: 10px;
+}
+
+.job-apply__alert a {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+.job-apply__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 52px;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #0B0B0B;
+  background: linear-gradient(135deg, #D9BE84 0%, #C8A96A 50%, #B08F4F 100%);
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 10px 24px rgba(0, 0, 0, 0.35);
+  transition: transform var(--transition-fast), filter var(--transition-fast);
+}
+
+.job-apply__submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+
+.job-apply__submit:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+
+.job-apply__spinner {
+  animation: job-apply-spin 0.9s linear infinite;
+}
+
+/* Success state */
+.job-apply__done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem 0 0.5rem;
+}
+
+.job-apply__done .job-apply__title {
+  padding-right: 0;
+  margin-top: 1rem;
+}
+
+.job-apply__done .job-apply__note {
+  max-width: 420px;
+  margin-bottom: 1.75rem;
+}
+
+.job-apply__done-icon {
+  color: var(--apply-accent);
+}
+
+@keyframes job-apply-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes job-apply-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes job-apply-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 560px) {
+  .job-apply-overlay {
+    align-items: flex-end;
+    padding: 0.75rem;
+  }
+
+  .job-apply {
+    padding: 1.75rem 1.25rem 1.5rem;
+  }
+
+  .job-apply__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .job-apply-overlay,
+  .job-apply,
+  .job-apply__spinner {
+    animation: none;
+  }
+}

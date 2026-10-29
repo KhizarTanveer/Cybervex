@@ -1,5 +1,5 @@
 import React from 'react';
-import * as LucideIcons from 'lucide-react';
+import { getServiceIcon } from '../data/serviceIcons';
 import { ArrowUpRight, Sparkles } from 'lucide-react';
 
 export default function SpiralServiceCard({
@@ -12,7 +12,7 @@ export default function SpiralServiceCard({
   onSelect,
   onActivate,
 }) {
-  const IconComponent = LucideIcons[service.iconName] || LucideIcons.Sparkles;
+  const IconComponent = getServiceIcon(service.iconName);
   const totalPoints = service.points ? service.points.length : 0;
 
   const handleClick = (e) => {

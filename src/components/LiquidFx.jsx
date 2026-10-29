@@ -27,6 +27,16 @@ const LINES = [
 ];
 
 const DRIFTS = ['liquid-fx-drift-a', 'liquid-fx-drift-b', 'liquid-fx-drift-c'];
+
+// Low-power devices (≤4 GB memory, or a touch device with ≤4 cores) get a lighter version:
+// no line drift or travelling pulse (both repaint the SVG every frame); particles still float.
+const isLowPowerDevice = (() => {
+  if (typeof navigator === 'undefined' || typeof window === 'undefined') return false;
+  const memory = navigator.deviceMemory;
+  const cores = navigator.hardwareConcurrency;
+  const isTouch = window.matchMedia?.('(pointer: coarse)').matches;
+  return (memory !== undefined && memory <= 4) || (isTouch && cores !== undefined && cores <= 4);
+})();
 const between = (min, max) => min + Math.random() * (max - min);
 
 // Fresh random timing per instance so every card's lines wander independently
@@ -63,7 +73,7 @@ export default function LiquidFx() {
   }, []);
 
   return (
-    <div className="liquid-fx" ref={fxRef} aria-hidden="true">
+    <div className={`liquid-fx${isLowPowerDevice ? ' liquid-fx--lite' : ''}`} ref={fxRef} aria-hidden="true">
       <svg className="liquid-fx__lines" viewBox="0 0 720 110" preserveAspectRatio="none">
         <defs>
           <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
@@ -73,7 +83,7 @@ export default function LiquidFx() {
           </linearGradient>
         </defs>
         {LINES.map((d, i) => (
-          <g key={d} className="liquid-fx__line-group" style={lineMotion[i].drift}>
+          <g key={d} className="liquid-fx__line-group" style={isLowPowerDevice ? undefined : lineMotion[i].drift}>
             <path d={d} className="liquid-fx__line" stroke={`url(#${gradientId})`} />
             <path d={d} className="liquid-fx__line-flow" pathLength="100" style={lineMotion[i].flow} />
           </g>

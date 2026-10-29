@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ServicesPreview from './components/ServicesPreview';
@@ -6,12 +6,16 @@ import Projects from './components/Projects';
 import ContactPage from './components/ContactPage';
 import ProjectsPage from './components/ProjectsPage';
 import AboutPage from './components/AboutPage';
+import CareersPage from './components/CareersPage';
+
+// Private admin panel: loaded only when /admin is opened
+const AdminPage = lazy(() => import('./components/AdminPage'));
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
 import { useScrollReveal } from './hooks/useScrollReveal';
 import './App.css';
 
-// Resolve the page route from the URL (supports /about, #/about, #about-page, /projects, /contact, #contact)
+// Resolve the page route from the URL (supports /about, #/about, #about-page, /projects, /careers, /contact, #contact)
 const getRouteFromLocation = () => {
   if (typeof window === 'undefined') return '/';
   const path = window.location.pathname;
@@ -22,6 +26,12 @@ const getRouteFromLocation = () => {
   if (path === '/projects' || hash === '#/projects') {
     return '/projects';
   }
+  if (path === '/careers' || hash === '#/careers') {
+    return '/careers';
+  }
+  if (path === '/admin') {
+    return '/admin';
+  }
   if (path === '/contact' || hash === '#contact' || hash === '#/contact') {
     return '/contact';
   }
@@ -31,6 +41,8 @@ const getRouteFromLocation = () => {
 const pageTitles = {
   '/about': 'About Us — Cybervex Digital | Growing Together, Building for the Future',
   '/projects': 'Projects — Cybervex Digital',
+  '/careers': 'Careers — Cybervex Digital',
+  '/admin': 'Admin — Cybervex Digital',
   '/contact': 'Contact — Cybervex Digital',
 };
 
@@ -129,6 +141,13 @@ export default function App() {
         ) : currentRoute === '/projects' ? (
           /* Dedicated Projects Page */
           <ProjectsPage />
+        ) : currentRoute === '/admin' ? (
+          <Suspense fallback={<div className="admin-page" />}>
+            <AdminPage />
+          </Suspense>
+        ) : currentRoute === '/careers' ? (
+          /* Careers: open positions */
+          <CareersPage />
         ) : currentRoute === '/contact' ? (
           /* Dedicated Contact Page */
           <ContactPage />
@@ -150,8 +169,8 @@ export default function App() {
       {/* 8. Brand Footer */}
       <Footer currentRoute={currentRoute} onNavigate={handleNavigate} />
 
-      {/* Site-wide assistant: AI chat + direct WhatsApp */}
-      <ChatBot onNavigate={handleNavigate} />
+      {/* Site-wide assistant: AI chat + direct WhatsApp (not needed in the admin panel) */}
+      {currentRoute !== '/admin' && <ChatBot onNavigate={handleNavigate} />}
     </div>
   );
 }

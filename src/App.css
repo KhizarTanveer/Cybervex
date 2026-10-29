@@ -76,6 +76,23 @@
   list-style: none;
 }
 
+/* Six links: tighten spacing on small laptops / tablets so they never touch the logo */
+@media (max-width: 1100px) {
+  .navbar__list {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .navbar__list {
+    gap: 1.15rem;
+  }
+
+  .navbar__link {
+    font-size: 0.95rem;
+  }
+}
+
 .navbar__item {
   position: relative;
 }
@@ -291,6 +308,12 @@
   transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Every link shows when the menu opens; the nth-child rules below only stagger the timing */
+.mobile-menu--open .mobile-menu__item {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .mobile-menu--open .mobile-menu__item:nth-child(1) {
   opacity: 1;
   transform: translateY(0);
@@ -313,6 +336,14 @@
   opacity: 1;
   transform: translateY(0);
   transition-delay: 0.30s;
+}
+
+.mobile-menu--open .mobile-menu__item:nth-child(5) {
+  transition-delay: 0.36s;
+}
+
+.mobile-menu--open .mobile-menu__item:nth-child(6) {
+  transition-delay: 0.42s;
 }
 
 .mobile-menu__link {

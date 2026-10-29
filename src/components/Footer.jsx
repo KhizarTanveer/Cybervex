@@ -131,7 +131,7 @@ export default function Footer({ currentRoute = '/', onNavigate }) {
                 aria-label="Cybervex Digital Homepage"
               >
                 <img
-                  src="/images/cybervex-logo-full-4k.png"
+                  src="/images/cybervex-logo-full-640.png"
                   alt="Cybervex Digital Logo"
                   className="footer__logo-img"
                   width="3840"

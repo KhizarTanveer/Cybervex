@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { closingContent } from '../data/agencyData';
+import { submitContactMessage } from '../lib/applications';
 import {
   Copy,
   Check,
@@ -10,6 +11,7 @@ import {
   Send,
   CheckCircle2,
   ArrowUpRight,
+  Loader2,
 } from 'lucide-react';
 import './ContactPage.css';
 
@@ -30,7 +32,7 @@ const validate = (values) => {
   return errors;
 };
 
-// Pre-filled message for Gmail compose / default mail app (no backend on this site)
+// Pre-filled message for Gmail compose / default mail app — fallback when the server can't be reached
 const buildMail = (values) => {
   const subject = `New enquiry from ${values.name.trim()}`;
   const body = [
@@ -58,6 +60,9 @@ export default function ContactPage() {
   const [values, setValues] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [sentMail, setSentMail] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const handleCopy = () => {
     if (navigator?.clipboard?.writeText) {
@@ -73,24 +78,38 @@ export default function ContactPage() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const nextErrors = validate(values);
     setErrors(nextErrors);
+    setFormError('');
     const firstInvalid = Object.keys(nextErrors)[0];
     if (firstInvalid) {
       document.getElementById(`contact-${firstInvalid}`)?.focus();
       return;
     }
-    const mail = buildMail(values);
-    window.open(mail.gmail, '_blank', 'noopener,noreferrer');
-    setSentMail(mail);
+    setSending(true);
+    try {
+      await submitContactMessage(values);
+      setSaved(true);
+    } catch (err) {
+      if (err.status === 400 || err.status === 429) {
+        setFormError(err.message);
+      } else {
+        // Server unreachable: offer the same message by email instead
+        setSentMail(buildMail(values));
+      }
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleReset = () => {
     setValues(emptyForm);
     setErrors({});
     setSentMail(null);
+    setSaved(false);
+    setFormError('');
   };
 
   return (
@@ -134,15 +153,29 @@ export default function ContactPage() {
 
           {/* Right: Contact Form */}
           <div className="contact-form-card">
-            {sentMail ? (
+            {saved ? (
               <div className="contact-success" role="status">
                 <span className="contact-success__icon" aria-hidden="true">
                   <CheckCircle2 size={34} />
                 </span>
-                <h2 className="contact-form-card__title">Your message is ready</h2>
+                <h2 className="contact-form-card__title">Message sent</h2>
                 <p className="contact-form-card__note">
-                  We opened Gmail with your details filled in. Just press <strong>Send</strong> there and
-                  we&apos;ll get back to you soon.
+                  Thank you, {values.name.trim().split(' ')[0]}. We&apos;ve received your message and will reply
+                  within one business day.
+                </p>
+                <button type="button" className="contact-reset-btn" onClick={handleReset}>
+                  Send another message
+                </button>
+              </div>
+            ) : sentMail ? (
+              <div className="contact-success" role="status">
+                <span className="contact-success__icon" aria-hidden="true">
+                  <Mail size={30} />
+                </span>
+                <h2 className="contact-form-card__title">Send it by email</h2>
+                <p className="contact-form-card__note">
+                  We couldn&apos;t send your message from the site right now. Open it in Gmail or your mail
+                  app — your details are already filled in — and press <strong>Send</strong>.
                 </p>
                 <div className="contact-success__actions">
                   <a
@@ -151,7 +184,7 @@ export default function ContactPage() {
                     rel="noopener noreferrer"
                     className="contact-submit-btn"
                   >
-                    <span>Open Gmail again</span>
+                    <span>Open in Gmail</span>
                     <ArrowUpRight size={17} />
                   </a>
                   <a href={sentMail.mailto} className="contact-secondary-btn">
@@ -240,9 +273,22 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <button type="submit" className="contact-submit-btn">
-                  <span>Submit message</span>
-                  <Send size={17} />
+                {formError && (
+                  <p className="contact-form__alert" role="alert">{formError}</p>
+                )}
+
+                <button type="submit" className="contact-submit-btn" disabled={sending}>
+                  {sending ? (
+                    <>
+                      <span>Sending…</span>
+                      <Loader2 size={17} className="contact-submit-btn__spinner" />
+                    </>
+                  ) : (
+                    <>
+                      <span>Submit message</span>
+                      <Send size={17} />
+                    </>
+                  )}
                 </button>
               </form>
             )}

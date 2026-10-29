@@ -164,7 +164,7 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
             aria-label="Cybervex Digital Homepage"
           >
             <img
-              src="/images/cybervex-logo-full-4k.png"
+              src="/images/cybervex-logo-full-640.png"
               alt="Cybervex Digital Logo"
               className="navbar__logo-img"
               width="3840"
@@ -226,7 +226,7 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
             aria-label="Cybervex Digital Homepage"
           >
             <img
-              src="/images/cybervex-logo-full-4k.png"
+              src="/images/cybervex-logo-full-640.png"
               alt="Cybervex Digital Logo"
               className="navbar__logo-img"
               width="3840"

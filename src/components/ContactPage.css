@@ -319,7 +319,30 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
 }
 
-.contact-submit-btn:hover {
+.contact-submit-btn:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+
+.contact-submit-btn__spinner {
+  animation: contact-spin 0.9s linear infinite;
+}
+
+@keyframes contact-spin {
+  to { transform: rotate(360deg); }
+}
+
+.contact-form__alert {
+  margin-bottom: 1.25rem;
+  padding: 0.8rem 1rem;
+  font-size: 0.85rem;
+  color: #F2B8B8;
+  background: rgba(239, 98, 98, 0.08);
+  border: 1px solid rgba(239, 98, 98, 0.35);
+  border-radius: 10px;
+}
+
+.contact-submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   filter: brightness(1.06);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 14px 30px rgba(0, 0, 0, 0.45);

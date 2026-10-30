@@ -30,6 +30,7 @@ const {
   ADMIN_EMAIL,
   ADMIN_PASSWORD_HASH,
   PORT = 4000,
+  HOST, // e.g. 127.0.0.1 on the VPS so only Nginx can reach the app
   NODE_ENV,
   TRUST_PROXY,
 } = process.env;
@@ -657,4 +658,6 @@ if (fs.existsSync(distDir)) {
   app.get('/{*page}', (req, res) => res.sendFile(path.join(distDir, 'index.html')));
 }
 
-app.listen(PORT, () => console.log(`[server] listening on http://localhost:${PORT}`));
+const onListening = () => console.log(`[server] listening on http://${HOST || 'localhost'}:${PORT}`);
+if (HOST) app.listen(Number(PORT), HOST, onListening);
+else app.listen(Number(PORT), onListening);

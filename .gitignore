@@ -28,3 +28,6 @@ scratch
 
 # Server secrets
 server/.env
+
+# Database exports (contain applicants' personal data)
+cybervex-data.json

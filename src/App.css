@@ -1116,6 +1116,15 @@
   position: relative;
 }
 
+/* The home Projects box and the footer (on every page) match the Services commitment box width */
+#work.projects-section > .container,
+.footer > .container {
+  width: min(1320px, 92%);
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .footer__glass {
   position: relative;
   padding: 2.25rem 2.5rem 1.5rem;

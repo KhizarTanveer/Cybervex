@@ -17,10 +17,13 @@ import { PUBLIC_PATHS, isAdminPath } from './lib/adminPath';
 import { applySeo } from './lib/seoHead';
 import './App.css';
 
+// The address without a trailing slash, so /about/ works like /about
+const currentPath = () => window.location.pathname.replace(/\/+$/, '') || '/';
+
 // Resolve the page route from the URL (supports /about, #/about, #about-page, /projects, /careers, /contact, #contact)
 const getRouteFromLocation = () => {
   if (typeof window === 'undefined') return '/';
-  const path = window.location.pathname;
+  const path = currentPath();
   const hash = window.location.hash;
   if (path === '/about' || hash === '#/about' || hash === '#about-page') {
     return '/about';
@@ -40,7 +43,7 @@ const getRouteFromLocation = () => {
 export default function App() {
   const [currentRoute, setCurrentRoute] = useState(getRouteFromLocation);
   // An unknown address might be the admin panel's private one; render nothing until it's checked
-  const [checkingPath, setCheckingPath] = useState(() => !PUBLIC_PATHS.has(window.location.pathname));
+  const [checkingPath, setCheckingPath] = useState(() => !PUBLIC_PATHS.has(currentPath()));
 
   useEffect(() => {
     if (!checkingPath) return undefined;
@@ -75,7 +78,7 @@ export default function App() {
     const handlePopState = () => {
       const hash = window.location.hash;
       const route = getRouteFromLocation();
-      if (!PUBLIC_PATHS.has(window.location.pathname)) {
+      if (!PUBLIC_PATHS.has(currentPath())) {
         setCheckingPath(true);
         return;
       }

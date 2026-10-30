@@ -14,6 +14,7 @@ import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
 import { useScrollReveal } from './hooks/useScrollReveal';
 import { PUBLIC_PATHS, isAdminPath } from './lib/adminPath';
+import { applySeo } from './lib/seoHead';
 import './App.css';
 
 // Resolve the page route from the URL (supports /about, #/about, #about-page, /projects, /careers, /contact, #contact)
@@ -36,14 +37,6 @@ const getRouteFromLocation = () => {
   return '/';
 };
 
-const pageTitles = {
-  '/about': 'About Us — Cybervex Digital | Growing Together, Building for the Future',
-  '/projects': 'Projects — Cybervex Digital',
-  '/careers': 'Careers — Cybervex Digital',
-  '/admin': 'Admin — Cybervex Digital',
-  '/contact': 'Contact — Cybervex Digital',
-};
-
 export default function App() {
   const [currentRoute, setCurrentRoute] = useState(getRouteFromLocation);
   // An unknown address might be the admin panel's private one; render nothing until it's checked
@@ -64,10 +57,10 @@ export default function App() {
     };
   }, [checkingPath]);
 
-  // Keep document title synchronized with active route
+  // Keep the title, description, canonical and social tags in step with the page (data/seo.js)
   useEffect(() => {
-    document.title = pageTitles[currentRoute] || 'Cybervex Digital — Digital Agency';
-  }, [currentRoute]);
+    if (!checkingPath) applySeo(currentRoute);
+  }, [currentRoute, checkingPath]);
 
   // Dedicated pages always open at the top. Runs after the new page renders,
   // so the previous page's scroll position can't carry over.

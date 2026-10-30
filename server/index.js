@@ -654,8 +654,18 @@ app.use((err, req, res, _next) => {
 /* ------------------ Built website (npm run build → dist) ------------------ */
 const distDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../dist');
 if (fs.existsSync(distDir)) {
-  app.use(express.static(distDir, { index: false }));
-  app.get('/{*page}', (req, res) => res.sendFile(path.join(distDir, 'index.html')));
+  // redirect: false — /about must not bounce to /about/ (the build writes dist/about/index.html)
+  app.use(express.static(distDir, { index: false, redirect: false }));
+  app.get('/{*page}', (req, res) => {
+    // Public pages have their own HTML with that page's title, description and social tags
+    const page = req.path.replace(/\/+$/, '') || '/';
+    const pageFile = page === '/' ? path.join(distDir, 'index.html') : path.join(distDir, page, 'index.html');
+    if (/^\/[a-z-]*$/.test(page) && fs.existsSync(pageFile)) return res.sendFile(pageFile);
+    // Anything else (including the admin panel's private address) still loads the app, but as a
+    // 404 that search engines don't index — so unknown URLs aren't treated as copies of the home page
+    res.status(404).set('X-Robots-Tag', 'noindex, nofollow');
+    return res.sendFile(path.join(distDir, 'index.html'));
+  });
 }
 
 const onListening = () => console.log(`[server] listening on http://${HOST || 'localhost'}:${PORT}`);

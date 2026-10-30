@@ -17,17 +17,6 @@ const MESSAGE_STATUSES = ['new', 'read', 'replied'];
 const formatDate = (iso) =>
   new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-// Keep the private admin page out of search engines
-function useNoIndex() {
-  useEffect(() => {
-    const meta = document.createElement('meta');
-    meta.name = 'robots';
-    meta.content = 'noindex, nofollow';
-    document.head.appendChild(meta);
-    return () => meta.remove();
-  }, []);
-}
-
 function LoginForm({ onSignedIn }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -873,7 +862,6 @@ function Dashboard({ admin, onSignedOut }) {
 }
 
 export default function AdminPage() {
-  useNoIndex();
   // undefined = checking, null = signed out, { email } = signed in, 'offline' = server not reachable
   const [admin, setAdmin] = useState(undefined);
   const handleSignedOut = useCallback(() => setAdmin(null), []);

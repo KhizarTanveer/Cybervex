@@ -459,20 +459,6 @@
   transition-delay: 0.36s;
 }
 
-.mobile-menu__footer-contact {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.mobile-menu__footer-tag {
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--silver-muted);
-}
-
 .mobile-menu__footer-link {
   font-family: var(--font-sans);
   font-size: 0.95rem;
@@ -485,18 +471,6 @@
 
 .mobile-menu__footer-link:hover {
   color: var(--silver-accent);
-}
-
-.mobile-menu__footer-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.78rem;
-  color: var(--text-tertiary);
-}
-
-.mobile-menu__footnote-sep {
-  color: var(--border-color);
 }
 
 /* Reduced Motion Accessibility */
@@ -1373,6 +1347,18 @@
     max-width: 100%;
     min-height: auto;
     overflow: hidden;
+  }
+
+  /* Phones / small tablets: the artwork fills 45% of the screen height (never less than its own
+     16:9 height). It's cropped from the sides, centred, so the CYBERVEX Digital lettering stays whole. */
+  .hero-art {
+    width: 100cqw;
+    aspect-ratio: auto;
+    height: max(45vh, 100cqw * 9 / 16);
+    height: max(45svh, 100cqw * 9 / 16);
+    margin: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 
   .hero-fullscreen-bottom-fade {

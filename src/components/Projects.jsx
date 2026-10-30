@@ -21,7 +21,7 @@ export default function Projects({ onNavigate }) {
         <div className="projects-shell">
           <div className="projects-shell__header">
             <div className="projects-shell__heading">
-              <h2 className="projects-shell__title">Projects</h2>
+              <h2 className="projects-shell__title">Our Projects</h2>
             </div>
             <a href="/projects" onClick={handleViewMore} className="projects-view-more">
               <span>View more</span>

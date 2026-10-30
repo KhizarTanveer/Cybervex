@@ -286,21 +286,13 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
           </nav>
 
           <div className="mobile-menu__footer">
-            <div className="mobile-menu__footer-contact">
-              <span className="mobile-menu__footer-tag">Direct Inquiries</span>
-              <a
-                href="mailto:info@cybervexdigital.com"
-                className="mobile-menu__footer-link"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                info@cybervexdigital.com
-              </a>
-            </div>
-            <div className="mobile-menu__footer-meta">
-              <span className="mobile-menu__footnote">Cybervex Digital © 2026</span>
-              <span className="mobile-menu__footnote-sep">•</span>
-              <span className="mobile-menu__footnote">Monochrome Craft</span>
-            </div>
+            <a
+              href="mailto:info@cybervexdigital.com"
+              className="mobile-menu__footer-link"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              info@cybervexdigital.com
+            </a>
           </div>
         </div>
       </div>

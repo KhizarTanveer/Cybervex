@@ -147,8 +147,14 @@ export const whatsAppContact = {
   defaultMessage: "Hi Cybervex Digital! I'd like to know more about your services.",
 };
 
-export const whatsAppLink = (message = whatsAppContact.defaultMessage) =>
-  `https://wa.me/${whatsAppContact.number}?text=${encodeURIComponent(message)}`;
+// All WhatsApp numbers listed on the Contact page (the first is also used by the chat bot)
+export const whatsAppNumbers = [
+  whatsAppContact,
+  { display: '+92 300 5559759', number: '923005559759' }, // 0300-5559759
+];
+
+export const whatsAppLink = (message = whatsAppContact.defaultMessage, number = whatsAppContact.number) =>
+  `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 
 export const footerData = {
   copyright: '© 2026 Cybervex Digital. All rights reserved.',

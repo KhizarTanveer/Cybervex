@@ -1,10 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { closingContent } from '../data/agencyData';
+import { closingContent, whatsAppNumbers, whatsAppLink } from '../data/agencyData';
 import { submitContactMessage } from '../lib/applications';
 import SpamTrap from './SpamTrap';
+import WhatsAppIcon from './WhatsAppIcon';
 import {
-  Copy,
-  Check,
   Mail,
   User,
   Phone,
@@ -57,7 +56,6 @@ const fields = [
 ];
 
 export default function ContactPage() {
-  const [copied, setCopied] = useState(false);
   const [values, setValues] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const trapRef = useRef(null);
@@ -66,12 +64,13 @@ export default function ContactPage() {
   const [saved, setSaved] = useState(false);
   const [formError, setFormError] = useState('');
 
-  const handleCopy = () => {
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(closingContent.contactEmail);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    }
+  // Computers often have no mail app set up, so open Gmail's compose window there;
+  // phones and tablets keep the mailto link, which opens their mail app
+  const openEmail = (e) => {
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    e.preventDefault();
+    const to = encodeURIComponent(closingContent.contactEmail);
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleChange = (e) => {
@@ -124,32 +123,47 @@ export default function ContactPage() {
             <h1 className="contact-heading">{closingContent.heading}</h1>
             <p className="contact-subheading">{closingContent.subheading}</p>
 
+            {/* Direct channels: each row is one big link */}
             <div className="contact-email-card">
-              <span className="contact-email-card__icon" aria-hidden="true">
-                <Mail size={18} />
-              </span>
-              <div className="contact-email-card__body">
-                <span className="contact-email-card__label">Email us directly</span>
-                <a
-                  href={`mailto:${closingContent.contactEmail}`}
-                  className="contact-email-card__link"
-                  title="Send email to Cybervex Digital"
-                >
-                  {/* Only allow a line break after "@" on very narrow screens */}
-                  {closingContent.contactEmail.split('@')[0]}@<wbr />
-                  {closingContent.contactEmail.split('@')[1]}
-                </a>
-              </div>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="contact-copy-btn"
-                aria-label="Copy email address to clipboard"
-                title="Copy email address"
+              <a
+                href={`mailto:${closingContent.contactEmail}`}
+                onClick={openEmail}
+                className="contact-direct"
+                aria-label={`Email us at ${closingContent.contactEmail}`}
               >
-                {copied ? <Check size={15} /> : <Copy size={15} />}
-                <span>{copied ? 'Copied' : 'Copy'}</span>
-              </button>
+                <span className="contact-email-card__icon" aria-hidden="true">
+                  <Mail size={18} />
+                </span>
+                <span className="contact-email-card__body">
+                  <span className="contact-email-card__label">Email us directly</span>
+                  <span className="contact-email-card__link">
+                    {/* Only allow a line break after "@" on very narrow screens */}
+                    {closingContent.contactEmail.split('@')[0]}@<wbr />
+                    {closingContent.contactEmail.split('@')[1]}
+                  </span>
+                </span>
+                <ArrowUpRight size={18} className="contact-direct__arrow" aria-hidden="true" />
+              </a>
+
+              {whatsAppNumbers.map(({ display, number }) => (
+                <a
+                  key={number}
+                  href={whatsAppLink(undefined, number)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="contact-direct"
+                  aria-label={`Chat on WhatsApp at ${display} (opens in a new tab)`}
+                >
+                  <span className="contact-email-card__icon contact-email-card__icon--whatsapp" aria-hidden="true">
+                    <WhatsAppIcon size={20} />
+                  </span>
+                  <span className="contact-email-card__body">
+                    <span className="contact-email-card__label">Chat on WhatsApp</span>
+                    <span className="contact-email-card__link">{display}</span>
+                  </span>
+                  <ArrowUpRight size={18} className="contact-direct__arrow" aria-hidden="true" />
+                </a>
+              ))}
             </div>
           </div>
 

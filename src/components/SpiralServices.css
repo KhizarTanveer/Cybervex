@@ -10,7 +10,8 @@
   max-width: 100%;
   background-color: #050505;
   color: #FFFFFF;
-  padding: var(--space-section) 0;
+  /* Slightly less space below the commitment box, before the home Projects section */
+  padding: var(--space-section) 0 calc(var(--space-section) * 0.6);
   overflow: hidden;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -489,6 +490,11 @@
   transform: translate(2px, -2px);
 }
 
+/* Stats strip sits between the spiral cards and the value pillars */
+.spiral-stats {
+  margin-bottom: var(--space-block);
+}
+
 /* --------------------------------------------------------------------------
    VALUE PILLARS & COMMITMENT SECTION (From source text)
    -------------------------------------------------------------------------- */
@@ -610,27 +616,6 @@
 .spiral-commitment-banner .liquid-fx__lines {
   top: auto;
   height: 150px;
-}
-
-.spiral-commitment-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: var(--font-sans, 'Outfit', sans-serif);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #C8A96A;
-  background: rgba(200, 169, 106, 0.1);
-  border: 1px solid rgba(200, 169, 106, 0.3);
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  width: fit-content;
-}
-
-.spiral-commitment-badge__icon {
-  color: #C8A96A;
 }
 
 .spiral-commitment-text {

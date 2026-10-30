@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Public pages of www.cybervexdigital.com. Update <lastmod> when a page's content changes;
+     the admin panel (/admin) and the API are deliberately left out. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.cybervexdigital.com/</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://www.cybervexdigital.com/about</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://www.cybervexdigital.com/projects</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://www.cybervexdigital.com/careers</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+  <url>
+    <loc>https://www.cybervexdigital.com/contact</loc>
+    <lastmod>2026-10-30</lastmod>
+  </url>
+</urlset>

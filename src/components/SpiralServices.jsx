@@ -9,7 +9,6 @@ import StatsBar from './StatsBar';
 import LiquidFx from './LiquidFx';
 import ServiceDetailsModal from './ServiceDetailsModal';
 import {
-  ShieldCheck,
   ArrowRight,
   CheckCircle2,
 } from 'lucide-react';
@@ -503,14 +502,12 @@ export default function SpiralServices() {
         {/* Section Header */}
         <div className="spiral-header">
           <h2 className="spiral-title">
-            All Digital, Creative & Operational Disciplines 
+            Multiple Business Solutions
           </h2>
 
           <p className="spiral-subtitle">
             {servicesCompanyIntro.about.split('\n\n')[0]}
           </p>
-
-          <StatsBar stats={servicesStats} />
         </div>
 
         {/* 3D ROTATING SPIRAL VIEWPORT */}
@@ -561,11 +558,16 @@ export default function SpiralServices() {
           </div>
         </div>
 
+        {/* Stats strip, below the spiral cards */}
+        <div className="spiral-stats">
+          <StatsBar stats={servicesStats} />
+        </div>
+
         {/* VALUE PILLARS & COMMITMENT SHOWCASE (From source text) */}
         <div className="spiral-pillars-section">
           <div className="spiral-pillars-header">
             <h3 className="spiral-pillars-title">
-              Multiple Business Solutions Under One Roof
+              Multiple Business Solutions 
             </h3>
             <p className="spiral-pillars-desc">
               We bring together digital marketing, technology, creative services, event management, and business support to simplify the client experience.
@@ -588,10 +590,6 @@ export default function SpiralServices() {
           {/* Our Commitment Box */}
           <div className="spiral-commitment-banner">
             <LiquidFx />
-            <div className="spiral-commitment-badge">
-              <ShieldCheck size={18} className="spiral-commitment-badge__icon" />
-              <span>OUR COMMITMENT</span>
-            </div>
             <p className="spiral-commitment-text">
               {servicesCompanyIntro.commitment}
             </p>

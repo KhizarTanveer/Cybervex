@@ -706,6 +706,14 @@
 }
 
 @media (max-width: 768px) {
+  /* Phones/tablets: start right under the hero. The section slides 24px up over the hero's
+     dark bottom fade (same #050505), so the heading sits close and the two read as one. */
+  .spiral-services-section {
+    margin-top: -24px;
+    /* Room for the heading's tall letters, which this section's overflow: hidden would clip */
+    padding-top: 1.75rem;
+  }
+
   .spiral-viewport {
     height: 470px;
   }

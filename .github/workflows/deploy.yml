@@ -1,0 +1,43 @@
+# Publishes the site on the VPS after every push to main (or on demand from the Actions tab).
+# The VPS only lets this key run /usr/local/bin/cybervex-update (pull, build, restart) — nothing else.
+# Repository secrets: VPS_HOST, VPS_DEPLOY_KEY (private key), VPS_KNOWN_HOSTS (ssh-keyscan of the VPS).
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One deploy at a time; a newer push waits for the running one instead of cancelling it mid-build
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Update the live site
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_DEPLOY_KEY: ${{ secrets.VPS_DEPLOY_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          # The server runs its fixed update command whatever is sent here
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o BatchMode=yes "root@$VPS_HOST" update
+
+      - name: Check the live site
+        run: |
+          for i in $(seq 1 10); do
+            curl -fsS -o /dev/null https://www.cybervexdigital.com/api/jobs && echo "Site is up" && exit 0
+            sleep 3
+          done
+          echo "Site did not respond" && exit 1

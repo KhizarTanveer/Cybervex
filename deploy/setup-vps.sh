@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time setup of the Cybervex Digital website on a fresh Ubuntu 22.04 / 24.04 VPS.
+# One-time setup of the Cybervex Digital website on a fresh Ubuntu 22.04 / 24.04 / 26.04 VPS.
 # Installs Node.js, MongoDB (password-protected, local only), Nginx + HTTPS, a firewall,
 # and runs the site (website + admin panel + API) as a system service.
 #
@@ -31,8 +31,8 @@ warn() { printf '\033[1;31m    ! %s\033[0m\n' "$*"; }
 [ "$(id -u)" -eq 0 ] || { echo "Run this as root (sudo -i first)."; exit 1; }
 . /etc/os-release
 case "$VERSION_CODENAME" in
-  jammy|noble) ;;
-  *) echo "This script supports Ubuntu 22.04 (jammy) and 24.04 (noble); found $PRETTY_NAME."; exit 1 ;;
+  jammy|noble|resolute) ;;
+  *) echo "This script supports Ubuntu 22.04, 24.04 and 26.04; found $PRETTY_NAME."; exit 1 ;;
 esac
 
 ask() { # ask VAR "Question" "default"
@@ -77,7 +77,11 @@ ok "Node.js $(node -v)"
 if ! command -v mongod >/dev/null; then
   say "Installing MongoDB 8.0"
   curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | gpg --dearmor --yes -o /usr/share/keyrings/mongodb-server-8.0.gpg
-  echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu ${VERSION_CODENAME}/mongodb-org/8.0 multiverse" \
+  # MongoDB doesn't publish the server for 26.04 yet; the 24.04 (noble) build runs on it
+  # (it only needs libc6 >= 2.38, libssl3t64 and libcurl4t64, which 26.04 has)
+  MONGO_CODENAME="$VERSION_CODENAME"
+  [ "$VERSION_CODENAME" = "resolute" ] && MONGO_CODENAME="noble"
+  echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu ${MONGO_CODENAME}/mongodb-org/8.0 multiverse" \
     > /etc/apt/sources.list.d/mongodb-org-8.0.list
   apt-get update -q
   apt-get install -y -q mongodb-org
@@ -205,6 +209,8 @@ PrivateTmp=true
 [Install]
 WantedBy=multi-user.target
 EOF
+# Root-owned copy of the update script: the GitHub deploy key may run only this
+install -o root -g root -m 700 "$APP_DIR/deploy/update.sh" /usr/local/bin/cybervex-update
 systemctl daemon-reload
 systemctl enable cybervex >/dev/null
 systemctl restart cybervex

@@ -40,11 +40,25 @@ HTTPS is skipped — run `bash setup-vps.sh` again later and it finishes that st
 
 ## 4. Publish updates
 
-After pushing changes to GitHub:
+Automatic: every push to `main` runs `.github/workflows/deploy.yml`, which signs in to the
+VPS with a deploy key that may only run `/usr/local/bin/cybervex-update` (pull, build,
+restart). Progress shows in the repository's **Actions** tab. It needs three repository
+secrets (Settings → Secrets and variables → Actions):
 
-```
-bash /var/www/cybervex/deploy/update.sh
-```
+| Secret | Value |
+| ------ | ----- |
+| `VPS_HOST` | the VPS IP |
+| `VPS_DEPLOY_KEY` | the deploy private key |
+| `VPS_KNOWN_HOSTS` | output of `ssh-keyscan -t ed25519 VPS_IP` |
+
+On the VPS, the deploy key's line in `/root/.ssh/authorized_keys` starts with
+`command="/usr/local/bin/cybervex-update",restrict` so it can't do anything else.
+`/usr/local/bin/cybervex-update` is a root-owned copy of `deploy/update.sh`; if that
+script changes, copy it again: `install -m 700 /var/www/cybervex/deploy/update.sh /usr/local/bin/cybervex-update`.
+
+By hand (same thing): `bash /var/www/cybervex/deploy/update.sh`
+
+Admin password: `bash /var/www/cybervex/deploy/set-admin-password.sh`
 
 ## Useful commands
 

@@ -117,7 +117,8 @@ export default function App() {
       setCurrentRoute(path);
     } else {
       // Navigating back to home '/'
-      const newUrl = targetAnchor ? `/${targetAnchor}` : '/';
+      // The top of the home page is just "/", without a "#top" in the address
+      const newUrl = targetAnchor && targetAnchor !== '#top' ? `/${targetAnchor}` : '/';
       window.history.pushState({}, '', newUrl);
       setCurrentRoute('/');
 

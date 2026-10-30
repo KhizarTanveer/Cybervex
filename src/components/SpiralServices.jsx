@@ -502,7 +502,7 @@ export default function SpiralServices() {
         {/* Section Header */}
         <div className="spiral-header">
           <h2 className="spiral-title">
-            Multiple Business Solutions
+            Our Services
           </h2>
 
           <p className="spiral-subtitle">

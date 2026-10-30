@@ -23,6 +23,7 @@ import { cspDirectives } from './security-headers.js';
 import { notifyContactMessage, notifyJobApplication } from './mailer.js';
 import { openPositions as defaultJobs, jobTypes as JOB_TYPES } from '../src/data/careersData.js';
 import { selectedWorkData as defaultProjects } from '../src/data/agencyData.js';
+import { PROJECT_DESCRIPTION_MAX_WORDS, PROJECT_TITLE_MAX_WORDS, countWords } from '../src/data/projectLimits.js';
 
 const {
   MONGODB_URI = 'mongodb://localhost:27017',
@@ -288,8 +289,10 @@ const projectToClient = (doc, { admin = false } = {}) => ({
   ...(admin && { active: doc.active, created_at: doc.createdAt }),
 });
 
-// Validates the admin project form (sent as multipart for the image); returns { project } or { error }
-const readProjectForm = (body = {}) => {
+// Validates the admin project form (sent as multipart for the image); returns { project } or { error }.
+// Word limits apply to new or changed text only, so older projects that are longer can still be
+// hidden, shown or featured without being rewritten first.
+const readProjectForm = (body = {}, existing = null) => {
   const text = (key) => String(body[key] ?? '').trim();
   const project = {
     title: text('title'),
@@ -297,9 +300,12 @@ const readProjectForm = (body = {}) => {
     active: text('active') !== 'false',
     featured: text('featured') === 'true',
   };
+  const tooManyWords = (key, max) => project[key] !== existing?.[key] && countWords(project[key]) > max;
   const error =
     project.title.length < 2 || project.title.length > 80 ? 'Project title must be 2–80 characters.'
+    : tooManyWords('title', PROJECT_TITLE_MAX_WORDS) ? `Project title can have at most ${PROJECT_TITLE_MAX_WORDS} words.`
     : project.description.length < 20 || project.description.length > 400 ? 'Description must be 20–400 characters.'
+    : tooManyWords('description', PROJECT_DESCRIPTION_MAX_WORDS) ? `Description can have at most ${PROJECT_DESCRIPTION_MAX_WORDS} words.`
     : null;
   return error ? { error } : { project };
 };
@@ -620,7 +626,7 @@ app.put('/api/admin/projects/:id', requireAdmin, uploadImage.single('image'), as
   const id = toObjectId(req.params.id);
   const existing = id && (await projects.findOne({ _id: id }));
   if (!existing) return res.status(404).json({ error: 'Not found.' });
-  const { project, error } = readProjectForm(req.body);
+  const { project, error } = readProjectForm(req.body, existing);
   const contentType = req.file && imageType(req.file.buffer);
   const problem = error || (req.file && !contentType ? 'The image must be a JPG, PNG or WebP file.' : null);
   if (problem) return res.status(400).json({ error: problem });

@@ -207,7 +207,6 @@ export default function AboutPage() {
                   <Target size={16} className="about-mv-card__badge-icon" strokeWidth={1.5} />
                   <span>MISSION</span>
                 </div>
-                <span className="about-mv-card__num">01</span>
               </div>
               <h3 className="about-mv-card__title">{aboutMissionContent.heading}</h3>
               <div className="about-mv-card__content">
@@ -228,7 +227,6 @@ export default function AboutPage() {
                   <Compass size={16} className="about-mv-card__badge-icon" strokeWidth={1.5} />
                   <span>VISION</span>
                 </div>
-                <span className="about-mv-card__num">02</span>
               </div>
               <h3 className="about-mv-card__title">{aboutVisionContent.heading}</h3>
               <div className="about-mv-card__content">
@@ -246,12 +244,12 @@ export default function AboutPage() {
       {/* =====================================================================
           SECTION 6 — OUR VALUES (SWIPEABLE CARDS WITH FILL SCROLL BAR)
           ===================================================================== */}
-      <section id="our-values" className="section about-values-section reveal-blur-section" aria-label="The Principles Behind Our Work">
+      <section id="our-values" className="section about-values-section reveal-blur-section" aria-label="Our Core Principles">
         <div className="container">
           <div className="section-header">
-            <h2 className="section-title">The Principles Behind Our Work</h2>
+            <h2 className="section-title">Our Core Principles</h2>
             <p className="section-subtitle">
-              The foundational standards and commitments that direct our relationships and execution.
+              The core values guiding our relationships, decisions, and everyday work.
             </p>
           </div>
 

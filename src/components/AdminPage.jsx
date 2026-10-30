@@ -9,6 +9,7 @@ import {
   fetchAdminProjects, createProject, updateProject, deleteProject, MAX_IMAGE_BYTES,
 } from '../lib/applications';
 import { jobTypes } from '../data/careersData';
+import { PROJECT_DESCRIPTION_MAX_WORDS, PROJECT_TITLE_MAX_WORDS, countWords } from '../data/projectLimits';
 import './AdminPage.css';
 
 const STATUSES = ['new', 'reviewed', 'shortlisted', 'rejected'];
@@ -620,9 +621,18 @@ function ProjectEditor({ project, onSaved, onClose }) {
     setPreview(URL.createObjectURL(file));
   };
 
+  // Word limits apply to new or changed text (same rule as the server)
+  const titleWords = countWords(values.title);
+  const descriptionWords = countWords(values.description);
+  const titleTooLong = titleWords > PROJECT_TITLE_MAX_WORDS && values.title.trim() !== (project?.title ?? '');
+  const descriptionTooLong =
+    descriptionWords > PROJECT_DESCRIPTION_MAX_WORDS && values.description.trim() !== (project?.description ?? '');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!project && !imageFile) return setError('Please add a project image.');
+    if (titleTooLong) return setError(`Shorten the title to ${PROJECT_TITLE_MAX_WORDS} words or fewer.`);
+    if (descriptionTooLong) return setError(`Shorten the description to ${PROJECT_DESCRIPTION_MAX_WORDS} words or fewer.`);
     setSaving(true);
     setError('');
     try {
@@ -650,7 +660,12 @@ function ProjectEditor({ project, onSaved, onClose }) {
 
         <div className="admin-modal__grid">
           <label className="admin-field admin-field--full">
-            <span>Project title</span>
+            <span>
+              Project title
+              <em className={titleWords > PROJECT_TITLE_MAX_WORDS ? 'admin-field__over' : ''}>
+                {titleWords}/{PROJECT_TITLE_MAX_WORDS} words
+              </em>
+            </span>
             <input value={values.title} onChange={set('title')} maxLength={80} placeholder="e.g. Nova Banking App" required autoFocus />
           </label>
           <label className="admin-field admin-field--full">
@@ -665,7 +680,12 @@ function ProjectEditor({ project, onSaved, onClose }) {
             </div>
           </label>
           <label className="admin-field admin-field--full">
-            <span>Description <em>{values.description.length}/400</em></span>
+            <span>
+              Description
+              <em className={descriptionWords > PROJECT_DESCRIPTION_MAX_WORDS ? 'admin-field__over' : ''}>
+                {descriptionWords}/{PROJECT_DESCRIPTION_MAX_WORDS} words
+              </em>
+            </span>
             <textarea value={values.description} onChange={set('description')} maxLength={400} rows={3} placeholder="A short line about the project" required />
           </label>
           <label className="admin-check admin-field--full">
@@ -757,6 +777,13 @@ function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
                   {project.featured && <span className="admin-job__badge admin-job__badge--featured">Featured on home</span>}
                 </div>
                 <p className="admin-job__summary">{project.description}</p>
+                {(countWords(project.title) > PROJECT_TITLE_MAX_WORDS ||
+                  countWords(project.description) > PROJECT_DESCRIPTION_MAX_WORDS) && (
+                  <p className="admin-project__over">
+                    Longer than the limit ({PROJECT_TITLE_MAX_WORDS}-word title, {PROJECT_DESCRIPTION_MAX_WORDS}-word description)
+                    — edit to shorten it so it lines up with the other cards.
+                  </p>
+                )}
               </div>
               <div className="admin-app__side">
                 <button type="button" className="admin-btn" onClick={() => setEditing(project)}>

@@ -584,6 +584,17 @@
   color: var(--text-tertiary);
 }
 
+/* Word counter over its limit */
+.admin-field em.admin-field__over {
+  color: #F08A8A;
+}
+
+.admin-project__over {
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: #E8B86A;
+}
+
 .admin-field textarea {
   width: 100%;
   min-height: 110px;

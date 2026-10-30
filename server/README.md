@@ -1,7 +1,7 @@
 # Job applications server (MongoDB)
 
 Receives Careers-page applications (name, email, contact number, city, PDF
-resume), stores them in MongoDB, and powers the admin panel at `/admin`.
+resume), stores them in MongoDB, and powers the admin panel (private address, see `src/lib/adminPath.js`).
 
 What you'll see in **MongoDB Compass** (database `cybervex` by default):
 
@@ -32,7 +32,7 @@ What you'll see in **MongoDB Compass** (database `cybervex` by default):
    npm run dev        # website on http://localhost:5173 (forwards /api to the server)
    ```
 
-3. Open `/careers` to apply and `/admin` to review applications.
+3. Open `/careers` to apply and the admin panel's private address to review applications.
 
 ## Going live
 

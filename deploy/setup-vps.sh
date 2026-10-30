@@ -290,6 +290,6 @@ fi
 
 say "Done"
 echo "  Website:      http://$SERVER_IP  (and https://$DOMAIN once DNS + HTTPS are set)"
-echo "  Admin panel:  /admin"
+echo "  Admin panel:  at its private address (see src/lib/adminPath.js)"
 echo "  Logs:         journalctl -u cybervex -f"
 echo "  Update later: bash $APP_DIR/deploy/update.sh"

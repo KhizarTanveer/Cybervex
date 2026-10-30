@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Public pages of www.cybervexdigital.com. Update <lastmod> when a page's content changes;
-     the admin panel (/admin) and the API are deliberately left out. -->
+     the admin panel and the API are deliberately left out. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.cybervexdigital.com/</loc>

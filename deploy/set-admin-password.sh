@@ -25,4 +25,4 @@ unset a b
 # The hash is base64 (no "|"), so "|" is a safe sed delimiter
 sed -i "s|^ADMIN_PASSWORD_HASH=.*|ADMIN_PASSWORD_HASH=$hash|" "$ENV_FILE"
 systemctl restart cybervex
-echo "✓ Admin password changed. Sign in at /admin with the new password."
+echo "✓ Admin password changed. Sign in to the admin panel with the new password."

@@ -1,5 +1,5 @@
 /**
- * Careers page text. Jobs themselves are managed in the admin panel (/admin → Jobs)
+ * Careers page text. Jobs themselves are managed in the admin panel (Jobs section)
  * and stored in MongoDB; `openPositions` below is only the starter set the server
  * copies into an empty database, and what the page shows if the server can't be reached.
  */

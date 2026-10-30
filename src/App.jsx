@@ -8,11 +8,12 @@ import ProjectsPage from './components/ProjectsPage';
 import AboutPage from './components/AboutPage';
 import CareersPage from './components/CareersPage';
 
-// Private admin panel: loaded only when /admin is opened
+// Private admin panel: loaded only when its private address is opened (see lib/adminPath.js)
 const AdminPage = lazy(() => import('./components/AdminPage'));
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
 import { useScrollReveal } from './hooks/useScrollReveal';
+import { PUBLIC_PATHS, isAdminPath } from './lib/adminPath';
 import './App.css';
 
 // Resolve the page route from the URL (supports /about, #/about, #about-page, /projects, /careers, /contact, #contact)
@@ -28,9 +29,6 @@ const getRouteFromLocation = () => {
   }
   if (path === '/careers' || hash === '#/careers') {
     return '/careers';
-  }
-  if (path === '/admin') {
-    return '/admin';
   }
   if (path === '/contact' || hash === '#contact' || hash === '#/contact') {
     return '/contact';
@@ -48,6 +46,23 @@ const pageTitles = {
 
 export default function App() {
   const [currentRoute, setCurrentRoute] = useState(getRouteFromLocation);
+  // An unknown address might be the admin panel's private one; render nothing until it's checked
+  const [checkingPath, setCheckingPath] = useState(() => !PUBLIC_PATHS.has(window.location.pathname));
+
+  useEffect(() => {
+    if (!checkingPath) return undefined;
+    let cancelled = false;
+    isAdminPath(window.location.pathname)
+      .catch(() => false)
+      .then((isAdmin) => {
+        if (cancelled) return;
+        if (isAdmin) setCurrentRoute('/admin');
+        setCheckingPath(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [checkingPath]);
 
   // Keep document title synchronized with active route
   useEffect(() => {
@@ -67,6 +82,10 @@ export default function App() {
     const handlePopState = () => {
       const hash = window.location.hash;
       const route = getRouteFromLocation();
+      if (!PUBLIC_PATHS.has(window.location.pathname)) {
+        setCheckingPath(true);
+        return;
+      }
       if (route !== '/') {
         // Legacy in-page #contact anchors (e.g. service CTAs) now open the Contact page
         if (route === '/contact' && window.location.pathname !== '/contact') {
@@ -127,6 +146,8 @@ export default function App() {
 
   // Initialize scroll-based blur reveal, re-running whenever route changes
   useScrollReveal(currentRoute);
+
+  if (checkingPath) return <div className="cybervex-app" />;
 
   return (
     <div className="cybervex-app">

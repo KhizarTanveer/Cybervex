@@ -68,6 +68,7 @@ export default function Footer({ currentRoute = '/', onNavigate }) {
         onNavigate('/', '#top');
       }
     } else {
+      if (window.location.hash) window.history.replaceState({}, '', '/'); // keep the address plain: no #top or #section
       scrollToTop(e);
     }
   };
@@ -94,6 +95,7 @@ export default function Footer({ currentRoute = '/', onNavigate }) {
           onNavigate('/', '#top');
         }
       } else {
+        if (window.location.hash) window.history.replaceState({}, '', '/'); // keep the address plain: no #top or #section
         window.scrollTo({ top: 0, behavior });
       }
       return;
@@ -125,7 +127,7 @@ export default function Footer({ currentRoute = '/', onNavigate }) {
             {/* Brand */}
             <div className="footer__brand">
               <a
-                href={isSubPage ? '/' : '#top'}
+                href="/"
                 onClick={handleLogoClick}
                 className="footer__brand-link"
                 aria-label="Cybervex Digital Homepage"
@@ -147,7 +149,7 @@ export default function Footer({ currentRoute = '/', onNavigate }) {
                 {navLinks.map((link) => (
                   <li key={link.label}>
                     <a
-                      href={pageRoutes[link.href] || link.href}
+                      href={pageRoutes[link.href] || (link.href === '#top' ? '/' : link.href)}
                       onClick={(e) => handleLinkClick(e, link.href)}
                       className="footer__nav-link"
                     >

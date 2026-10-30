@@ -101,6 +101,7 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
           onNavigate('/', '#top');
         }
       } else {
+        if (window.location.hash) window.history.replaceState({}, '', '/'); // keep the address plain: no #top or #section
         window.scrollTo({ top: 0, behavior });
       }
       return;
@@ -138,6 +139,7 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
         onNavigate('/', '#top');
       }
     } else {
+      if (window.location.hash) window.history.replaceState({}, '', '/'); // keep the address plain: no #top or #section
       window.scrollTo({ top: 0, behavior });
     }
   };
@@ -159,7 +161,7 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
         <div className="navbar__container container">
           {/* Logo on the Left */}
           <a
-            href={isSubPage ? '/' : '#top'}
+            href="/"
             onClick={handleLogoClick}
             className="navbar__brand"
             aria-label="Cybervex Digital Homepage"
@@ -182,7 +184,7 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
                 return (
                   <li key={link.label} className="navbar__item">
                     <a
-                      href={pageRoutes[link.href] || link.href}
+                      href={pageRoutes[link.href] || (link.href === '#top' ? '/' : link.href)}
                       onClick={(e) => handleLinkClick(e, link.href)}
                       className={`navbar__link ${isActive ? 'navbar__link--active' : ''}`}
                     >
@@ -225,7 +227,7 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
         {/* Top bar matching navbar branding and alignment */}
         <div className="mobile-menu__top-bar container">
           <a
-            href={isSubPage ? '/' : '#top'}
+            href="/"
             onClick={handleLogoClick}
             className="navbar__brand"
             aria-label="Cybervex Digital Homepage"
@@ -269,7 +271,7 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
                     className="mobile-menu__item"
                   >
                     <a
-                      href={pageRoutes[link.href] || link.href}
+                      href={pageRoutes[link.href] || (link.href === '#top' ? '/' : link.href)}
                       onClick={(e) => handleLinkClick(e, link.href)}
                       className={`mobile-menu__link ${isActive ? 'mobile-menu__link--active' : ''}`}
                     >

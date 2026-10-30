@@ -13,8 +13,22 @@
   /* Slightly less space below the commitment box, before the home Projects section */
   padding: var(--space-section) 0 calc(var(--space-section) * 0.6);
   overflow: hidden;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  /* No line on top: the hero fades straight into this section */
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Blend the top edge into the hero: the grid and glow below fade in instead of starting at a hard line */
+.spiral-services-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 160px;
+  background: linear-gradient(to bottom, #050505 0%, rgba(5, 5, 5, 0) 100%);
+  /* Above the grid/glow layer (z-index 0), below the content (.spiral-container, later in the page) */
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* Background Ambient Lighting */

@@ -1,6 +1,5 @@
 import React from 'react';
 import { navLinks, footerData, pageRoutes } from '../data/agencyData';
-import { ArrowUp } from 'lucide-react';
 
 // Brand glyphs (lucide-react no longer ships brand icons), keyed by footerData.socials name
 const socialIcons = {
@@ -181,15 +180,17 @@ export default function Footer({ currentRoute = '/', onNavigate }) {
 
           <div className="footer__bottom">
             <p className="footer__copyright">{footerData.copyright}</p>
-            <button
-              type="button"
-              onClick={scrollToTop}
-              className="footer__back-to-top"
-              aria-label="Scroll back to top of page"
-            >
-              <span>Back to top</span>
-              <ArrowUp size={14} className="footer__back-icon" />
-            </button>
+            <nav aria-label="Legal">
+              <ul className="footer__legal">
+                {footerData.legalLinks.map((link) => (
+                  <li key={link.href}>
+                    <a href={link.href} className="footer__legal-link">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
         </div>
       </div>

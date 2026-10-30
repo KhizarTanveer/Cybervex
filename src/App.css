@@ -1243,25 +1243,22 @@
   color: var(--text-tertiary);
 }
 
-.footer__back-to-top {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
+/* Terms / Privacy / Cookies links, right side of the bottom row */
+.footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  list-style: none;
+}
+
+.footer__legal-link {
   font-size: 0.8rem;
   color: var(--text-secondary);
   transition: color var(--transition-fast);
 }
 
-.footer__back-to-top:hover {
+.footer__legal-link:hover {
   color: var(--text-primary);
-}
-
-.footer__back-icon {
-  transition: transform var(--transition-fast);
-}
-
-.footer__back-to-top:hover .footer__back-icon {
-  transform: translateY(-2px);
 }
 
 @media (max-width: 992px) {
@@ -1283,8 +1280,36 @@
     height: 30px;
   }
 
+  /* All six links on one line, spread across the width; the text shrinks a little on very narrow phones */
+  .footer__nav {
+    width: 100%;
+  }
+
   .footer__nav-list {
-    gap: 0.5rem 1.25rem;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .footer__nav-link {
+    font-size: min(0.875rem, 3.2vw);
+    white-space: nowrap;
+  }
+
+  /* Same for Terms / Privacy / Cookies */
+  .footer__bottom > nav {
+    width: 100%;
+  }
+
+  .footer__legal {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .footer__legal-link {
+    font-size: min(0.8rem, 3.2vw);
+    white-space: nowrap;
   }
 
   .footer__social-link {

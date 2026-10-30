@@ -159,6 +159,12 @@ export const whatsAppLink = (message = whatsAppContact.defaultMessage, number = 
 export const footerData = {
   copyright: '© 2026 Cybervex Digital. All rights reserved.',
   tagline: 'We turn ideas into digital experiences.',
+  // Bottom row of the footer. These pages don't exist yet — create them at these addresses.
+  legalLinks: [
+    { label: 'Terms & Policies', href: '/terms' },
+    { label: 'Privacy Policy', href: '/privacy-policy' },
+    { label: 'Cookies Policy', href: '/cookies-policy' },
+  ],
   socials: [
     { name: 'Instagram', url: 'https://www.instagram.com/cybervexdigital' },
     { name: 'LinkedIn', url: 'https://www.linkedin.com/company/cybervex-digital' },

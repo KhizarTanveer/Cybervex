@@ -3,7 +3,7 @@
 // Google's script is only downloaded once a visitor picks a language other than English.
 
 export const LANGUAGES = [
-  { code: 'en', name: 'English', native: 'English', flag: 'gb' },
+  { code: 'en', name: 'English', native: 'English', flag: 'us' },
   { code: 'ur', name: 'Urdu', native: 'اردو', flag: 'pk' },
   { code: 'ar', name: 'Arabic', native: 'العربية', flag: 'sa' },
   { code: 'zh-CN', name: 'Chinese', native: '中文', flag: 'cn' },

@@ -26,12 +26,17 @@ export function getLanguage() {
   return LANGUAGES.some((l) => l.code === code) ? code : 'en';
 }
 
-// Google may set the cookie on the bare host and on ".host", so both are written / cleared
+// Google sets the cookie on the host itself and on every parent domain (www.cybervexdigital.com,
+// .www.cybervexdigital.com and .cybervexdigital.com), so each is written / cleared — otherwise a
+// leftover copy brings the old language back after choosing English.
 function writeCookie(value) {
   const expires = value ? '' : '; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  const host = window.location.hostname;
   document.cookie = `googtrans=${value}; path=/${expires}`;
-  if (host.includes('.')) document.cookie = `googtrans=${value}; path=/; domain=.${host}${expires}`;
+  const parts = window.location.hostname.split('.');
+  // ".www.cybervexdigital.com", ".cybervexdigital.com" — but never just ".com"
+  for (let i = 0; i < parts.length - 1; i++) {
+    document.cookie = `googtrans=${value}; path=/; domain=.${parts.slice(i).join('.')}${expires}`;
+  }
 }
 
 // Google wraps translated text in <font> tags, which React doesn't know about. Without this,

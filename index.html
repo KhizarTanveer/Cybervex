@@ -10,6 +10,29 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      // Google Consent Mode v2: analytics and advertising cookies stay off until the visitor agrees in
+      // the cookie banner (src/components/CookieConsent.jsx). A saved choice is applied straight away.
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500
+      });
+      try {
+        var cvxConsent = JSON.parse(localStorage.getItem('cvx_cookie_consent') || 'null');
+        if (cvxConsent && cvxConsent.v === 1) {
+          var marketing = cvxConsent.marketing ? 'granted' : 'denied';
+          gtag('consent', 'update', {
+            analytics_storage: cvxConsent.analytics ? 'granted' : 'denied',
+            ad_storage: marketing,
+            ad_user_data: marketing,
+            ad_personalization: marketing
+          });
+        }
+      } catch (e) {}
       gtag('js', new Date());
       // Start event from the standard GTM snippet, so "All Pages" / page view triggers fire
       dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });

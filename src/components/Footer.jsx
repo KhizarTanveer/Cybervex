@@ -1,5 +1,6 @@
 import React from 'react';
 import { navLinks, footerData, pageRoutes } from '../data/agencyData';
+import { openCookieSettings } from '../lib/cookieConsent';
 
 // Brand glyphs (lucide-react no longer ships brand icons), keyed by footerData.socials name
 const socialIcons = {
@@ -189,6 +190,12 @@ export default function Footer({ currentRoute = '/', onNavigate }) {
                     </a>
                   </li>
                 ))}
+                {/* Lets visitors change their cookie choice at any time */}
+                <li>
+                  <button type="button" className="footer__legal-link" onClick={openCookieSettings}>
+                    Cookie Settings
+                  </button>
+                </li>
               </ul>
             </nav>
           </div>

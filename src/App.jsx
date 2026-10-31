@@ -12,6 +12,7 @@ import CareersPage from './components/CareersPage';
 const AdminPage = lazy(() => import('./components/AdminPage'));
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
+import CookieConsent from './components/CookieConsent';
 import { useScrollReveal } from './hooks/useScrollReveal';
 import { PUBLIC_PATHS, isAdminPath } from './lib/adminPath';
 import { applySeo } from './lib/seoHead';
@@ -189,6 +190,9 @@ export default function App() {
 
       {/* Site-wide assistant: AI chat + direct WhatsApp (not needed in the admin panel) */}
       {currentRoute !== '/admin' && <ChatBot onNavigate={handleNavigate} />}
+
+      {/* Cookie consent banner (Google Consent Mode); reopened from the footer's "Cookie Settings" */}
+      {currentRoute !== '/admin' && <CookieConsent />}
     </div>
   );
 }

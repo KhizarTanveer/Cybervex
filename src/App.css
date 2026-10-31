@@ -561,12 +561,27 @@
 /* Desktops: same height as above, but the art always spans the full width. On wide or short
    screens (where black sides used to show) the image fills the box and is trimmed top and bottom. */
 @media (min-width: 769px) {
+  /* The art starts at the very top, behind the see-through navbar (the box grows upward by the
+     navbar's height), with a little extra room (40px) underneath so its bottom isn't cut */
+  .hero-section--fullscreen {
+    padding-top: 0;
+  }
+
+  .hero-fullscreen-frame {
+    max-height: calc(var(--hero-avail) + var(--nav-height) + 40px);
+  }
+
   .hero-art {
     width: 100cqw;
     aspect-ratio: auto;
-    height: calc(var(--hero-art-w) * 9 / 16);
+    height: calc(var(--hero-art-w) * 9 / 16 + var(--nav-height) + 40px);
     -webkit-mask-image: none;
     mask-image: none;
+  }
+
+  .hero-art .hero-fullscreen-img {
+    height: calc(var(--hero-art-w) * 9 / 16 + var(--nav-height));
+    transform: none;
   }
 }
 
@@ -575,8 +590,8 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  /* Slight zoom into the orb; the art box clips the overflow */
-  transform: scale(1.06);
+  /* Slight zoom into the orb; the art box clips the overflow. Lifted so more of the bottom shows; the top strands still clear the navbar */
+  transform: translateY(-6%) scale(1.06);
 }
 
 

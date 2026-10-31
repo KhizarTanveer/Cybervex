@@ -10,10 +10,10 @@ export default function Hero() {
       <div className="hero-fullscreen-frame">
         {/* Artwork box: full width 16:9; the frame crops it evenly if it's taller than the screen */}
         <div className="hero-art">
-          {/* Original artwork with the brand "Digital" lettering; @2x is a clean 2x resample for large/HiDPI screens */}
+          {/* Original artwork with the brand "Digital" lettering; @2x is the full-resolution version for large/HiDPI screens */}
           <img
             src="/images/cybervex-hero.jpg"
-            srcSet="/images/cybervex-hero.jpg 1672w, /images/cybervex-hero@2x.jpg 3344w"
+            srcSet="/images/cybervex-hero.jpg 1672w, /images/cybervex-hero@2x.jpg 2752w"
             sizes="100vw"
             alt="Cybervex Digital"
             className="hero-fullscreen-img"

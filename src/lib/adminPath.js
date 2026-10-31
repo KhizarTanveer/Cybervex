@@ -7,7 +7,7 @@ const SALT = 'cybervex-admin-path';
 const ITERATIONS = 200000;
 
 // Public pages; anything else might be the admin address and gets checked
-export const PUBLIC_PATHS = new Set(['/', '/index.html', '/about', '/projects', '/careers', '/contact']);
+export const PUBLIC_PATHS = new Set(['/', '/index.html', '/about', '/projects', '/careers', '/contact', '/terms', '/privacy-policy', '/cookies-policy']);
 
 export async function isAdminPath(pathname) {
   let path;

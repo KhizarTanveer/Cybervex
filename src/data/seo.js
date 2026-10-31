@@ -41,6 +41,21 @@ export const pageSeo = {
     description:
       'Tell us about your project. Contact Cybervex Digital by form, email or WhatsApp about digital marketing, web development or business support services.',
   },
+  '/terms': {
+    title: 'Terms & Conditions | Cybervex Digital',
+    description:
+      'The terms for using the Cybervex Digital website: enquiries and proposals, client agreements, payments, intellectual property, liability and governing law.',
+  },
+  '/privacy-policy': {
+    title: 'Privacy Policy | Cybervex Digital',
+    description:
+      'How Cybervex Digital collects, uses, shares and protects personal information from website visitors, clients and job applicants, and the rights you have.',
+  },
+  '/cookies-policy': {
+    title: 'Cookie Policy | Cybervex Digital',
+    description:
+      'What cookies the Cybervex Digital website may use, including necessary, analytics, functional and marketing cookies, and how to manage your preferences.',
+  },
 };
 
 // Private admin panel: never indexed, no canonical

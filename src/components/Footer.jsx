@@ -185,7 +185,15 @@ export default function Footer({ currentRoute = '/', onNavigate }) {
               <ul className="footer__legal">
                 {footerData.legalLinks.map((link) => (
                   <li key={link.href}>
-                    <a href={link.href} className="footer__legal-link">
+                    <a
+                      href={link.href}
+                      className="footer__legal-link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (currentRoute === link.href) window.scrollTo({ top: 0, behavior: 'smooth' });
+                        else onNavigate?.(link.href);
+                      }}
+                    >
                       {link.label}
                     </a>
                   </li>

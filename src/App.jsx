@@ -7,6 +7,7 @@ import ContactPage from './components/ContactPage';
 import ProjectsPage from './components/ProjectsPage';
 import AboutPage from './components/AboutPage';
 import CareersPage from './components/CareersPage';
+import LegalPage from './components/LegalPage';
 
 // Private admin panel: loaded only when its private address is opened (see lib/adminPath.js)
 const AdminPage = lazy(() => import('./components/AdminPage'));
@@ -20,6 +21,9 @@ import './App.css';
 
 // The address without a trailing slash, so /about/ works like /about
 const currentPath = () => window.location.pathname.replace(/\/+$/, '') || '/';
+
+// Footer legal pages: Terms & Conditions, Privacy Policy, Cookie Policy (data/legalData.js)
+const LEGAL_ROUTES = ['/terms', '/privacy-policy', '/cookies-policy'];
 
 // Resolve the page route from the URL (supports /about, #/about, #about-page, /projects, /careers, /contact, #contact)
 const getRouteFromLocation = () => {
@@ -37,6 +41,9 @@ const getRouteFromLocation = () => {
   }
   if (path === '/contact' || hash === '#contact' || hash === '#/contact') {
     return '/contact';
+  }
+  if (LEGAL_ROUTES.includes(path)) {
+    return path;
   }
   return '/';
 };
@@ -167,6 +174,8 @@ export default function App() {
         ) : currentRoute === '/careers' ? (
           /* Careers: open positions */
           <CareersPage />
+        ) : LEGAL_ROUTES.includes(currentRoute) ? (
+          <LegalPage route={currentRoute} />
         ) : currentRoute === '/contact' ? (
           /* Dedicated Contact Page */
           <ContactPage />

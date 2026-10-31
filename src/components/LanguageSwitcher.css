@@ -19,7 +19,7 @@
   color: var(--text-primary);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(199, 201, 204, 0.18);
-  border-radius: 10px;
+  border-radius: 999px; /* rounded pill (a circle when only the flag shows) */
   cursor: pointer;
   transition: border-color var(--transition-fast), background var(--transition-fast);
 }

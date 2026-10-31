@@ -22,7 +22,7 @@ const CATEGORIES = [
   },
 ];
 
-// Cookie banner: appears until the visitor chooses, and again from the footer's "Cookie Settings"
+// Cookie banner: appears on every visit, and again from the footer's "Cookie Settings"
 export default function CookieConsent() {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState('main'); // 'main' | 'preferences'
@@ -30,8 +30,9 @@ export default function CookieConsent() {
   const firstButtonRef = useRef(null);
 
   useEffect(() => {
-    // First visit: show shortly after the page has settled
-    const timer = getConsent() ? null : setTimeout(() => setOpen(true), 900);
+    // Every visit: show shortly after the page has settled. A saved choice still applies
+    // to Google tags from the first moment (index.html); the banner just asks again.
+    const timer = setTimeout(() => setOpen(true), 900);
     const openSettings = () => {
       const saved = getConsent();
       setPrefs({ analytics: Boolean(saved?.analytics), marketing: Boolean(saved?.marketing) });

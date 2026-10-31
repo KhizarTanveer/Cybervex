@@ -558,6 +558,18 @@
   mask-image: linear-gradient(to right, transparent 0, #000 var(--hero-side-fade), #000 calc(100% - var(--hero-side-fade)), transparent 100%);
 }
 
+/* Desktops: same height as above, but the art always spans the full width. On wide or short
+   screens (where black sides used to show) the image fills the box and is trimmed top and bottom. */
+@media (min-width: 769px) {
+  .hero-art {
+    width: 100cqw;
+    aspect-ratio: auto;
+    height: calc(var(--hero-art-w) * 9 / 16);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
 .hero-fullscreen-img {
   width: 100%;
   height: 100%;

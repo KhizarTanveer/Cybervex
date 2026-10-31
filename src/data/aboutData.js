@@ -9,9 +9,10 @@
 
 export const aboutHeroContent = {
   eyebrow: 'ABOUT CYBERVEX DIGITAL',
-  headingLine1: 'Growing Together.',
-  headingLine2: 'Building for the Future.',
-  leadText: 'We bring creativity, technology and business support together to help businesses move forward.',
+  brand: 'Cybervex',
+  brandAccent: 'Digital',
+  heading: 'Your 360° Business Growth Partner',
+  leadText: 'Driven by Passion. United by Growth.',
 };
 
 export const aboutWhoWeAre = {
@@ -94,6 +95,7 @@ export const aboutPromiseContent = {
 };
 
 export const aboutFinalStatement = {
-  brand: 'Cybervex Digital',
+  brand: 'Cybervex',
+  brandAccent: 'Digital',
   statement: 'Growing Together, Building for the Future.',
 };

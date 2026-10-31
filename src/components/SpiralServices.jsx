@@ -499,6 +499,33 @@ export default function SpiralServices() {
       </div>
 
       <div className="spiral-container">
+        {/* Intro above the services: brand promise + calls to action */}
+        <div className="spiral-intro">
+          <h2 className="spiral-intro__title">One Partner. Every Possibility. Unlimited Growth.</h2>
+          <p className="spiral-intro__tagline">Your 360° Business Growth Partner.</p>
+          <p className="spiral-intro__text">
+            We bring business strategy, technology, digital marketing, AI automation and operational
+            excellence together to help businesses grow, transform and succeed globally.
+          </p>
+          <div className="spiral-intro__actions">
+            <a
+              href="/projects"
+              className="spiral-intro__btn spiral-intro__btn--primary"
+              onClick={(e) => {
+                e.preventDefault();
+                // Client-side navigation: App's popstate listener switches to the Projects page
+                window.history.pushState({}, '', '/projects');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
+            >
+              Explore Our Projects
+            </a>
+            <a href="#contact" className="spiral-intro__btn spiral-intro__btn--outline">
+              Let's Talk Business
+            </a>
+          </div>
+        </div>
+
         {/* Section Header */}
         <div className="spiral-header">
           <h2 className="spiral-title">

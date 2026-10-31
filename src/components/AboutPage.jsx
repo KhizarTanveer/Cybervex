@@ -142,13 +142,28 @@ export default function AboutPage() {
             <div className="about-hero__header">
               {/* Editorial Main Heading */}
               <h1 className="about-hero__title">
-                {aboutHeroContent.headingLine1}
-                <br />
-                <span className="about-hero__title-accent">{aboutHeroContent.headingLine2}</span>
+                <span className="about-hero__brand">
+                  {aboutHeroContent.brand}{' '}
+                  <span className="about-hero__brand-accent">{aboutHeroContent.brandAccent}</span>
+                </span>
+                <span className="about-hero__title-line">{aboutHeroContent.heading}</span>
               </h1>
 
               {/* Supporting Text */}
               <p className="about-hero__lead">{aboutHeroContent.leadText}</p>
+
+              {/* Takes visitors to the services on the home page (App's popstate listener scrolls to #services) */}
+              <a
+                href="/#services"
+                className="about-hero__cta"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', '/#services');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+              >
+                Explore Our Solutions
+              </a>
             </div>
           </div>
         </section>

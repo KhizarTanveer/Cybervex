@@ -151,16 +151,44 @@
   hyphens: manual;
 }
 
-.about-hero__title-accent {
-  background: linear-gradient(135deg, #FFFFFF 0%, #D4D6D9 50%, #E5A93C 100%);
+.about-hero__brand {
+  display: block;
+  text-transform: uppercase;
+  color: #FFFFFF;
+}
+
+/* "Digital": a left-to-right gold splash from the site palette, with a slow sheen passing across */
+.about-hero__brand-accent {
+  display: inline-block;
+  background: linear-gradient(90deg, #EBD3A0 0%, #C8A96A 35%, #E5A93C 62%, #B08F4F 80%, #DFC285 100%);
+  background-size: 200% 100%;
+  background-position: 0% 50%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  display: inline-block;
-  /* Gradient text is clipped to its box: extend the box so descenders (g, y, p) aren't cut,
-     and pull the margin back so line spacing stays the same */
-  padding-bottom: 0.16em;
-  margin-bottom: -0.16em;
+  animation: about-brand-splash 6s ease-in-out infinite alternate;
+}
+
+@keyframes about-brand-splash {
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-hero__brand-accent {
+    animation: none;
+    background-size: 100% 100%;
+  }
+}
+
+.about-hero__title-line {
+  display: block;
+  margin-top: 0.35em;
+  font-size: 0.6em;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #FFFFFF;
 }
 
 .about-hero__lead {
@@ -170,6 +198,34 @@
   color: var(--text-secondary);
   max-width: 720px;
   font-weight: 400;
+}
+
+.about-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+  padding: 0.85rem 1.6rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #050505;
+  background: #C8A96A;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(200, 169, 106, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about-hero__cta:hover {
+  background: #dfc285;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(200, 169, 106, 0.4);
+}
+
+.about-hero__cta:focus-visible {
+  outline: 2px solid #C8A96A;
+  outline-offset: 3px;
 }
 
 /* Understated Abstract Visual Frame */

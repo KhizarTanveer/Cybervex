@@ -487,7 +487,6 @@ export default function SpiralServices() {
 
   return (
     <section
-      id="services"
       className="spiral-services-section reveal-blur-section"
       aria-label="Cybervex Digital Services — Rotating Spiral Capabilities"
     >
@@ -526,8 +525,8 @@ export default function SpiralServices() {
           </div>
         </div>
 
-        {/* Section Header */}
-        <div className="spiral-header">
+        {/* Section Header. The #services anchor starts here, so the intro above counts as part of Home */}
+        <div className="spiral-header" id="services">
           <h2 className="spiral-title">
             Our Services
           </h2>

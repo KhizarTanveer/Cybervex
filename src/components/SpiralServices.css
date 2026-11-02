@@ -85,6 +85,8 @@
    SECTION HEADER
    -------------------------------------------------------------------------- */
 .spiral-header {
+  /* Anchor jumps (#services) stop just below the fixed navbar */
+  scroll-margin-top: calc(var(--nav-height) + 1.5rem);
   text-align: center;
   max-width: 880px;
   margin: 0 auto 2rem;

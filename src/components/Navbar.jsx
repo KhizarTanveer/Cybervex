@@ -25,12 +25,14 @@ export default function Navbar({ currentRoute = '/', onNavigate }) {
 
       // Detect current section in view on home page
       const sections = ['top', 'services', 'work'];
-      const scrollPos = window.scrollY + 120;
+      // A section counts as current once its top passes the upper third of the screen
+      const scrollPos = window.scrollY + Math.max(120, window.innerHeight * 0.3);
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const sectionId = sections[i];
         const el = document.getElementById(sectionId);
-        if (el && el.offsetTop <= scrollPos) {
+        // Position on the page (offsetTop would be relative to a positioned parent section)
+        if (el && el.getBoundingClientRect().top + window.scrollY <= scrollPos) {
           setActiveSection(sectionId);
           break;
         }

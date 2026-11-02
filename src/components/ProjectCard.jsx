@@ -10,6 +10,9 @@ export default function ProjectCard({ project }) {
           alt={project.title}
           className="project-card__image"
           loading="lazy"
+          decoding="async"
+          width="1400"
+          height="875"
         />
       </div>
 

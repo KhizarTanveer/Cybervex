@@ -48,11 +48,9 @@
     <!-- ↑ Each page's title, description, canonical and social tags are added at build time from
          src/data/seo.js (see vite.config.js), and kept up to date in the browser by lib/seoHead.js. -->
     
-    <!-- Headings: Clash Display Semibold (self-hosted). Google Fonts: Outfit (paragraphs and UI text) -->
+    <!-- Both fonts are self-hosted: Clash Display Semibold (headings) and Outfit (paragraphs and UI text) -->
     <link rel="preload" href="/fonts/ClashDisplay-Semibold.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="/fonts/Outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
 
     <!-- Business details for search engines (schema.org). Keep in sync with the Contact page and footer. -->
     <script type="application/ld+json">

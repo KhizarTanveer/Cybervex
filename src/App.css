@@ -1110,6 +1110,11 @@
   color: var(--text-secondary);
 }
 
+/* Room for the project cards while they load (about two rows), so nothing below jumps */
+.projects-page__grid--loading {
+  min-height: min(1100px, 150vh);
+}
+
 /* --------------------------------------------------------------------------
    8. FOOTER (minimal matte glass)
    -------------------------------------------------------------------------- */

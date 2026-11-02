@@ -280,6 +280,8 @@ if [ "$DNS_WWW" = "$SERVER_IP" ] && [ "$DNS_APEX" = "$SERVER_IP" ]; then
   certbot --nginx -n --agree-tos --redirect -m "info@cybervexdigital.com" -d "$DOMAIN" -d "$APEX_DOMAIN"
   # Send cybervexdigital.com to www.cybervexdigital.com
   sed -i "0,/server_name $DOMAIN $APEX_DOMAIN;/s//server_name $DOMAIN $APEX_DOMAIN;\n    if (\$host = $APEX_DOMAIN) { return 301 https:\/\/$DOMAIN\$request_uri; }/" /etc/nginx/sites-available/cybervex
+  # HTTP/2: the browser fetches all the page's files over one connection, in parallel
+  sed -i 's/listen \[::\]:443 ssl ipv6only=on;/listen [::]:443 ssl http2 ipv6only=on;/; s/listen 443 ssl;/listen 443 ssl http2;/' /etc/nginx/sites-available/cybervex
   nginx -t -q && systemctl reload nginx
   ok "HTTPS is on: https://$DOMAIN (renews automatically)"
 else

@@ -19,7 +19,8 @@ export default function ProjectsPage() {
           </p>
         </header>
 
-        <div className="projects-grid projects-page__grid">
+        {/* Keeps room for the cards while they load, so the footer doesn't jump down when they appear */}
+        <div className={`projects-grid projects-page__grid ${projects ? '' : 'projects-page__grid--loading'}`}>
           {(projects || []).map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}

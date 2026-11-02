@@ -18,6 +18,7 @@ import { promisify } from 'node:util';
 import express from 'express';
 import helmet from 'helmet';
 import multer from 'multer';
+import sharp from 'sharp';
 import { GridFSBucket, MongoClient, ObjectId } from 'mongodb';
 import { cspDirectives } from './security-headers.js';
 import { notifyContactMessage, notifyJobApplication } from './mailer.js';
@@ -318,13 +319,46 @@ const imageType = (buffer) => {
   return null;
 };
 
-const saveProjectImage = (file, contentType) =>
-  new Promise((resolve, reject) => {
-    const name = path.basename(file.originalname || 'project-image').slice(0, 200);
-    const stream = projectImages.openUploadStream(name, { metadata: { contentType } });
+// Project images are shown at most ~700px wide (1400px on sharp screens), so uploads are resized
+// to that and saved as WebP: a 2 MB PNG becomes roughly 100–200 KB
+const PROJECT_IMAGE_WIDTH = 1400;
+const optimizeProjectImage = (buffer) =>
+  sharp(buffer).rotate().resize({ width: PROJECT_IMAGE_WIDTH, withoutEnlargement: true }).webp({ quality: 80 }).toBuffer();
+
+const saveProjectImage = async (file) => {
+  const buffer = await optimizeProjectImage(file.buffer);
+  const name = `${path.parse(path.basename(file.originalname || 'project-image')).name.slice(0, 190)}.webp`;
+  return new Promise((resolve, reject) => {
+    const stream = projectImages.openUploadStream(name, { metadata: { contentType: 'image/webp', optimized: true } });
     stream.on('error', reject).on('finish', () => resolve(stream.id));
-    stream.end(file.buffer);
+    stream.end(buffer);
   });
+};
+
+const readGridFile = (bucket, id) =>
+  new Promise((resolve, reject) => {
+    const chunks = [];
+    bucket.openDownloadStream(id).on('data', (c) => chunks.push(c)).on('error', reject).on('end', () => resolve(Buffer.concat(chunks)));
+  });
+
+// One-time: shrink images uploaded before optimisation existed. Each gets a new id (so browsers that
+// cached the old file pick up the new one) and the old file is removed. Runs in the background.
+const optimizeOldProjectImages = async () => {
+  for (const project of await projects.find({ imageFileId: { $ne: null } }).toArray()) {
+    try {
+      const file = await projectImages.find({ _id: project.imageFileId }).next();
+      if (!file || file.metadata?.optimized) continue;
+      const original = await readGridFile(projectImages, file._id);
+      const newId = await saveProjectImage({ buffer: original, originalname: file.filename });
+      await projects.updateOne({ _id: project._id }, { $set: { imageFileId: newId } });
+      await projectImages.delete(file._id).catch(() => {});
+      const saved = await projectImages.find({ _id: newId }).next();
+      console.log(`[server] optimised image for "${project.title}": ${Math.round(file.length / 1024)} KB → ${Math.round(saved.length / 1024)} KB`);
+    } catch (err) {
+      console.error(`[server] could not optimise image for "${project.title}"`, err.message);
+    }
+  }
+};
 
 const toObjectId = (id) => (ObjectId.isValid(id) ? new ObjectId(id) : null);
 
@@ -616,7 +650,7 @@ app.post('/api/admin/projects', requireAdmin, uploadImage.single('image'), async
   const contentType = req.file && imageType(req.file.buffer);
   const problem = error || (!req.file ? 'Please add a project image.' : !contentType ? 'The image must be a JPG, PNG or WebP file.' : null);
   if (problem) return res.status(400).json({ error: problem });
-  const doc = { ...project, imageUrl: null, imageFileId: await saveProjectImage(req.file, contentType), createdAt: new Date() };
+  const doc = { ...project, imageUrl: null, imageFileId: await saveProjectImage(req.file), createdAt: new Date() };
   await projects.insertOne(doc);
   res.status(201).json(projectToClient(doc, { admin: true }));
 });
@@ -631,7 +665,7 @@ app.put('/api/admin/projects/:id', requireAdmin, uploadImage.single('image'), as
   const problem = error || (req.file && !contentType ? 'The image must be a JPG, PNG or WebP file.' : null);
   if (problem) return res.status(400).json({ error: problem });
   const update = { ...project, updatedAt: new Date() };
-  if (req.file) Object.assign(update, { imageUrl: null, imageFileId: await saveProjectImage(req.file, contentType) });
+  if (req.file) Object.assign(update, { imageUrl: null, imageFileId: await saveProjectImage(req.file) });
   const doc = await projects.findOneAndUpdate({ _id: id }, { $set: update }, { returnDocument: 'after' });
   if (req.file && existing.imageFileId) await projectImages.delete(existing.imageFileId).catch(() => {});
   res.json(projectToClient(doc, { admin: true }));
@@ -660,8 +694,32 @@ app.use((err, req, res, _next) => {
 /* ------------------ Built website (npm run build → dist) ------------------ */
 const distDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../dist');
 if (fs.existsSync(distDir)) {
+  // Built JS and CSS: send the Brotli or gzip copy written by the build (vite.config.js) when the
+  // browser accepts it. Their names change with every build, so browsers may keep them for a year.
+  const assetsDir = path.join(distDir, 'assets');
+  app.get(/^\/assets\/[\w.-]+\.(?:js|css)$/, (req, res, next) => {
+    const accepts = String(req.headers['accept-encoding'] || '');
+    const encoding = ['br', 'gzip'].find((enc) => accepts.includes(enc));
+    const compressed = encoding && `${path.basename(req.path)}.${encoding === 'br' ? 'br' : 'gz'}`;
+    if (!compressed || !fs.existsSync(path.join(assetsDir, compressed))) return next();
+    res.type(path.extname(req.path)).set({ 'Content-Encoding': encoding, Vary: 'Accept-Encoding' });
+    return res.sendFile(compressed, { root: assetsDir, maxAge: '1y', immutable: true });
+  });
+
+  // How long browsers may reuse files before checking again. Hashed build files never change;
+  // fonts, images and icons keep their names, so they're cached for days, not forever.
+  const cacheFor = (file) =>
+    file.includes(`${path.sep}assets${path.sep}`) ? 'public, max-age=31536000, immutable'
+    : /\.(woff2?|ttf|otf)$/.test(file) ? 'public, max-age=2592000'
+    : /\.(jpe?g|png|webp|avif|gif|svg|ico)$/.test(file) ? 'public, max-age=604800'
+    : 'no-cache';
+
   // redirect: false — /about must not bounce to /about/ (the build writes dist/about/index.html)
-  app.use(express.static(distDir, { index: false, redirect: false }));
+  app.use(express.static(distDir, {
+    index: false,
+    redirect: false,
+    setHeaders: (res, file) => res.set('Cache-Control', cacheFor(file)),
+  }));
   app.get('/{*page}', (req, res) => {
     // Public pages have their own HTML with that page's title, description and social tags
     const page = req.path.replace(/\/+$/, '') || '/';
@@ -673,6 +731,8 @@ if (fs.existsSync(distDir)) {
     return res.sendFile(path.join(distDir, 'index.html'));
   });
 }
+
+optimizeOldProjectImages().catch((err) => console.error('[server] image optimisation failed', err));
 
 const onListening = () => console.log(`[server] listening on http://${HOST || 'localhost'}:${PORT}`);
 if (HOST) app.listen(Number(PORT), HOST, onListening);

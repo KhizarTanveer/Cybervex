@@ -12,8 +12,8 @@ export default function Hero() {
         <div className="hero-art">
           {/* Original artwork with the brand "Digital" lettering; @2x is the full-resolution version for large/HiDPI screens */}
           <img
-            src="/images/cybervex-hero.jpg"
-            srcSet="/images/cybervex-hero.jpg 1672w, /images/cybervex-hero@2x.jpg 2752w"
+            src="/images/cybervex-hero.webp"
+            srcSet="/images/cybervex-hero.webp 1672w, /images/cybervex-hero@2x.webp 2752w"
             sizes="100vw"
             alt="Cybervex Digital"
             className="hero-fullscreen-img"

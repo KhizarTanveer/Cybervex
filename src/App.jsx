@@ -7,10 +7,11 @@ import ContactPage from './components/ContactPage';
 import ProjectsPage from './components/ProjectsPage';
 import AboutPage from './components/AboutPage';
 import CareersPage from './components/CareersPage';
-import LegalPage from './components/LegalPage';
 
 // Private admin panel: loaded only when its private address is opened (see lib/adminPath.js)
 const AdminPage = lazy(() => import('./components/AdminPage'));
+// Terms / Privacy / Cookie pages: long text only needed when one of them is opened
+const LegalPage = lazy(() => import('./components/LegalPage'));
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
 import CookieConsent from './components/CookieConsent';
@@ -175,7 +176,9 @@ export default function App() {
           /* Careers: open positions */
           <CareersPage />
         ) : LEGAL_ROUTES.includes(currentRoute) ? (
-          <LegalPage route={currentRoute} />
+          <Suspense fallback={<div className="section legal-page" style={{ minHeight: '200vh' }} />}>
+            <LegalPage route={currentRoute} />
+          </Suspense>
         ) : currentRoute === '/contact' ? (
           /* Dedicated Contact Page */
           <ContactPage />

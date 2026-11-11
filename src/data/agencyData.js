@@ -169,7 +169,7 @@ export const footerData = {
     { name: 'Instagram', url: 'https://www.instagram.com/cybervexdigital' },
     { name: 'LinkedIn', url: 'https://www.linkedin.com/company/cybervex-digital' },
     { name: 'Threads', url: 'https://www.threads.com/@cybervexdigital' },
-    { name: 'Facebook', url: 'https://www.facebook.com/cybervexdigital' },
+    { name: 'Facebook', url: 'https://www.facebook.com/cybervexdigitals' },
     { name: 'Gmail', url: 'https://mail.google.com/mail/?view=cm&fs=1&to=info@cybervexdigital.com' },
   ],
 };

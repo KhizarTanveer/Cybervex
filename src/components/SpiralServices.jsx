@@ -596,7 +596,7 @@ export default function SpiralServices() {
               Multiple Business Solutions 
             </h3>
             <p className="spiral-pillars-desc">
-              We bring together digital marketing, technology, creative services, event management, and business support to simplify the client experience.
+              We bring together digital marketing, technology, creative services, AI automation, and business support to simplify the client experience.
             </p>
           </div>
 

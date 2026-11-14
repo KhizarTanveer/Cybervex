@@ -21,8 +21,8 @@ export const aboutWhoWeAre = {
   pullQuote: 'Practical solutions that make a real difference, tailored to understand every project rather than offering the same solution to everyone.',
   paragraphs: [
     'At Cybervex Digital, we believe every business has the potential to grow with the right support, ideas, and opportunities. We work with businesses to understand their needs and help them move forward with practical solutions that make a real difference.',
-    'We provide a range of services, including digital marketing, SEO, social media management, website development, graphic design, IT solutions, business process outsourcing (BPO), event management, and business support services.',
-    'Our aim is to make things easier for our clients by bringing different services together under one roof. Whether a business wants to build its online presence, reach more customers, improve daily operations, outsource tasks, or organize a professional event, we work to find solutions that fit its goals.',
+    'We provide a range of services, including digital marketing, SEO, social media management, website development, graphic design, IT solutions, business process outsourcing (BPO), AI automation, and business support services.',
+    'Our aim is to make things easier for our clients by bringing different services together under one roof. Whether a business wants to build its online presence, reach more customers, improve daily operations, outsource tasks, or automate everyday work with AI, we work to find solutions that fit its goals.',
     'We value good communication, honest relationships, quality work, and a clear understanding of what our clients need. We know that every business is different, so we believe in taking the time to understand each project rather than offering the same solution to everyone.',
     'For us, success is not just about completing a project. It is about building trust, helping our clients achieve their goals, and creating relationships that last.',
   ],

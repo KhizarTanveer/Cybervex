@@ -9,11 +9,11 @@ export const servicesCompanyIntro = {
   profileTitle: 'COMPANY SERVICES PROFILE',
   tagline: 'Digital Growth | Business Support | Creative Experiences',
   about:
-    'At Cybervex Digital, we provide integrated digital, creative, technology, event management, and business support solutions to help startups, small businesses, and established organizations grow.\n\nOur services are designed to help businesses strengthen their brands, attract customers, improve operational efficiency, generate leads, and build a stronger market presence.\n\nWe aim to provide multiple business solutions under one roof, offering flexible services tailored to our clients\' goals, budgets, and requirements.',
+    'At Cybervex Digital, we provide integrated digital, creative, technology, AI automation, and business support solutions to help startups, small businesses, and established organizations grow.\n\nOur services are designed to help businesses strengthen their brands, attract customers, improve operational efficiency, generate leads, and build a stronger market presence.\n\nWe aim to provide multiple business solutions under one roof, offering flexible services tailored to our clients\' goals, budgets, and requirements.',
   valuePillars: [
     {
       title: 'Multiple Services Under One Roof',
-      description: 'We bring together digital marketing, technology, creative services, event management, and business support to simplify the client experience.',
+      description: 'We bring together digital marketing, technology, creative services, AI automation, and business support to simplify the client experience.',
     },
     {
       title: 'Customized Solutions',
@@ -33,7 +33,7 @@ export const servicesCompanyIntro = {
     },
   ],
   commitment:
-    'At Cybervex Digital, we aim to build lasting partnerships by providing practical, coordinated solutions for businesses of different sizes and industries.\n\nWhether a client wants to strengthen their online presence, launch a website, generate leads, outsource daily operations, recruit support staff, or organize a professional event, our goal is to provide a solution aligned with their business needs.\n\nWe believe in building strong brands, supporting business operations, creating meaningful experiences, and helping our clients move forward with confidence.',
+    'At Cybervex Digital, we aim to build lasting partnerships by providing practical, coordinated solutions for businesses of different sizes and industries.\n\nWhether a client wants to strengthen their online presence, launch a website, generate leads, outsource daily operations, recruit support staff, or automate everyday work with AI, our goal is to provide a solution aligned with their business needs.\n\nWe believe in building strong brands, supporting business operations, creating meaningful experiences, and helping our clients move forward with confidence.',
   closingStatement: 'Digital Growth. Business Support. Creative Experiences.',
 };
 

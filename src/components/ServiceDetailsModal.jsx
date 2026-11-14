@@ -123,7 +123,7 @@ export default function ServiceDetailsModal({
             </div>
           </div>
 
-          {/* Subgroups (e.g., for BPO or Events) */}
+          {/* Subgroups (e.g., for BPO or AI Automation) */}
           {service.subgroups && service.subgroups.length > 0 ? (
             <div className="service-modal-subgroups">
               {service.subgroups.map((group, gIdx) => (

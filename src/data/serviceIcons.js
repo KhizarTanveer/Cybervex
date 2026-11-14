@@ -1,8 +1,8 @@
 // Only the icons the services use — importing all of lucide-react adds ~1,500 icons to the bundle
 import {
   BarChart3,
+  Bot,
   Briefcase,
-  CalendarCheck,
   Camera,
   Code2,
   Compass,
@@ -27,8 +27,8 @@ import {
 
 const serviceIcons = {
   BarChart3,
+  Bot,
   Briefcase,
-  CalendarCheck,
   Camera,
   Code2,
   Compass,

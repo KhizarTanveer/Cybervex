@@ -47,7 +47,7 @@ export const legalPages = {
               "AI solutions and business automation.",
               "Creative and content production.",
               "Branding and graphic design.",
-              "Event management.",
+              "AI chatbots and virtual assistants.",
               "LED display and digital signage solutions.",
               "Business consulting and operational support."
             ]
@@ -448,7 +448,7 @@ export const legalPages = {
             "p": "Welcome to Cybervex Digital (\"Cybervex,\" \"we,\" \"our,\" or \"us\")."
           },
           {
-            "p": "Cybervex Digital is a business growth and digital solutions company providing digital marketing, search engine optimization (SEO), business process outsourcing (BPO), web development, AI solutions, business automation, creative services, event management and other business support services."
+            "p": "Cybervex Digital is a business growth and digital solutions company providing digital marketing, search engine optimization (SEO), business process outsourcing (BPO), web development, AI solutions, business automation, AI chatbots, creative services and other business support services."
           },
           {
             "p": "We respect your privacy and are committed to protecting the personal information of individuals who visit our website, communicate with us, request our services or engage with our business."

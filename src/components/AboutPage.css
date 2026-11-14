@@ -400,7 +400,7 @@
   position: relative;
   background: #0c0c0c;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  border-radius: 20px;
   padding: 3rem 2.5rem;
   display: flex;
   flex-direction: column;
@@ -424,35 +424,9 @@
   right: -40px;
   width: 200px;
   height: 200px;
-  background: radial-gradient(circle, rgba(229, 169, 60, 0.08) 0%, transparent 70%);
+  /* Soft enough on its own; no blur filter, which the browser would have to repaint */
+  background: radial-gradient(circle, rgba(229, 169, 60, 0.07) 0%, transparent 70%);
   pointer-events: none;
-  filter: blur(20px);
-}
-
-.about-mv-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.25rem;
-}
-
-.about-mv-card__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-sans);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  color: var(--amber-light);
-  background: rgba(229, 169, 60, 0.08);
-  border: 1px solid var(--amber-border);
-  padding: 0.35rem 0.75rem;
-  border-radius: 4px;
-}
-
-.about-mv-card__badge-icon {
-  color: var(--amber-accent);
 }
 
 .about-mv-card__title {
@@ -499,7 +473,7 @@
   position: relative;
   background: #0d0d0d;
   border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 6px;
+  border-radius: 20px;
   padding: 2.5rem 2rem;
   display: flex;
   flex-direction: column;
@@ -516,48 +490,6 @@
   background: #111111;
   border-color: var(--amber-border);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 20px rgba(229, 169, 60, 0.08);
-}
-
-.about-value-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.75rem;
-}
-
-.about-value-card__num {
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  color: var(--silver-muted);
-  transition: color var(--transition-fast);
-}
-
-.about-value-card:hover .about-value-card__num {
-  color: var(--amber-accent);
-}
-
-.about-value-card__icon-box {
-  width: 38px;
-  height: 38px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--silver-accent);
-  transition: 
-    background var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast);
-}
-
-.about-value-card:hover .about-value-card__icon-box {
-  background: rgba(229, 169, 60, 0.09);
-  border-color: var(--amber-border);
-  color: var(--amber-light);
 }
 
 .about-value-card__title {
@@ -594,10 +526,8 @@
 }
 
 /* Mission, Vision & Value cards: content sits above the animated lines & particles */
-.about-mv-card__header,
 .about-mv-card__title,
 .about-mv-card__content,
-.about-value-card__header,
 .about-value-card__title,
 .about-value-card__text {
   position: relative;
@@ -946,7 +876,6 @@
 @media (prefers-reduced-motion: reduce) {
   .about-mv-card,
   .about-value-card,
-  .about-value-card__icon-box,
   .about-value-card__line {
     transition: none !important;
     transform: none !important;

@@ -1,15 +1,5 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import {
-  TrendingUp,
-  ShieldCheck,
-  Award,
-  Users2,
-  Lightbulb,
-  CheckCircle2,
-  Target,
-  Compass,
-} from 'lucide-react';
-import {
   aboutHeroContent,
   aboutWhoWeAre,
   aboutMissionContent,
@@ -20,16 +10,6 @@ import {
 } from '../data/aboutData';
 import LiquidFx from './LiquidFx';
 import './AboutPage.css';
-
-// Icon map helper for dynamic icon rendering
-const iconMap = {
-  TrendingUp,
-  ShieldCheck,
-  Award,
-  Users2,
-  Lightbulb,
-  CheckCircle2,
-};
 
 /**
  * Swipeable card track with a fill scroll bar.
@@ -216,13 +196,8 @@ export default function AboutPage() {
             {/* Section 4: Our Mission */}
             <div className="about-mv-card about-mv-card--mission">
               <div className="about-mv-card__glow" aria-hidden="true" />
-              <LiquidFx />
-              <div className="about-mv-card__header">
-                <div className="about-mv-card__badge">
-                  <Target size={16} className="about-mv-card__badge-icon" strokeWidth={1.5} />
-                  <span>MISSION</span>
-                </div>
-              </div>
+              {/* 3 moving lines instead of 6, so the large cards stay smooth */}
+              <LiquidFx lines={3} />
               <h3 className="about-mv-card__title">{aboutMissionContent.heading}</h3>
               <div className="about-mv-card__content">
                 {aboutMissionContent.paragraphs.map((p, idx) => (
@@ -236,13 +211,8 @@ export default function AboutPage() {
             {/* Section 5: Our Vision */}
             <div className="about-mv-card about-mv-card--vision">
               <div className="about-mv-card__glow" aria-hidden="true" />
-              <LiquidFx />
-              <div className="about-mv-card__header">
-                <div className="about-mv-card__badge">
-                  <Compass size={16} className="about-mv-card__badge-icon" strokeWidth={1.5} />
-                  <span>VISION</span>
-                </div>
-              </div>
+              {/* 3 moving lines instead of 6, so the large cards stay smooth */}
+              <LiquidFx lines={3} />
               <h3 className="about-mv-card__title">{aboutVisionContent.heading}</h3>
               <div className="about-mv-card__content">
                 {aboutVisionContent.paragraphs.map((p, idx) => (
@@ -273,23 +243,14 @@ export default function AboutPage() {
             ref={valuesScrollRef}
             className="about-swipe-container reveal-stagger"
           >
-            {aboutValuesList.map((val) => {
-              const IconComponent = iconMap[val.iconName] || ShieldCheck;
-              return (
-                <div key={val.number} className="about-value-card about-swipe-card about-swipe-card--value">
-                  <LiquidFx />
-                  <div className="about-value-card__header">
-                    <span className="about-value-card__num">{val.number}</span>
-                    <div className="about-value-card__icon-box">
-                      <IconComponent size={20} className="about-value-card__icon" strokeWidth={1.5} />
-                    </div>
-                  </div>
-                  <h3 className="about-value-card__title">{val.heading}</h3>
-                  <p className="about-value-card__text">{val.content}</p>
-                  <div className="about-value-card__line" aria-hidden="true" />
-                </div>
-              );
-            })}
+            {aboutValuesList.map((val) => (
+              <div key={val.number} className="about-value-card about-swipe-card about-swipe-card--value">
+                <LiquidFx lines={3} />
+                <h3 className="about-value-card__title">{val.heading}</h3>
+                <p className="about-value-card__text">{val.content}</p>
+                <div className="about-value-card__line" aria-hidden="true" />
+              </div>
+            ))}
           </div>
 
           {/* Fill Scroll Bar Underneath */}

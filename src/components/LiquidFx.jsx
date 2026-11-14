@@ -55,8 +55,9 @@ const randomLineMotion = () =>
     },
   }));
 
-// Decorative gold SVG lines & particles; fills its positioned parent and pauses off-screen
-export default function LiquidFx() {
+// Decorative gold SVG lines & particles; fills its positioned parent and pauses off-screen.
+// `lines` limits how many moving lines are drawn (fewer = lighter, for large cards).
+export default function LiquidFx({ lines = LINES.length }) {
   const fxRef = useRef(null);
   const gradientId = `liquid-fx-gradient-${useId().replace(/[^\w-]/g, '')}`;
   const [lineMotion] = useState(randomLineMotion);
@@ -82,7 +83,7 @@ export default function LiquidFx() {
             <stop offset="1" stopColor="#C8A96A" stopOpacity="0" />
           </linearGradient>
         </defs>
-        {LINES.map((d, i) => (
+        {LINES.slice(0, lines).map((d, i) => (
           <g key={d} className="liquid-fx__line-group" style={isLowPowerDevice ? undefined : lineMotion[i].drift}>
             <path d={d} className="liquid-fx__line" stroke={`url(#${gradientId})`} />
             <path d={d} className="liquid-fx__line-flow" pathLength="100" style={lineMotion[i].flow} />

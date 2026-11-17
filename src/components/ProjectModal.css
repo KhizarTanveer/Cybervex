@@ -12,6 +12,9 @@
   justify-content: center;
   padding: clamp(0.75rem, 3vw, 2rem);
   background: rgba(3, 3, 3, 0.84);
+  /* Swipes on the dark backdrop don't scroll anything; the popup itself scrolls up/down only */
+  touch-action: none;
+  overscroll-behavior: contain;
   animation: project-modal-fade 0.3s ease both;
 }
 
@@ -24,6 +27,7 @@
   max-height: calc(100svh - 2rem);
   overflow-y: auto;
   overscroll-behavior: contain;
+  touch-action: pan-y;
   background: #0b0b0b;
   border: 1px solid rgba(200, 169, 106, 0.28);
   border-radius: 20px;

@@ -25,14 +25,19 @@ export default function ProjectModal({ project, onClose }) {
 
   useEffect(() => {
     const opener = document.activeElement;
-    const { overflow } = document.body.style;
+    // Freeze the page behind: the site scrolls on <html> (it has overflow-x set), so lock both.
+    // The home Projects box scrolls on its own; wheel/touch outside the popup is blocked too.
+    const html = document.documentElement;
+    const before = { html: html.style.overflow, body: document.body.style.overflow };
+    html.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
     closeRef.current?.focus({ preventScroll: true });
     const onKey = (e) => e.key === 'Escape' && close();
     window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = overflow;
+      html.style.overflow = before.html;
+      document.body.style.overflow = before.body;
       opener?.focus?.({ preventScroll: true });
     };
   }, [close]);

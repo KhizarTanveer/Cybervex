@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   LogOut, RefreshCw, Search, FileText, Trash2, Mail, Phone, MapPin, Loader2, Lock, Briefcase, MessageSquare, Reply,
-  Users, Plus, Pencil, Eye, EyeOff, FolderKanban, ImagePlus,
+  Users, Plus, Pencil, Eye, EyeOff, FolderKanban, ImagePlus, GripVertical, Check,
 } from 'lucide-react';
 import {
   getAdmin, signIn, signOut, fetchApplications, resumeUrl, updateApplicationStatus, deleteApplication,
   fetchMessages, updateMessageStatus, deleteMessage, fetchAdminJobs, createJob, updateJob, deleteJob,
-  fetchAdminProjects, createProject, updateProject, deleteProject, MAX_IMAGE_BYTES,
+  fetchAdminProjects, createProject, updateProject, reorderProjects, deleteProject, MAX_IMAGE_BYTES,
 } from '../lib/applications';
 import { jobTypes } from '../data/careersData';
 import { PROJECT_TITLE_MAX_WORDS, countWords } from '../data/projectLimits';
@@ -722,6 +722,114 @@ function ProjectEditor({ project, onSaved, onClose }) {
   );
 }
 
+// Hold a row's handle and drag it up or down. The other rows slide aside to show where it will
+// land; on release the list takes the new order and onReorder(list) is called. Arrow keys on the
+// handle move a row one place. Works with mouse, touch and pen.
+function useDragSort(items, onReorder) {
+  const listRef = useRef(null);
+  const dragRef = useRef(null);
+  const [drag, setDrag] = useState(null); // { from, to, dy, shift }
+  const [settling, setSettling] = useState(false);
+
+  const move = (from, to) => {
+    if (to < 0 || to >= items.length || to === from) return;
+    const list = [...items];
+    const [moved] = list.splice(from, 1);
+    list.splice(to, 0, moved);
+    onReorder(list);
+  };
+
+  const onPointerDown = (e, index) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault();
+    const rects = [...listRef.current.children].map((row) => row.getBoundingClientRect());
+    const gap = rects.length > 1 ? rects[1].top - rects[0].bottom : 0;
+    // Positions are kept in page coordinates so the list can scroll while a row is held
+    const d = {
+      from: index,
+      to: index,
+      dy: 0,
+      clientY: e.clientY,
+      startPageY: e.clientY + window.scrollY,
+      pointerId: e.pointerId,
+      centers: rects.map((r) => r.top + window.scrollY + r.height / 2),
+      shift: rects[index].height + gap,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = d;
+    setDrag(d);
+    requestAnimationFrame(autoScroll);
+  };
+
+  const follow = (clientY) => {
+    const d = dragRef.current;
+    const dy = clientY + window.scrollY - d.startPageY;
+    const center = d.centers[d.from] + dy;
+    // New place = how many other rows are now above the dragged row's middle
+    const to = d.centers.filter((c, i) => i !== d.from && c < center).length;
+    dragRef.current = { ...d, dy, to, clientY };
+    setDrag(dragRef.current);
+  };
+
+  // Holding a row near the top or bottom of the screen scrolls the page, faster the closer it is
+  const autoScroll = () => {
+    const d = dragRef.current;
+    if (!d) return;
+    const edge = 90;
+    const speed =
+      d.clientY < edge ? -(edge - d.clientY) / 5
+      : d.clientY > window.innerHeight - edge ? (d.clientY - (window.innerHeight - edge)) / 5
+      : 0;
+    if (speed) {
+      window.scrollBy(0, speed);
+      follow(d.clientY);
+    }
+    requestAnimationFrame(autoScroll);
+  };
+
+  const onPointerMove = (e) => {
+    const d = dragRef.current;
+    if (!d || e.pointerId !== d.pointerId) return;
+    follow(e.clientY);
+  };
+
+  const onPointerUp = () => {
+    const d = dragRef.current;
+    if (!d) return;
+    dragRef.current = null;
+    // Drop without the rows animating back from their slid-aside spots
+    setSettling(true);
+    setDrag(null);
+    move(d.from, d.to);
+    requestAnimationFrame(() => requestAnimationFrame(() => setSettling(false)));
+  };
+
+  const onKeyDown = (e, index) => {
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      move(index, index + (e.key === 'ArrowUp' ? -1 : 1));
+    }
+  };
+
+  const rowStyle = (index) => {
+    if (!drag) return undefined;
+    if (index === drag.from) return { transform: `translateY(${drag.dy}px)` };
+    if (drag.from < drag.to && index > drag.from && index <= drag.to) return { transform: `translateY(${-drag.shift}px)` };
+    if (drag.from > drag.to && index < drag.from && index >= drag.to) return { transform: `translateY(${drag.shift}px)` };
+    return undefined;
+  };
+
+  const handleProps = (index) => ({
+    onPointerDown: (e) => onPointerDown(e, index),
+    onPointerMove,
+    onPointerUp,
+    onPointerCancel: onPointerUp,
+    onKeyDown: (e) => onKeyDown(e, index),
+  });
+
+  return { listRef, dragging: drag?.from ?? null, settling, rowStyle, handleProps };
+}
+
 function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
   const { items: projects, setItems: setProjects, loading, error, setError } =
     useAdminList(fetchAdminProjects, reloadKey, onSignedOut, onCount);
@@ -744,6 +852,24 @@ function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
     }
   };
 
+  // Save a new order straight away; the website shows projects in this order
+  const [orderStatus, setOrderStatus] = useState(''); // '' | 'saving' | 'saved'
+  const saveOrder = async (list) => {
+    const previous = projects;
+    setProjects(list);
+    setOrderStatus('saving');
+    try {
+      await reorderProjects(list.map((p) => p.id));
+      setOrderStatus('saved');
+    } catch (err) {
+      if (err.status === 401) return onSignedOut();
+      setProjects(previous);
+      setOrderStatus('');
+      setError('Could not save the new order. Please try again.');
+    }
+  };
+  const sort = useDragSort(projects, saveOrder);
+
   const remove = async (project) => {
     if (!window.confirm(`Delete "${project.title}"? It will be removed from the website.`)) return;
     try {
@@ -760,6 +886,15 @@ function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
         <p className="admin-jobs__note">
           {projects.filter((p) => p.active).length} shown on the website · {projects.filter((p) => !p.active).length} hidden ·{' '}
           {projects.filter((p) => p.active && p.featured).length} on the home page
+          <span className="admin-order-hint">
+            {orderStatus === 'saving' ? (
+              <><Loader2 size={14} className="admin-spin" aria-hidden="true" /> Saving order…</>
+            ) : orderStatus === 'saved' ? (
+              <><Check size={14} aria-hidden="true" /> Order saved — the website now shows this order</>
+            ) : (
+              <><GripVertical size={14} aria-hidden="true" /> Drag a project by its handle to change the order on the website</>
+            )}
+          </span>
         </p>
         <button type="button" className="admin-btn admin-btn--primary" onClick={() => setEditing({})}>
           <Plus size={16} aria-hidden="true" />
@@ -774,9 +909,21 @@ function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
       ) : !projects.length ? (
         <p className="admin-empty">No projects yet. Use “Post a project” to add one.</p>
       ) : (
-        <ul className="admin-list">
-          {projects.map((project) => (
-            <li key={project.id} className={`admin-app admin-job admin-project ${project.active ? '' : 'admin-job--hidden'}`}>
+        <ul className={`admin-list admin-list--sortable ${sort.settling ? 'admin-list--settling' : ''}`} ref={sort.listRef}>
+          {projects.map((project, index) => (
+            <li
+              key={project.id}
+              className={`admin-app admin-job admin-project ${project.active ? '' : 'admin-job--hidden'} ${sort.dragging === index ? 'admin-project--dragging' : ''}`}
+              style={sort.rowStyle(index)}
+            >
+              <button
+                type="button"
+                className="admin-drag-handle"
+                aria-label={`Move ${project.title} (position ${index + 1} of ${projects.length}); drag, or use the up and down arrow keys`}
+                {...sort.handleProps(index)}
+              >
+                <GripVertical size={18} aria-hidden="true" />
+              </button>
               <img src={project.image} alt="" className="admin-project__thumb" loading="lazy" />
               <div className="admin-app__main">
                 <div className="admin-app__top">

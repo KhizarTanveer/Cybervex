@@ -362,6 +362,14 @@ const optimizeOldProjectImages = async () => {
 
 const toObjectId = (id) => (ObjectId.isValid(id) ? new ObjectId(id) : null);
 
+// Projects appear in the order set by dragging them in the admin panel; projects never reordered
+// have no `order` and keep their oldest-first place at the top
+const PROJECT_ORDER = { order: 1, createdAt: 1 };
+const nextProjectOrder = async () => {
+  const last = await projects.find({ order: { $type: 'number' } }).sort({ order: -1 }).limit(1).next();
+  return (last?.order ?? -1) + 1;
+};
+
 /* -------------------------------- App ---------------------------------- */
 const app = express();
 // Only proxies listed in TRUST_PROXY may report the visitor's IP; otherwise anyone could fake it
@@ -398,7 +406,7 @@ const uploadImage = multer({
 
 // Public: projects shown on the home page and the Projects page
 app.get('/api/projects', async (req, res) => {
-  const docs = await projects.find({ active: true }).sort({ createdAt: 1 }).toArray();
+  const docs = await projects.find({ active: true }).sort(PROJECT_ORDER).toArray();
   res.set('Cache-Control', 'no-store');
   res.json(docs.map((doc) => projectToClient(doc)));
 });
@@ -639,9 +647,9 @@ app.delete('/api/admin/jobs/:slug', requireAdmin, async (req, res) => {
   res.json({ ok: true });
 });
 
-// Projects (admin): list all including hidden ones, create, edit, delete
+// Projects (admin): list all including hidden ones, create, edit, reorder, delete
 app.get('/api/admin/projects', requireAdmin, async (req, res) => {
-  const docs = await projects.find().sort({ createdAt: 1 }).toArray();
+  const docs = await projects.find().sort(PROJECT_ORDER).toArray();
   res.json(docs.map((doc) => projectToClient(doc, { admin: true })));
 });
 
@@ -650,9 +658,19 @@ app.post('/api/admin/projects', requireAdmin, uploadImage.single('image'), async
   const contentType = req.file && imageType(req.file.buffer);
   const problem = error || (!req.file ? 'Please add a project image.' : !contentType ? 'The image must be a JPG, PNG or WebP file.' : null);
   if (problem) return res.status(400).json({ error: problem });
-  const doc = { ...project, imageUrl: null, imageFileId: await saveProjectImage(req.file), createdAt: new Date() };
+  const doc = { ...project, imageUrl: null, imageFileId: await saveProjectImage(req.file), order: await nextProjectOrder(), createdAt: new Date() };
   await projects.insertOne(doc);
   res.status(201).json(projectToClient(doc, { admin: true }));
+});
+
+// New order from the admin panel's drag-and-drop list: every project id, top to bottom
+app.put('/api/admin/projects/order', requireAdmin, async (req, res) => {
+  const ids = Array.isArray(req.body?.ids) ? req.body.ids.map(String) : null;
+  if (!ids || !ids.length || ids.length > 1000 || new Set(ids).size !== ids.length || !ids.every((id) => ObjectId.isValid(id))) {
+    return res.status(400).json({ error: 'Invalid order.' });
+  }
+  await projects.bulkWrite(ids.map((id, order) => ({ updateOne: { filter: { _id: new ObjectId(id) }, update: { $set: { order } } } })));
+  res.json({ ok: true });
 });
 
 // The image is optional when editing; a new one replaces the old upload

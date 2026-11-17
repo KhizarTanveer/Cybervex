@@ -124,5 +124,8 @@ export const createProject = (project, imageFile) =>
 export const updateProject = (id, project, imageFile) =>
   request(`/api/admin/projects/${encodeURIComponent(id)}`, { method: 'PUT', body: projectForm(project, imageFile) });
 
+// ids: every project, top to bottom, as arranged in the admin panel
+export const reorderProjects = (ids) => request('/api/admin/projects/order', json('PUT', { ids }));
+
 export const deleteProject = (project) =>
   request(`/api/admin/projects/${encodeURIComponent(project.id)}`, { method: 'DELETE' });

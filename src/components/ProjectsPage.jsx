@@ -4,6 +4,7 @@ import useProjects from '../lib/useProjects';
 import { PROJECT_CATEGORIES, projectCategories } from '../data/projectCategories';
 import ProjectCard from './ProjectCard';
 import ProjectFilter from './ProjectFilter';
+import ProjectModal from './ProjectModal';
 
 const ALL = 'all';
 
@@ -15,6 +16,7 @@ const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: r
 export default function ProjectsPage() {
   const projects = useProjects();
   const [filter, setFilter] = useState(ALL);
+  const [openProject, setOpenProject] = useState(null);
 
   const list = projects || [];
   const options = [{ id: ALL, label: 'All' }, ...PROJECT_CATEGORIES];
@@ -52,12 +54,15 @@ export default function ProjectsPage() {
               key={project.id}
               project={project}
               style={{ viewTransitionName: transitionName(project.id), viewTransitionClass: 'project-card' }}
+              onOpen={setOpenProject}
             />
           ))}
         </div>
 
         {projects && !visible.length && <p className="projects-page__empty">No projects in this category yet.</p>}
       </div>
+
+      {openProject && <ProjectModal project={openProject} onClose={() => setOpenProject(null)} />}
     </section>
   );
 }

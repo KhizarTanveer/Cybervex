@@ -967,6 +967,16 @@
   transform: translateY(-3px);
 }
 
+/* Cards open the project details popup */
+.project-card--clickable {
+  cursor: pointer;
+}
+
+.project-card--clickable:focus-visible {
+  outline: 2px solid #C8A96A;
+  outline-offset: 3px;
+}
+
 .project-card__media {
   position: relative;
   aspect-ratio: 16 / 10;

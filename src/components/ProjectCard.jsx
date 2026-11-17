@@ -1,9 +1,25 @@
 import React from 'react';
 
-// Shared project card used by the home Projects section and the Projects page: image and title
-export default function ProjectCard({ project, style }) {
+// Shared project card used by the home Projects section and the Projects page: image and title.
+// Clicking it (or Enter / Space) calls onOpen to show the project's details popup.
+export default function ProjectCard({ project, style, onOpen }) {
+  const onKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onOpen(project);
+    }
+  };
+
   return (
-    <article className="project-card" style={style}>
+    <article
+      className="project-card project-card--clickable"
+      style={style}
+      role="button"
+      tabIndex={0}
+      aria-label={`${project.title}: view details`}
+      onClick={() => onOpen(project)}
+      onKeyDown={onKeyDown}
+    >
       <div className="project-card__media">
         <img
           src={project.image}

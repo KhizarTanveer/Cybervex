@@ -299,6 +299,7 @@ const readProjectForm = (body = {}, existing = null) => {
   const text = (key) => String(body[key] ?? '').trim();
   const project = {
     title: text('title'),
+    description: text('description'),
     active: text('active') !== 'false',
     featured: text('featured') === 'true',
     categories: cleanCategories(text('categories').split(',')),
@@ -307,6 +308,7 @@ const readProjectForm = (body = {}, existing = null) => {
   const error =
     project.title.length < 2 || project.title.length > 80 ? 'Project title must be 2–80 characters.'
     : tooManyWords('title', PROJECT_TITLE_MAX_WORDS) ? `Project title can have at most ${PROJECT_TITLE_MAX_WORDS} words.`
+    : project.description.length > 600 ? 'Description can be at most 600 characters.'
     : null;
   return error ? { error } : { project };
 };

@@ -580,12 +580,13 @@ function JobsPanel({ reloadKey, onSignedOut, onCount }) {
   );
 }
 
-const EMPTY_PROJECT = { title: '', active: true, featured: false, categories: [] };
+const EMPTY_PROJECT = { title: '', description: '', active: true, featured: false, categories: [] };
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Form values for a saved project
 const projectValues = (p) => ({
   title: p.title,
+  description: p.description ?? '',
   active: p.active,
   featured: p.featured,
   categories: p.categories ?? [],
@@ -686,6 +687,16 @@ function ProjectEditor({ project, onSaved, onClose }) {
               )}
               <input type="file" accept="image/jpeg,image/png,image/webp" onChange={pickImage} />
             </div>
+          </label>
+          <label className="admin-field admin-field--full">
+            <span>Description <em>optional · shown when someone opens the project · {values.description.length}/600</em></span>
+            <textarea
+              value={values.description}
+              onChange={set('description')}
+              maxLength={600}
+              rows={4}
+              placeholder="What you did for this client and the results"
+            />
           </label>
           <fieldset className="admin-field admin-field--full admin-categories">
             <legend>Categories <em>used by the filter on the Projects page</em></legend>

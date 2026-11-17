@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import useProjects from '../lib/useProjects';
 import ProjectCard from './ProjectCard';
+import ProjectModal from './ProjectModal';
 
 export default function Projects({ onNavigate }) {
   const projects = useProjects();
+  const [openProject, setOpenProject] = useState(null);
   // Only projects marked "Feature on the home page" in the admin panel appear here
   const featured = projects?.filter((project) => project.featured);
   const handleViewMore = (e) => {
@@ -37,12 +39,14 @@ export default function Projects({ onNavigate }) {
           >
             <div className="projects-grid">
               {(featured || []).map((project) => (
-                <ProjectCard key={project.id} project={project} />
+                <ProjectCard key={project.id} project={project} onOpen={setOpenProject} />
               ))}
             </div>
           </div>
         </div>
       </div>
+
+      {openProject && <ProjectModal project={openProject} onClose={() => setOpenProject(null)} />}
     </section>
   );
 }

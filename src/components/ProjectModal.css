@@ -1,0 +1,187 @@
+/* ==========================================================================
+   PROJECT DETAILS POPUP — opens from a project card
+   Only opacity and transform animate (GPU-composited), and the backdrop has no blur filter,
+   so it opens smoothly on phones too.
+   ========================================================================== */
+.project-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500; /* above the navbar, chat button and cookie banner */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.75rem, 3vw, 2rem);
+  background: rgba(3, 3, 3, 0.84);
+  animation: project-modal-fade 0.3s ease both;
+}
+
+.project-modal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(940px, 100%);
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100svh - 2rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #0b0b0b;
+  border: 1px solid rgba(200, 169, 106, 0.28);
+  border-radius: 20px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+  animation: project-modal-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+.project-modal-overlay.is-closing {
+  animation: project-modal-fade-out 0.26s ease both;
+}
+
+.project-modal-overlay.is-closing .project-modal {
+  animation: project-modal-out 0.26s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.project-modal__close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: #FFFFFF;
+  background: rgba(8, 8, 8, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.project-modal__close:hover {
+  color: #0B0B0B;
+  background: #C8A96A;
+  border-color: #C8A96A;
+  transform: rotate(90deg);
+}
+
+.project-modal__close:focus-visible {
+  outline: 2px solid #C8A96A;
+  outline-offset: 2px;
+}
+
+/* The whole image always shows, whatever its shape */
+.project-modal__media {
+  flex-shrink: 0;
+  aspect-ratio: 16 / 9;
+  max-height: 58vh;
+  max-height: 58svh;
+  background: #0d0d0d;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.project-modal__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.project-modal__body {
+  padding: clamp(1.25rem, 3vw, 2rem) clamp(1.25rem, 3.5vw, 2.25rem) clamp(1.5rem, 3.5vw, 2.25rem);
+}
+
+.project-modal__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.85rem;
+  list-style: none;
+}
+
+.project-modal__tag {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #E3C68A;
+  background: rgba(200, 169, 106, 0.1);
+  border: 1px solid rgba(200, 169, 106, 0.35);
+  border-radius: 999px;
+}
+
+.project-modal__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #FFFFFF;
+}
+
+.project-modal__description {
+  margin-top: 0.85rem;
+  font-size: clamp(0.92rem, 1.3vw, 1.02rem);
+  line-height: 1.75;
+  color: var(--text-secondary);
+  white-space: pre-line;
+}
+
+@keyframes project-modal-fade {
+  from { opacity: 0; }
+}
+
+@keyframes project-modal-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes project-modal-in {
+  from { opacity: 0; transform: translateY(28px) scale(0.96); }
+}
+
+@keyframes project-modal-out {
+  to { opacity: 0; transform: translateY(16px) scale(0.97); }
+}
+
+/* Phones: the popup rises from the bottom like a sheet */
+@media (max-width: 600px) {
+  .project-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .project-modal {
+    max-height: 92vh;
+    max-height: 92svh;
+    border-bottom: none;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation-name: project-modal-sheet-in;
+  }
+
+  .project-modal-overlay.is-closing .project-modal {
+    animation-name: project-modal-sheet-out;
+  }
+
+  .project-modal__close {
+    top: 0.65rem;
+    right: 0.65rem;
+    width: 36px;
+    height: 36px;
+  }
+
+  @keyframes project-modal-sheet-in {
+    from { transform: translateY(100%); }
+  }
+
+  @keyframes project-modal-sheet-out {
+    to { transform: translateY(100%); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-modal-overlay,
+  .project-modal,
+  .project-modal-overlay.is-closing,
+  .project-modal-overlay.is-closing .project-modal {
+    animation-duration: 0.01ms;
+  }
+}

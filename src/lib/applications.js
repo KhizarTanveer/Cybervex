@@ -110,9 +110,10 @@ export const fetchAdminProjects = () => request('/api/admin/projects');
 // Sent as a form so the image file can go with it; `imageFile` is optional when editing
 const projectForm = (project, imageFile) => {
   const form = new FormData();
-  ['title', 'description'].forEach((key) => form.append(key, project[key] ?? ''));
+  form.append('title', project.title ?? '');
   form.append('active', String(project.active));
   form.append('featured', String(Boolean(project.featured)));
+  form.append('categories', (project.categories ?? []).join(','));
   if (imageFile) form.append('image', imageFile, imageFile.name);
   return form;
 };

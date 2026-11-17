@@ -9,7 +9,8 @@ import {
   fetchAdminProjects, createProject, updateProject, deleteProject, MAX_IMAGE_BYTES,
 } from '../lib/applications';
 import { jobTypes } from '../data/careersData';
-import { PROJECT_DESCRIPTION_MAX_WORDS, PROJECT_TITLE_MAX_WORDS, countWords } from '../data/projectLimits';
+import { PROJECT_TITLE_MAX_WORDS, countWords } from '../data/projectLimits';
+import { PROJECT_CATEGORIES } from '../data/projectCategories';
 import './AdminPage.css';
 
 const STATUSES = ['new', 'reviewed', 'shortlisted', 'rejected'];
@@ -579,11 +580,16 @@ function JobsPanel({ reloadKey, onSignedOut, onCount }) {
   );
 }
 
-const EMPTY_PROJECT = { title: '', description: '', active: true, featured: false };
+const EMPTY_PROJECT = { title: '', active: true, featured: false, categories: [] };
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 // Form values for a saved project
-const projectValues = (p) => ({ title: p.title, description: p.description, active: p.active, featured: p.featured });
+const projectValues = (p) => ({
+  title: p.title,
+  active: p.active,
+  featured: p.featured,
+  categories: p.categories ?? [],
+});
 
 // Create / edit form shown over the Projects list
 function ProjectEditor({ project, onSaved, onClose }) {
@@ -611,6 +617,12 @@ function ProjectEditor({ project, onSaved, onClose }) {
     setValues((v) => ({ ...v, [key]: value }));
   };
 
+  const toggleCategory = (id) =>
+    setValues((v) => ({
+      ...v,
+      categories: v.categories.includes(id) ? v.categories.filter((c) => c !== id) : [...v.categories, id],
+    }));
+
   const pickImage = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -621,18 +633,14 @@ function ProjectEditor({ project, onSaved, onClose }) {
     setPreview(URL.createObjectURL(file));
   };
 
-  // Word limits apply to new or changed text (same rule as the server)
+  // The word limit applies to a new or changed title (same rule as the server)
   const titleWords = countWords(values.title);
-  const descriptionWords = countWords(values.description);
   const titleTooLong = titleWords > PROJECT_TITLE_MAX_WORDS && values.title.trim() !== (project?.title ?? '');
-  const descriptionTooLong =
-    descriptionWords > PROJECT_DESCRIPTION_MAX_WORDS && values.description.trim() !== (project?.description ?? '');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!project && !imageFile) return setError('Please add a project image.');
     if (titleTooLong) return setError(`Shorten the title to ${PROJECT_TITLE_MAX_WORDS} words or fewer.`);
-    if (descriptionTooLong) return setError(`Shorten the description to ${PROJECT_DESCRIPTION_MAX_WORDS} words or fewer.`);
     setSaving(true);
     setError('');
     try {
@@ -679,15 +687,17 @@ function ProjectEditor({ project, onSaved, onClose }) {
               <input type="file" accept="image/jpeg,image/png,image/webp" onChange={pickImage} />
             </div>
           </label>
-          <label className="admin-field admin-field--full">
-            <span>
-              Description
-              <em className={descriptionWords > PROJECT_DESCRIPTION_MAX_WORDS ? 'admin-field__over' : ''}>
-                {descriptionWords}/{PROJECT_DESCRIPTION_MAX_WORDS} words
-              </em>
-            </span>
-            <textarea value={values.description} onChange={set('description')} maxLength={400} rows={3} placeholder="A short line about the project" required />
-          </label>
+          <fieldset className="admin-field admin-field--full admin-categories">
+            <legend>Categories <em>used by the filter on the Projects page</em></legend>
+            <div className="admin-categories__list">
+              {PROJECT_CATEGORIES.map((c) => (
+                <label key={c.id} className="admin-check">
+                  <input type="checkbox" checked={values.categories.includes(c.id)} onChange={() => toggleCategory(c.id)} />
+                  <span>{c.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
           <label className="admin-check admin-field--full">
             <input type="checkbox" checked={values.active} onChange={set('active')} />
             <span>Show this project on the website</span>
@@ -775,13 +785,13 @@ function ProjectsPanel({ reloadKey, onSignedOut, onCount }) {
                     {project.active ? 'On website' : 'Hidden'}
                   </span>
                   {project.featured && <span className="admin-job__badge admin-job__badge--featured">Featured on home</span>}
+                  {PROJECT_CATEGORIES.filter((c) => project.categories?.includes(c.id)).map((c) => (
+                    <span key={c.id} className="admin-job__badge">{c.label}</span>
+                  ))}
                 </div>
-                <p className="admin-job__summary">{project.description}</p>
-                {(countWords(project.title) > PROJECT_TITLE_MAX_WORDS ||
-                  countWords(project.description) > PROJECT_DESCRIPTION_MAX_WORDS) && (
+                {countWords(project.title) > PROJECT_TITLE_MAX_WORDS && (
                   <p className="admin-project__over">
-                    Longer than the limit ({PROJECT_TITLE_MAX_WORDS}-word title, {PROJECT_DESCRIPTION_MAX_WORDS}-word description)
-                    — edit to shorten it so it lines up with the other cards.
+                    Title is longer than {PROJECT_TITLE_MAX_WORDS} words — edit to shorten it so it lines up with the other cards.
                   </p>
                 )}
               </div>

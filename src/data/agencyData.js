@@ -147,10 +147,11 @@ export const whatsAppContact = {
   defaultMessage: "Hi Cybervex Digital! I'd like to know more about your services.",
 };
 
-// All WhatsApp numbers listed on the Contact page (the first is also used by the chat bot)
+// All WhatsApp numbers listed on the Contact page (the first is also used by the chat bot).
+// `label` replaces the default "Chat on WhatsApp" line above the number.
 export const whatsAppNumbers = [
   whatsAppContact,
-  { display: '+92 300 5559759', number: '923005559759' }, // 0300-5559759
+  { display: '+1-832-220-8292', number: '18322208292', label: 'Our US number' },
 ];
 
 export const whatsAppLink = (message = whatsAppContact.defaultMessage, number = whatsAppContact.number) =>

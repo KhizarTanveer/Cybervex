@@ -145,7 +145,7 @@ export default function ContactPage() {
                 <ArrowUpRight size={18} className="contact-direct__arrow" aria-hidden="true" />
               </a>
 
-              {whatsAppNumbers.map(({ display, number }) => (
+              {whatsAppNumbers.map(({ display, number, label }) => (
                 <a
                   key={number}
                   href={whatsAppLink(undefined, number)}
@@ -158,7 +158,7 @@ export default function ContactPage() {
                     <WhatsAppIcon size={20} />
                   </span>
                   <span className="contact-email-card__body">
-                    <span className="contact-email-card__label">Chat on WhatsApp</span>
+                    <span className="contact-email-card__label">{label ? `WhatsApp · ${label}` : 'Chat on WhatsApp'}</span>
                     <span className="contact-email-card__link">{display}</span>
                   </span>
                   <ArrowUpRight size={18} className="contact-direct__arrow" aria-hidden="true" />

@@ -37,11 +37,10 @@ const seoTags = (route) => {
   ].join('\n    ')
 }
 
-// The home page's hero artwork is its largest element; fetching it straight away (instead of after
-// the JavaScript has run) makes the page appear sooner. Only the home page gets this.
+// The home page's hero artwork (the hero video's poster) is its largest element; fetching it straight
+// away (instead of after the JavaScript has run) makes the page appear sooner. Only the home page gets this.
 const heroPreload =
-  '<link rel="preload" as="image" href="/images/cybervex-hero.webp" ' +
-  'imagesrcset="/images/cybervex-hero.webp 1672w, /images/cybervex-hero@2x.webp 2752w" imagesizes="100vw" fetchpriority="high" />'
+  '<link rel="preload" as="image" href="/images/cybervex-hero.webp" fetchpriority="high" />'
 
 const pageHead = (route) => (route === '/' ? `${seoTags(route)}\n    ${heroPreload}` : seoTags(route))
 

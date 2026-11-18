@@ -1640,16 +1640,21 @@
     overflow: hidden;
   }
 
-  /* Phones / small tablets: the artwork fills 45% of the screen height (never less than its own
-     16:9 height). It's cropped from the sides, centred, so the CYBERVEX Digital lettering stays whole. */
+  /* Phones / small tablets: the hero video fills up to 45% of the screen height (never less than its
+     own 16:9 height). It's cropped from the sides, centred, and never taller than 82% of the width,
+     so the side crop never cuts into the CYBERVEX Digital lettering. */
   .hero-art {
     width: 100cqw;
     aspect-ratio: auto;
-    height: max(45vh, 100cqw * 9 / 16);
-    height: max(45svh, 100cqw * 9 / 16);
+    height: max(100cqw * 9 / 16, min(45vh, 100cqw * 0.82));
+    height: max(100cqw * 9 / 16, min(45svh, 100cqw * 0.82));
     margin: 0;
     -webkit-mask-image: none;
     mask-image: none;
+  }
+
+  .hero-art .hero-fullscreen-img {
+    transform: none;
   }
 
   .hero-fullscreen-bottom-fade {

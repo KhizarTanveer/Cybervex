@@ -731,7 +731,7 @@ if (fs.existsSync(distDir)) {
   const cacheFor = (file) =>
     file.includes(`${path.sep}assets${path.sep}`) ? 'public, max-age=31536000, immutable'
     : /\.(woff2?|ttf|otf)$/.test(file) ? 'public, max-age=2592000'
-    : /\.(jpe?g|png|webp|avif|gif|svg|ico)$/.test(file) ? 'public, max-age=604800'
+    : /\.(jpe?g|png|webp|avif|gif|svg|ico|mp4|webm)$/.test(file) ? 'public, max-age=604800'
     : 'no-cache';
 
   // redirect: false — /about must not bounce to /about/ (the build writes dist/about/index.html)

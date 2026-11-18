@@ -279,6 +279,19 @@
   border-color: rgba(37, 211, 102, 0.7);
 }
 
+/* Book a meeting (Calendly): filled gold so it stands out as the main next step */
+.chatbot__chip--meeting {
+  color: #E3C68A;
+  background: rgba(200, 169, 106, 0.14);
+  border-color: rgba(200, 169, 106, 0.7);
+}
+
+.chatbot__chip--meeting:hover {
+  color: #0B0B0B;
+  background: #C8A96A;
+  border-color: #C8A96A;
+}
+
 /* Typing indicator */
 .chatbot__typing {
   display: inline-flex;

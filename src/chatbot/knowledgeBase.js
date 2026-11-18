@@ -9,7 +9,7 @@ import {
   aboutVisionContent,
   aboutValuesList,
 } from '../data/aboutData';
-import { closingContent, whatsAppContact } from '../data/agencyData';
+import { closingContent, meetingLink, whatsAppContact } from '../data/agencyData';
 
 /* --------------------------------------------------------------------------
    Text helpers
@@ -144,6 +144,12 @@ const rankServices = (terms) =>
    Intents
    -------------------------------------------------------------------------- */
 const INTENTS = {
+  // Wanting a call or meeting with the team (checked before contact, pricing and services)
+  meeting: [
+    /\b(meeting|meetings|appointment|consultation|calendly|zoom|google meet|video call|discovery call|mulaqat|milna)\b/,
+    /\b(book|schedule|arrange|set up|setup) (a |an )?(free )?(call|meeting|appointment|consultation|slot|session)\b/,
+    /\bmeet (you|your team|the team|someone)\b/,
+  ],
   greeting: [/^\s*(hi+|hello+|hey+|salam|assalam[ou]* ?alaikum|aoa|good (morning|afternoon|evening))\b/],
   thanks: [/\b(thanks?|thank you|thx|shukriya|jazakallah)\b/],
   bye: [/\b(bye|goodbye|see you|allah hafiz|khuda hafiz)\b/],
@@ -168,9 +174,10 @@ const matchIntent = (text, name) => hasAny(text, INTENTS[name]);
 
 /* --------------------------------------------------------------------------
    Reply builders — every reply is { text, bullets?, actions? }
-   actions: { type: 'ask' | 'whatsapp' | 'navigate' | 'email', label, value }
+   actions: { type: 'ask' | 'whatsapp' | 'meeting' | 'navigate' | 'email', label, value }
    -------------------------------------------------------------------------- */
 const whatsAppAction = (label = 'Chat on WhatsApp', message) => ({ type: 'whatsapp', label, value: message });
+const meetingAction = (label = 'Schedule a meeting') => ({ type: 'meeting', label, value: meetingLink });
 
 const relatedAsks = (services) =>
   services.map((s) => ({ type: 'ask', label: s.title, value: `Tell me about ${s.title}` }));
@@ -185,6 +192,7 @@ const serviceReply = (service, terms, related) => {
     bullets,
     actions: [
       whatsAppAction('Discuss this on WhatsApp',`Hi Cybervex Digital! I'm interested in your ${service.title} service.`),
+      meetingAction(),
       ...relatedAsks(related),
     ],
   };
@@ -202,9 +210,15 @@ const listReply = () => ({
 
 const contactReply = () => ({
   text: "You can reach the Cybervex Digital team directly — we're happy to discuss your project:",
-  bullets: [`WhatsApp: ${whatsAppContact.display}`, `Email: ${closingContent.contactEmail}`, 'Or send us a message from the Contact page'],
+  bullets: [
+    `WhatsApp: ${whatsAppContact.display}`,
+    `Email: ${closingContent.contactEmail}`,
+    'Book a free 30-minute meeting with our team',
+    'Or send us a message from the Contact page',
+  ],
   actions: [
     whatsAppAction(),
+    meetingAction(),
     { type: 'email', label: 'Email us', value: closingContent.contactEmail },
     { type: 'navigate', label: 'Open Contact page', value: '/contact' },
   ],
@@ -216,8 +230,16 @@ const pricingReply = (service) => ({
     'You can choose individual services, project-based work, monthly packages or a dedicated team. Share your requirements and we\'ll send you a custom quote.',
   actions: [
     whatsAppAction('Get a quote on WhatsApp', `Hi Cybervex Digital! I'd like a quote${service ? ` for ${service.title}` : ''}.`),
+    meetingAction('Discuss it in a meeting'),
     { type: 'navigate', label: 'Contact form', value: '/contact' },
   ],
+});
+
+const meetingReply = () => ({
+  text:
+    "Happy to meet! Pick a time that suits you for a **free 30-minute meeting** with the Cybervex Digital team — " +
+    "we'll talk through your goals and how we can help. The booking page opens in a new tab.",
+  actions: [meetingAction('Schedule a meeting'), whatsAppAction('Prefer WhatsApp?')],
 });
 
 const aboutReply = () => ({
@@ -241,7 +263,10 @@ const timelineReply = (service) => ({
   text:
     `Timelines depend on the scope of ${service ? `your **${service.title}** project` : 'the project'} — we agree on deliverables and a schedule with you before work starts. ` +
     'Message us your requirements and we\'ll share a realistic timeline.',
-  actions: [whatsAppAction('Ask about timelines', `Hi Cybervex Digital! How long would ${service ? service.title : 'my project'} take?`)],
+  actions: [
+    whatsAppAction('Ask about timelines', `Hi Cybervex Digital! How long would ${service ? service.title : 'my project'} take?`),
+    meetingAction(),
+  ],
 });
 
 const internationalReply = () => ({
@@ -256,6 +281,7 @@ const fallbackReply = () => ({
   actions: [
     { type: 'ask', label: 'What services do you offer?', value: 'What services do you offer?' },
     whatsAppAction('Ask our team on WhatsApp'),
+    meetingAction(),
   ],
 });
 
@@ -266,6 +292,7 @@ export const welcomeMessage = {
     { type: 'ask', label: 'Website development', value: 'Do you build websites?' },
     { type: 'ask', label: 'Pricing', value: 'How much do your services cost?' },
     { type: 'ask', label: 'Contact', value: 'How can I contact you?' },
+    meetingAction(),
   ],
 };
 
@@ -285,6 +312,7 @@ export function answerQuestion(question) {
     .filter((r) => strongMatch && r.score >= top.score * 0.55)
     .map((r) => r.service);
 
+  if (matchIntent(text, 'meeting')) return meetingReply();
   if (matchIntent(text, 'pricing')) return pricingReply(strongMatch);
   if (matchIntent(text, 'timeline')) return timelineReply(strongMatch);
   if (matchIntent(text, 'contact')) return contactReply();

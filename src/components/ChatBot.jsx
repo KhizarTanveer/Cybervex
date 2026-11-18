@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { MessageCircle, X, Send, Sparkles, ArrowUpRight } from 'lucide-react';
+import { MessageCircle, X, Send, Sparkles, ArrowUpRight, CalendarDays } from 'lucide-react';
 import { answerQuestion, welcomeMessage } from '../chatbot/knowledgeBase';
 import { whatsAppContact, whatsAppLink } from '../data/agencyData';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -88,6 +88,10 @@ export default function ChatBot({ onNavigate }) {
       case 'whatsapp':
         openWhatsApp(action.value);
         break;
+      case 'meeting':
+        // Booking page (Calendly) in a new tab, so the chat and the site stay open
+        window.open(action.value, '_blank', 'noopener,noreferrer');
+        break;
       case 'email':
         window.location.assign(`mailto:${action.value}`);
         break;
@@ -164,10 +168,11 @@ export default function ChatBot({ onNavigate }) {
                       <button
                         key={`${action.type}-${action.label}`}
                         type="button"
-                        className={`chatbot__chip ${action.type === 'whatsapp' ? 'chatbot__chip--whatsapp' : ''}`}
+                        className={`chatbot__chip ${action.type === 'whatsapp' || action.type === 'meeting' ? `chatbot__chip--${action.type}` : ''}`}
                         onClick={() => handleAction(action)}
                       >
                         {action.type === 'whatsapp' && <WhatsAppIcon size={14} />}
+                        {action.type === 'meeting' && <CalendarDays size={14} aria-hidden="true" />}
                         {action.label}
                       </button>
                     ))}

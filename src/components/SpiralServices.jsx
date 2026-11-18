@@ -4,6 +4,7 @@ import {
   servicesCompanyIntro,
   servicesStats,
 } from '../data/spiralServicesData';
+import { meetingLink } from '../data/agencyData';
 import SpiralServiceCard from './SpiralServiceCard';
 import StatsBar from './StatsBar';
 import LiquidFx from './LiquidFx';
@@ -519,8 +520,13 @@ export default function SpiralServices() {
             >
               Explore Our Projects
             </a>
-            <a href="#contact" className="spiral-intro__btn spiral-intro__btn--outline">
-              Let's Talk Business
+            <a
+              href={meetingLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="spiral-intro__btn spiral-intro__btn--outline"
+            >
+              Schedule Meeting
             </a>
           </div>
         </div>

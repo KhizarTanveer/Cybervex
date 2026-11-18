@@ -154,6 +154,9 @@ export const whatsAppNumbers = [
   { display: '+1-832-220-8292', number: '18322208292', label: 'Our US number' },
 ];
 
+// Booking page for a free 30-minute meeting (home intro button and the chat bot)
+export const meetingLink = 'https://calendly.com/cybervexdigital/30min';
+
 export const whatsAppLink = (message = whatsAppContact.defaultMessage, number = whatsAppContact.number) =>
   `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 

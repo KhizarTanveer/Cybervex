@@ -151,7 +151,6 @@ export const whatsAppContact = {
 // `label` replaces the default "Chat on WhatsApp" line above the number.
 export const whatsAppNumbers = [
   whatsAppContact,
-  { display: '+1-832-220-8292', number: '18322208292', label: 'Our US number' },
 ];
 
 // Booking page for a free 30-minute meeting (home intro button and the chat bot)
